@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>全屋瓷砖用量与采购清单计算器</title>
-  <meta name="description" content="多空间瓷砖用量、箱数、成本、辅材与踢脚线总汇计算器。" />
+  <title>Whole House Tile Calculator</title>
+  <meta name="description" content="A whole-house tile quantity, cost, material, and skirting estimation calculator." />
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -26,8 +26,8 @@
     body {
       min-height: 100vh;
       background:
-        radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 32rem),
-        radial-gradient(circle at bottom right, rgba(245, 158, 11, 0.12), transparent 32rem),
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 30rem),
+        radial-gradient(circle at bottom right, rgba(245, 158, 11, 0.15), transparent 30rem),
         #f8fafc;
       color: #0f172a;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -37,84 +37,106 @@
     input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 
+    .app-shell { padding-bottom: 5.25rem; }
+
     .card {
       border: 1px solid #e2e8f0;
-      background: rgba(255, 255, 255, 0.94);
-      border-radius: 1.5rem;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 1.35rem;
       box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
     }
+
     .panel {
       border: 1px solid #e2e8f0;
       background: #ffffff;
       border-radius: 1rem;
     }
+
     .input {
       width: 100%;
       border-radius: 0.85rem;
       border: 1px solid #cbd5e1;
       background: #ffffff;
-      padding: 0.7rem 0.85rem;
+      padding: 0.72rem 0.85rem;
       font-size: 0.95rem;
       color: #0f172a;
       outline: none;
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
+
     .input:focus {
       border-color: #2563eb;
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
     }
+
     .input[disabled] {
       background: #f1f5f9;
       color: #64748b;
       cursor: not-allowed;
     }
+
     .label {
       display: block;
       margin-bottom: 0.35rem;
-      font-size: 0.78rem;
-      font-weight: 800;
+      font-size: 0.76rem;
+      font-weight: 900;
       color: #475569;
     }
+
     .btn-main {
       border-radius: 0.95rem;
       background: #0f172a;
       color: white;
       padding: 0.78rem 1.1rem;
-      font-size: 0.92rem;
+      font-size: 0.9rem;
       font-weight: 900;
       transition: transform 0.12s ease, background 0.12s ease;
     }
     .btn-main:hover { background: #1e293b; }
     .btn-main:active { transform: scale(0.98); }
+
     .btn-blue {
       border-radius: 0.95rem;
       background: #2563eb;
       color: white;
-      padding: 0.7rem 1rem;
+      padding: 0.72rem 1rem;
       font-size: 0.9rem;
       font-weight: 900;
     }
     .btn-blue:hover { background: #1d4ed8; }
+
+    .btn-green {
+      border-radius: 1rem;
+      background: #059669;
+      color: white;
+      padding: 0.85rem 1.2rem;
+      font-size: 0.95rem;
+      font-weight: 950;
+    }
+    .btn-green:hover { background: #047857; }
+
     .btn-red {
       border-radius: 0.85rem;
       border: 1px solid #fecaca;
       background: #fff1f2;
       color: #be123c;
       padding: 0.55rem 0.8rem;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 900;
     }
     .btn-red:hover { background: #ffe4e6; }
+
     .btn-light {
       border-radius: 0.85rem;
       border: 1px solid #cbd5e1;
       background: white;
       color: #334155;
       padding: 0.55rem 0.8rem;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 900;
     }
     .btn-light:hover { background: #f8fafc; border-color: #94a3b8; }
+
     .btn-chip {
       border-radius: 999px;
       border: 1px solid #cbd5e1;
@@ -125,20 +147,7 @@
       font-weight: 900;
     }
     .btn-chip:hover { background: #0f172a; color: white; border-color: #0f172a; }
-    .tab {
-      flex: 1;
-      border-radius: 0.85rem;
-      padding: 0.62rem 0.8rem;
-      font-size: 0.86rem;
-      font-weight: 900;
-      color: #64748b;
-      background: transparent;
-    }
-    .tab.active {
-      background: #0f172a;
-      color: white;
-      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.15);
-    }
+
     .metric {
       border-radius: 1rem;
       border: 1px solid #e2e8f0;
@@ -147,16 +156,12 @@
     }
     .metric-value {
       margin-top: 0.25rem;
-      font-size: 1.35rem;
+      font-size: 1.28rem;
       line-height: 1.1;
       font-weight: 950;
       color: #0f172a;
     }
-    .accent-line {
-      height: 0.28rem;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #2563eb, #f59e0b);
-    }
+
     .notice {
       border-radius: 1rem;
       border: 1px solid #fde68a;
@@ -166,269 +171,314 @@
       font-size: 0.9rem;
       line-height: 1.55;
     }
-    .bar-bg {
-      height: 0.75rem;
-      border-radius: 999px;
-      background: #e2e8f0;
-      overflow: hidden;
-    }
-    .bar-fill {
-      height: 100%;
-      min-width: 0.35rem;
+
+    .accent-line {
+      height: 0.25rem;
       border-radius: 999px;
       background: linear-gradient(90deg, #2563eb, #f59e0b);
     }
+
+    .app-tab {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      border-radius: 0.95rem;
+      padding: 0.72rem 0.65rem;
+      font-size: 0.82rem;
+      font-weight: 950;
+      color: #64748b;
+      background: transparent;
+      transition: color 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+      white-space: nowrap;
+    }
+    .app-tab.active {
+      background: #0f172a;
+      color: #ffffff;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.2);
+    }
+
+    .bottom-tab {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.18rem;
+      border-radius: 1rem;
+      padding: 0.55rem 0.35rem;
+      font-size: 0.68rem;
+      font-weight: 950;
+      color: #64748b;
+    }
+    .bottom-tab.active {
+      background: #0f172a;
+      color: #ffffff;
+    }
+
     .table-wrap { overflow-x: auto; }
     .table-wrap table { min-width: 780px; }
+
     .toast {
       position: fixed;
       left: 50%;
-      bottom: 1.25rem;
+      bottom: 5.35rem;
       transform: translateX(-50%);
-      z-index: 50;
+      z-index: 80;
       display: none;
       border-radius: 999px;
       background: #0f172a;
       color: white;
       padding: 0.72rem 1.1rem;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       font-weight: 900;
       box-shadow: 0 16px 40px rgba(15, 23, 42, 0.3);
+      max-width: calc(100vw - 2rem);
+      text-align: center;
     }
     .toast.show { display: block; }
+
+    @media (min-width: 768px) {
+      .app-shell { padding-bottom: 2rem; }
+      .toast { bottom: 1.25rem; }
+    }
   </style>
 </head>
 
 <body>
-  <div id="toast" class="toast">已复制到剪贴板</div>
+  <div id="toast" class="toast">Copied to clipboard.</div>
 
-  <main class="mx-auto max-w-7xl px-4 py-6 md:px-6 lg:px-8">
-    <header class="mb-6 card overflow-hidden">
-      <div class="accent-line"></div>
-      <div class="p-6 md:p-8">
-        <div class="grid gap-5 lg:grid-cols-[1.35fr_0.65fr] lg:items-end">
-          <div>
-            <p class="mb-2 inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-black text-blue-700 ring-1 ring-blue-100">
-              全屋工程模式
-            </p>
-            <h1 class="text-2xl font-black tracking-tight text-slate-950 md:text-4xl">
-              多空间瓷砖用量与采购清单计算器
-            </h1>
-            <p class="mt-3 max-w-3xl text-sm leading-6 text-slate-600 md:text-base">
-              先建立瓷砖方案，再为客厅、卧室、厨房等不同空间分配瓷砖，系统会自动汇总全屋片数、箱数、成本、辅材和踢脚线长度。
-            </p>
+  <div class="app-shell mx-auto max-w-7xl px-4 py-4 md:px-6 lg:px-8">
+    <header class="sticky top-0 z-40 mb-4 rounded-3xl border border-slate-200 bg-white/95 p-3 shadow-soft backdrop-blur">
+      <div class="flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <p class="text-xs font-black text-blue-700">Whole House Tile Calculator</p>
+          <h1 class="truncate text-lg font-black text-slate-950 md:text-2xl">Tile Project Dashboard</h1>
+        </div>
+        <div class="grid shrink-0 grid-cols-2 gap-2">
+          <div class="rounded-2xl bg-slate-950 px-3 py-2 text-white md:px-4">
+            <p class="text-[0.65rem] font-black text-slate-400">Total Area</p>
+            <p class="text-sm font-black md:text-lg"><span id="head-total-area">0.00</span> ㎡</p>
           </div>
-
-          <div class="grid grid-cols-2 gap-3">
-            <div class="rounded-2xl bg-slate-950 p-4 text-white">
-              <p class="text-xs font-black text-slate-400">全屋面积</p>
-              <p class="mt-1 text-2xl font-black"><span id="head-total-area">0.00</span><span class="text-sm text-slate-300"> ㎡</span></p>
-            </div>
-            <div class="rounded-2xl bg-blue-600 p-4 text-white">
-              <p class="text-xs font-black text-blue-100">全屋造价</p>
-              <p class="mt-1 text-2xl font-black"><span id="head-total-cost">RM 0.00</span></p>
-            </div>
+          <div class="rounded-2xl bg-blue-600 px-3 py-2 text-white md:px-4">
+            <p class="text-[0.65rem] font-black text-blue-100">Total Cost</p>
+            <p class="text-sm font-black md:text-lg"><span id="head-total-cost">RM 0.00</span></p>
           </div>
         </div>
       </div>
+
+      <nav class="mt-3 hidden grid-cols-3 gap-2 rounded-2xl bg-slate-100 p-1 md:grid" aria-label="Main navigation">
+        <button class="app-tab active" type="button" data-tab-button="settings">⚙️ Settings & Tiles</button>
+        <button class="app-tab" type="button" data-tab-button="rooms">🏠 Rooms</button>
+        <button class="app-tab" type="button" data-tab-button="report">📋 Report</button>
+      </nav>
     </header>
 
-    <section class="mb-6 grid gap-5 lg:grid-cols-4">
-      <div class="metric">
-        <p class="text-xs font-black text-slate-500">空间数量</p>
-        <p class="metric-value"><span id="dash-space-count">0</span> 个</p>
-      </div>
-      <div class="metric">
-        <p class="text-xs font-black text-slate-500">瓷砖方案</p>
-        <p class="metric-value"><span id="dash-scheme-count">0</span> 个</p>
-      </div>
-      <div class="metric">
-        <p class="text-xs font-black text-slate-500">水泥预估</p>
-        <p class="metric-value"><span id="dash-cement">0</span> 包</p>
-      </div>
-      <div class="metric">
-        <p class="text-xs font-black text-slate-500">踢脚线</p>
-        <p class="metric-value"><span id="dash-skirting">0.00</span> 米</p>
-      </div>
-    </section>
-
-    <section class="mb-6 card p-5 md:p-6">
-      <div class="mb-5 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-        <div>
-          <h2 class="text-xl font-black text-slate-950">一、全局施工参数</h2>
-          <p class="mt-1 text-sm leading-6 text-slate-600">
-            留缝与损耗率会影响所有空间的瓷砖用量。辅材估算会按照所有空间总面积计算。
-          </p>
-        </div>
-        <div class="rounded-2xl bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800 ring-1 ring-amber-100">
-          辅材参考：每 1 ㎡ 约 0.35 包水泥、0.05 立方米沙子
-        </div>
-      </div>
-
-      <div class="grid gap-4 md:grid-cols-4">
-        <div>
-          <label class="label" for="global-grout">留缝大小</label>
-          <div class="relative">
-            <input id="global-grout" class="input pr-12" type="number" min="0" step="0.1" value="2" />
-            <span class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm font-black text-slate-400">mm</span>
-          </div>
-        </div>
-
-        <div>
-          <label class="label" for="global-waste">损耗率</label>
-          <div class="relative">
-            <input id="global-waste" class="input pr-12" type="number" min="0" step="0.1" value="10" />
-            <span class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm font-black text-slate-400">%</span>
-          </div>
-        </div>
-
-        <div>
-          <label class="label">铺贴方式</label>
-          <div class="grid grid-cols-2 gap-2">
-            <button class="btn-light" type="button" data-waste-preset="10">常规正铺 10%</button>
-            <button class="btn-light" type="button" data-waste-preset="15">菱形斜铺 15%</button>
-          </div>
-        </div>
-
-        <div>
-          <label class="label" for="global-door-width">每个空间默认门宽扣除</label>
-          <div class="relative">
-            <input id="global-door-width" class="input pr-12" type="number" min="0" step="0.1" value="0.9" />
-            <span class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm font-black text-slate-400">m</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="mb-6 card p-5 md:p-6">
-      <div class="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h2 class="text-xl font-black text-slate-950">二、瓷砖方案库</h2>
-          <p class="mt-1 text-sm leading-6 text-slate-600">
-            这里先建立所有可能使用的瓷砖规格。每个空间会从这里选择要铺贴的瓷砖。
-          </p>
-        </div>
-        <button id="add-scheme-btn" class="btn-main" type="button">＋ 添加瓷砖方案</button>
-      </div>
-
-      <div class="mb-5 flex flex-wrap gap-2" id="quick-size-bar"></div>
-      <div id="scheme-grid" class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"></div>
-      <div id="empty-scheme" class="hidden rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm font-bold text-slate-500">
-        暂无瓷砖方案，请先添加至少一个方案。
-      </div>
-    </section>
-
-    <section class="mb-6 card p-5 md:p-6">
-      <div class="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h2 class="text-xl font-black text-slate-950">三、空间列表</h2>
-          <p class="mt-1 text-sm leading-6 text-slate-600">
-            每个空间可以独立输入长宽或直接面积，并指定该空间使用哪一种瓷砖方案。
-          </p>
-        </div>
-        <button id="add-space-btn" class="btn-blue" type="button">＋ 添加空间</button>
-      </div>
-
-      <div id="space-grid" class="grid gap-4 xl:grid-cols-2"></div>
-      <div id="empty-space" class="hidden rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm font-bold text-slate-500">
-        暂无空间，请添加客厅、卧室、厨房等空间。
-      </div>
-    </section>
-
-    <section class="mb-8 card overflow-hidden">
-      <div class="accent-line"></div>
-      <div class="p-5 md:p-6">
-        <div class="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 class="text-xl font-black text-slate-950">四、全局采购清单大汇总</h2>
-            <p class="mt-1 text-sm leading-6 text-slate-600">
-              系统会把所有空间按瓷砖规格合并，生成全屋总账本。
-            </p>
-          </div>
-          <button id="copy-summary-btn" class="rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-black text-white hover:bg-emerald-700" type="button">
-            一键复制总清单
-          </button>
-        </div>
-
-        <div class="grid gap-4 md:grid-cols-4">
-          <div class="metric">
-            <p class="text-xs font-black text-slate-500">全屋总面积</p>
-            <p class="metric-value"><span id="summary-total-area">0.00</span> ㎡</p>
-          </div>
-          <div class="metric">
-            <p class="text-xs font-black text-slate-500">全屋总片数</p>
-            <p class="metric-value"><span id="summary-total-pieces">0</span> 片</p>
-          </div>
-          <div class="metric">
-            <p class="text-xs font-black text-slate-500">全屋总箱数</p>
-            <p class="metric-value"><span id="summary-total-boxes">0</span> 箱</p>
-          </div>
-          <div class="metric">
-            <p class="text-xs font-black text-slate-500">全屋总造价</p>
-            <p class="metric-value"><span id="summary-total-cost">RM 0.00</span></p>
-          </div>
-        </div>
-
-        <div class="mt-5 grid gap-5 lg:grid-cols-[1.25fr_0.75fr]">
-          <div class="panel p-4">
-            <div class="mb-3 flex items-center justify-between gap-3">
-              <h3 class="font-black text-slate-950">按瓷砖规格分类汇总</h3>
-              <span id="summary-group-count" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-600">0 类规格</span>
-            </div>
-            <div class="table-wrap">
-              <table class="w-full border-collapse text-left text-sm">
-                <thead>
-                  <tr class="border-b border-slate-200 bg-slate-50 text-xs text-slate-500">
-                    <th class="px-3 py-3 font-black">瓷砖规格</th>
-                    <th class="px-3 py-3 font-black">使用空间</th>
-                    <th class="px-3 py-3 font-black text-right">面积</th>
-                    <th class="px-3 py-3 font-black text-right">片数</th>
-                    <th class="px-3 py-3 font-black text-right">箱数</th>
-                    <th class="px-3 py-3 font-black text-right">金额</th>
-                  </tr>
-                </thead>
-                <tbody id="summary-table-body"></tbody>
-              </table>
-            </div>
-            <div id="empty-summary-table" class="hidden rounded-2xl bg-slate-50 p-8 text-center text-sm font-bold text-slate-500">
-              还没有可以汇总的数据。请先添加空间，并为空间选择瓷砖方案。
-            </div>
-          </div>
-
-          <div class="grid gap-4">
-            <div class="panel p-4">
-              <h3 class="mb-3 font-black text-slate-950">辅材估算</h3>
-              <div class="grid gap-3">
-                <div class="metric">
-                  <p class="text-xs font-black text-slate-500">水泥</p>
-                  <p class="metric-value"><span id="material-cement">0</span> 包</p>
-                  <p class="mt-1 text-xs font-bold text-slate-500">按 50kg 一包估算</p>
-                </div>
-                <div class="metric">
-                  <p class="text-xs font-black text-slate-500">沙子</p>
-                  <p class="metric-value"><span id="material-sand-cubic">0.00</span> 立方米</p>
-                  <p class="mt-1 text-xs font-bold text-slate-500">约 <span id="material-sand-bags">0</span> 包，按每包 0.025 立方米换算</p>
-                </div>
+    <main>
+      <section id="tab-settings" data-tab-panel="settings" class="space-y-4">
+        <section class="card overflow-hidden">
+          <div class="accent-line"></div>
+          <div class="p-5 md:p-6">
+            <div class="mb-5 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+              <div>
+                <h2 class="text-xl font-black text-slate-950">Global Parameters</h2>
+                <p class="mt-1 text-sm leading-6 text-slate-600">Grout, waste percentage, and default door width are applied to every room.</p>
+              </div>
+              <div class="rounded-2xl bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800 ring-1 ring-amber-100">
+                Material guide: per 1 ㎡, about 0.35 bag of cement and 0.05 m³ of sand.
               </div>
             </div>
 
-            <div class="panel p-4">
-              <h3 class="mb-3 font-black text-slate-950">踢脚线总长度</h3>
+            <div class="grid gap-4 md:grid-cols-4">
+              <div>
+                <label class="label" for="global-grout">Grout Joint</label>
+                <div class="relative">
+                  <input id="global-grout" class="input pr-12" type="number" min="0" step="0.1" value="2" />
+                  <span class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm font-black text-slate-400">mm</span>
+                </div>
+              </div>
+
+              <div>
+                <label class="label" for="global-waste">Waste Percentage</label>
+                <div class="relative">
+                  <input id="global-waste" class="input pr-12" type="number" min="0" step="0.1" value="10" />
+                  <span class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm font-black text-slate-400">%</span>
+                </div>
+              </div>
+
+              <div>
+                <label class="label">Laying Method Presets</label>
+                <div class="grid grid-cols-2 gap-2">
+                  <button class="btn-light" type="button" data-waste-preset="10">Straight 10%</button>
+                  <button class="btn-light" type="button" data-waste-preset="15">Diagonal 15%</button>
+                </div>
+              </div>
+
+              <div>
+                <label class="label" for="global-door-width">Default Door Deduction</label>
+                <div class="relative">
+                  <input id="global-door-width" class="input pr-12" type="number" min="0" step="0.1" value="0.9" />
+                  <span class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm font-black text-slate-400">m</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card p-5 md:p-6">
+          <div class="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 class="text-xl font-black text-slate-950">Tile Schemes</h2>
+              <p class="mt-1 text-sm leading-6 text-slate-600">Create tile specifications first. Each room can then be assigned one tile scheme.</p>
+            </div>
+            <button id="add-scheme-btn" class="btn-main" type="button">+ Add Tile Scheme</button>
+          </div>
+
+          <div class="mb-5 flex flex-wrap gap-2" id="quick-size-bar"></div>
+          <div id="scheme-grid" class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"></div>
+          <div id="empty-scheme" class="hidden rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm font-bold text-slate-500">
+            No tile schemes yet. Add at least one tile scheme first.
+          </div>
+        </section>
+      </section>
+
+      <section id="tab-rooms" data-tab-panel="rooms" class="hidden space-y-4">
+        <section class="grid gap-4 md:grid-cols-4">
+          <div class="metric">
+            <p class="text-xs font-black text-slate-500">Rooms</p>
+            <p class="metric-value"><span id="dash-room-count">0</span></p>
+          </div>
+          <div class="metric">
+            <p class="text-xs font-black text-slate-500">Tile Schemes</p>
+            <p class="metric-value"><span id="dash-scheme-count">0</span></p>
+          </div>
+          <div class="metric">
+            <p class="text-xs font-black text-slate-500">Cement Estimate</p>
+            <p class="metric-value"><span id="dash-cement">0</span> bags</p>
+          </div>
+          <div class="metric">
+            <p class="text-xs font-black text-slate-500">Skirting</p>
+            <p class="metric-value"><span id="dash-skirting">0.00</span> m</p>
+          </div>
+        </section>
+
+        <section class="card p-5 md:p-6">
+          <div class="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 class="text-xl font-black text-slate-950">Room List</h2>
+              <p class="mt-1 text-sm leading-6 text-slate-600">Each room can use length × width or direct area, and can be assigned a tile scheme.</p>
+            </div>
+            <button id="add-room-btn" class="btn-blue" type="button">+ Add Room</button>
+          </div>
+
+          <div id="room-grid" class="grid gap-4 xl:grid-cols-2"></div>
+          <div id="empty-room" class="hidden rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm font-bold text-slate-500">
+            No rooms yet. Add living room, bedroom, kitchen, or any other room.
+          </div>
+        </section>
+      </section>
+
+      <section id="tab-report" data-tab-panel="report" class="hidden space-y-4">
+        <section class="card overflow-hidden">
+          <div class="accent-line"></div>
+          <div class="p-5 md:p-6">
+            <div class="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h2 class="text-xl font-black text-slate-950">Global Purchase Report</h2>
+                <p class="mt-1 text-sm leading-6 text-slate-600">All room quantities are grouped by tile specification for whole-house purchasing.</p>
+              </div>
+              <button id="copy-summary-btn" class="btn-green" type="button">Copy Full Purchase List</button>
+            </div>
+
+            <div class="grid gap-4 md:grid-cols-4">
               <div class="metric">
-                <p class="text-xs font-black text-slate-500">只统计使用长 × 宽模式的空间</p>
-                <p class="metric-value"><span id="summary-skirting">0.00</span> 米</p>
-                <p class="mt-1 text-xs font-bold text-slate-500">每个空间自动扣除默认门宽</p>
+                <p class="text-xs font-black text-slate-500">Total Area</p>
+                <p class="metric-value"><span id="summary-total-area">0.00</span> ㎡</p>
+              </div>
+              <div class="metric">
+                <p class="text-xs font-black text-slate-500">Total Pieces</p>
+                <p class="metric-value"><span id="summary-total-pieces">0</span> pcs</p>
+              </div>
+              <div class="metric">
+                <p class="text-xs font-black text-slate-500">Total Boxes</p>
+                <p class="metric-value"><span id="summary-total-boxes">0</span> boxes</p>
+              </div>
+              <div class="metric">
+                <p class="text-xs font-black text-slate-500">Total Cost</p>
+                <p class="metric-value"><span id="summary-total-cost">RM 0.00</span></p>
               </div>
             </div>
 
-            <div class="notice">
-              实际采购时建议再结合现场切割、损耗、门洞数量、收边方式和师傅施工习惯确认。此工具适合快速估算与向建材商报单。
+            <div class="mt-5 grid gap-5 lg:grid-cols-[1.25fr_0.75fr]">
+              <div class="panel p-4">
+                <div class="mb-3 flex items-center justify-between gap-3">
+                  <h3 class="font-black text-slate-950">Grouped by Tile Specification</h3>
+                  <span id="summary-group-count" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-600">0 groups</span>
+                </div>
+                <div class="table-wrap">
+                  <table class="w-full border-collapse text-left text-sm">
+                    <thead>
+                      <tr class="border-b border-slate-200 bg-slate-50 text-xs text-slate-500">
+                        <th class="px-3 py-3 font-black">Tile Size</th>
+                        <th class="px-3 py-3 font-black">Rooms</th>
+                        <th class="px-3 py-3 font-black text-right">Area</th>
+                        <th class="px-3 py-3 font-black text-right">Pieces</th>
+                        <th class="px-3 py-3 font-black text-right">Boxes</th>
+                        <th class="px-3 py-3 font-black text-right">Cost</th>
+                      </tr>
+                    </thead>
+                    <tbody id="summary-table-body"></tbody>
+                  </table>
+                </div>
+                <div id="empty-summary-table" class="hidden rounded-2xl bg-slate-50 p-8 text-center text-sm font-bold text-slate-500">
+                  No report data yet. Add rooms and assign tile schemes first.
+                </div>
+              </div>
+
+              <div class="grid gap-4">
+                <div class="panel p-4">
+                  <h3 class="mb-3 font-black text-slate-950">Material Estimation</h3>
+                  <div class="grid gap-3">
+                    <div class="metric">
+                      <p class="text-xs font-black text-slate-500">Cement</p>
+                      <p class="metric-value"><span id="material-cement">0</span> bags</p>
+                      <p class="mt-1 text-xs font-bold text-slate-500">Estimated as 50 kg per bag.</p>
+                    </div>
+                    <div class="metric">
+                      <p class="text-xs font-black text-slate-500">Sand</p>
+                      <p class="metric-value"><span id="material-sand-cubic">0.00</span> m³</p>
+                      <p class="mt-1 text-xs font-bold text-slate-500">About <span id="material-sand-bags">0</span> bags, estimated at 0.025 m³ per bag.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="panel p-4">
+                  <h3 class="mb-3 font-black text-slate-950">Skirting Length</h3>
+                  <div class="metric">
+                    <p class="text-xs font-black text-slate-500">Only rooms using length × width mode are counted.</p>
+                    <p class="metric-value"><span id="summary-skirting">0.00</span> m</p>
+                    <p class="mt-1 text-xs font-bold text-slate-500">Default door width is deducted per room.</p>
+                  </div>
+                </div>
+
+                <div class="notice">
+                  Final purchasing should still be checked against site cutting, tile direction, door openings, edge finishing, and installer preference. This report is intended for fast estimating and supplier quotation.
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
-  </main>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <nav class="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 px-3 pb-3 pt-2 shadow-[0_-10px_30px_rgba(15,23,42,0.10)] backdrop-blur md:hidden" aria-label="Mobile navigation">
+    <div class="mx-auto flex max-w-lg gap-2 rounded-2xl bg-slate-100 p-1">
+      <button class="bottom-tab active" type="button" data-tab-button="settings"><span>⚙️</span><span>Settings & Tiles</span></button>
+      <button class="bottom-tab" type="button" data-tab-button="rooms"><span>🏠</span><span>Rooms</span></button>
+      <button class="bottom-tab" type="button" data-tab-button="report"><span>📋</span><span>Report</span></button>
+    </div>
+  </nav>
 
   <script>
     "use strict";
@@ -445,10 +495,11 @@
     ];
 
     const state = {
+      activeTab: "settings",
       schemeSeq: 0,
-      spaceSeq: 0,
+      roomSeq: 0,
       schemes: [],
-      spaces: []
+      rooms: []
     };
 
     const els = {
@@ -457,9 +508,9 @@
       doorWidth: document.getElementById("global-door-width"),
       quickSizeBar: document.getElementById("quick-size-bar"),
       schemeGrid: document.getElementById("scheme-grid"),
-      spaceGrid: document.getElementById("space-grid"),
+      roomGrid: document.getElementById("room-grid"),
       emptyScheme: document.getElementById("empty-scheme"),
-      emptySpace: document.getElementById("empty-space"),
+      emptyRoom: document.getElementById("empty-room"),
       toast: document.getElementById("toast")
     };
 
@@ -469,32 +520,38 @@
       renderQuickSizes();
       bindEvents();
 
-      addScheme({ name: "600×600 地砖", length: 600, width: 600, price: 12, piecesPerBox: 4, autoName: true });
-      addScheme({ name: "800×800 地砖", length: 800, width: 800, price: 18, piecesPerBox: 3, autoName: true });
-      addScheme({ name: "300×600 墙砖", length: 300, width: 600, price: 8, piecesPerBox: 6, autoName: true });
+      addScheme({ name: "600×600 Tile", length: 600, width: 600, price: 12, piecesPerBox: 4, autoName: true });
+      addScheme({ name: "800×800 Tile", length: 800, width: 800, price: 18, piecesPerBox: 3, autoName: true });
+      addScheme({ name: "300×600 Wall Tile", length: 300, width: 600, price: 8, piecesPerBox: 6, autoName: true });
 
-      addSpace({ name: "空间1 - 客厅", mode: "dimension", length: 5.4, width: 4.2, schemeId: state.schemes[1].id });
-      addSpace({ name: "空间2 - 主卧", mode: "dimension", length: 4.2, width: 3.6, schemeId: state.schemes[0].id });
-      addSpace({ name: "空间3 - 厨房", mode: "area", directArea: 9, schemeId: state.schemes[2].id });
+      addRoom({ name: "Room 1 - Living Room", mode: "dimension", length: 5.4, width: 4.2, schemeId: state.schemes[1].id });
+      addRoom({ name: "Room 2 - Master Bedroom", mode: "dimension", length: 4.2, width: 3.6, schemeId: state.schemes[0].id });
+      addRoom({ name: "Room 3 - Kitchen", mode: "area", directArea: 10.5, schemeId: state.schemes[2].id });
 
-      renderAll();
+      setActiveTab("settings");
+      recalculateAll();
     }
 
     function bindEvents() {
-      document.getElementById("add-scheme-btn").addEventListener("click", () => addScheme());
-      document.getElementById("add-space-btn").addEventListener("click", () => addSpace());
-      document.getElementById("copy-summary-btn").addEventListener("click", copyGlobalSummary);
+      document.querySelectorAll("[data-tab-button]").forEach(button => {
+        button.addEventListener("click", () => setActiveTab(button.dataset.tabButton));
+      });
 
       [els.grout, els.waste, els.doorWidth].forEach(input => {
-        input.addEventListener("input", renderAll);
+        input.addEventListener("input", recalculateAll);
       });
 
       document.querySelectorAll("[data-waste-preset]").forEach(button => {
         button.addEventListener("click", () => {
           els.waste.value = button.dataset.wastePreset;
-          renderAll();
+          showToast(`Waste percentage set to ${button.dataset.wastePreset}%.`);
+          recalculateAll();
         });
       });
+
+      document.getElementById("add-scheme-btn").addEventListener("click", () => addScheme());
+      document.getElementById("add-room-btn").addEventListener("click", () => addRoom());
+      document.getElementById("copy-summary-btn").addEventListener("click", copyGlobalSummary);
 
       els.schemeGrid.addEventListener("input", event => {
         const target = event.target;
@@ -508,97 +565,102 @@
         scheme[field] = target.value;
 
         if (field === "name") {
-          scheme.customName = true;
+          scheme.autoName = false;
+          scheme.userRenamed = true;
         }
 
-        if ((field === "length" || field === "width") && !scheme.customName) {
-          scheme.name = makeSchemeName(scheme.length, scheme.width);
+        if ((field === "length" || field === "width") && scheme.autoName && !scheme.userRenamed) {
+          updateSchemeAutoName(scheme);
+          const nameInput = card.querySelector("[data-field='name']");
+          if (nameInput) nameInput.value = scheme.name;
         }
 
-        renderAll();
+        renderRooms();
+        recalculateAll();
       });
 
       els.schemeGrid.addEventListener("click", event => {
-        const deleteButton = event.target.closest("[data-action='delete-scheme']");
-        const duplicateButton = event.target.closest("[data-action='duplicate-scheme']");
-        const presetButton = event.target.closest("[data-action='scheme-preset']");
+        const button = event.target.closest("button");
+        if (!button) return;
 
-        if (deleteButton) {
-          deleteScheme(deleteButton.dataset.schemeId);
-          return;
-        }
+        const action = button.dataset.action;
+        const schemeId = button.dataset.schemeId;
 
-        if (duplicateButton) {
-          duplicateScheme(duplicateButton.dataset.schemeId);
-          return;
-        }
-
-        if (presetButton) {
-          const scheme = getScheme(presetButton.dataset.schemeId);
-          if (!scheme) return;
-          scheme.length = presetButton.dataset.length;
-          scheme.width = presetButton.dataset.width;
-          if (!scheme.customName) scheme.name = makeSchemeName(scheme.length, scheme.width);
-          renderAll();
-        }
+        if (action === "delete-scheme") deleteScheme(schemeId);
+        if (action === "duplicate-scheme") duplicateScheme(schemeId);
+        if (action === "apply-size") applyPresetToScheme(schemeId, button.dataset.length, button.dataset.width);
       });
 
-      els.spaceGrid.addEventListener("input", event => {
+      els.roomGrid.addEventListener("input", event => {
         const target = event.target;
-        const card = target.closest("[data-space-id]");
+        const card = target.closest("[data-room-id]");
         if (!card || !target.dataset.field) return;
 
-        const space = getSpace(card.dataset.spaceId);
-        if (!space) return;
-        space[target.dataset.field] = target.value;
-        renderAll();
+        const room = getRoom(card.dataset.roomId);
+        if (!room) return;
+
+        room[target.dataset.field] = target.value;
+        recalculateAll();
       });
 
-      els.spaceGrid.addEventListener("change", event => {
+      els.roomGrid.addEventListener("change", event => {
         const target = event.target;
-        const card = target.closest("[data-space-id]");
+        const card = target.closest("[data-room-id]");
         if (!card || !target.dataset.field) return;
 
-        const space = getSpace(card.dataset.spaceId);
-        if (!space) return;
-        space[target.dataset.field] = target.value;
-        renderAll();
+        const room = getRoom(card.dataset.roomId);
+        if (!room) return;
+
+        room[target.dataset.field] = target.value;
+        renderRooms();
+        recalculateAll();
       });
 
-      els.spaceGrid.addEventListener("click", event => {
-        const deleteButton = event.target.closest("[data-action='delete-space']");
-        const duplicateButton = event.target.closest("[data-action='duplicate-space']");
-        const modeButton = event.target.closest("[data-action='space-mode']");
+      els.roomGrid.addEventListener("click", event => {
+        const button = event.target.closest("button");
+        if (!button) return;
 
-        if (deleteButton) {
-          deleteSpace(deleteButton.dataset.spaceId);
-          return;
-        }
+        const action = button.dataset.action;
+        const roomId = button.dataset.roomId;
 
-        if (duplicateButton) {
-          duplicateSpace(duplicateButton.dataset.spaceId);
-          return;
-        }
-
-        if (modeButton) {
-          const space = getSpace(modeButton.dataset.spaceId);
-          if (!space) return;
-          space.mode = modeButton.dataset.mode;
-          renderAll();
+        if (action === "delete-room") deleteRoom(roomId);
+        if (action === "duplicate-room") duplicateRoom(roomId);
+        if (action === "switch-room-mode") {
+          const room = getRoom(roomId);
+          if (!room) return;
+          room.mode = button.dataset.mode;
+          renderRooms();
+          recalculateAll();
         }
       });
     }
 
+    function setActiveTab(tabName) {
+      state.activeTab = tabName;
+
+      document.querySelectorAll("[data-tab-panel]").forEach(panel => {
+        panel.classList.toggle("hidden", panel.dataset.tabPanel !== tabName);
+      });
+
+      document.querySelectorAll("[data-tab-button]").forEach(button => {
+        button.classList.toggle("active", button.dataset.tabButton === tabName);
+      });
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
     function renderQuickSizes() {
       els.quickSizeBar.innerHTML = SIZE_PRESETS.map(size => `
-        <button class="btn-chip" type="button" data-quick-length="${size.length}" data-quick-width="${size.width}">${size.label}</button>
+        <button class="btn-chip" type="button" data-quick-length="${size.length}" data-quick-width="${size.width}">
+          ${size.label} mm
+        </button>
       `).join("");
 
       els.quickSizeBar.addEventListener("click", event => {
         const button = event.target.closest("[data-quick-length]");
         if (!button) return;
         addScheme({
-          name: makeSchemeName(button.dataset.quickLength, button.dataset.quickWidth),
+          name: `${button.dataset.quickLength}×${button.dataset.quickWidth} Tile`,
           length: button.dataset.quickLength,
           width: button.dataset.quickWidth,
           price: "",
@@ -608,31 +670,32 @@
       });
     }
 
-    function addScheme(data = {}) {
-      const id = `tile-${++state.schemeSeq}`;
-      const length = data.length ?? "";
-      const width = data.width ?? "";
-      const autoName = data.autoName !== false;
-      const name = data.name || makeSchemeName(length, width) || `瓷砖方案 ${state.schemeSeq}`;
-
-      state.schemes.push({
+    function addScheme(prefill = {}) {
+      const id = `scheme-${++state.schemeSeq}`;
+      const scheme = {
         id,
-        name,
-        length: String(length),
-        width: String(width),
-        price: data.price === undefined ? "" : String(data.price),
-        piecesPerBox: data.piecesPerBox === undefined ? "" : String(data.piecesPerBox),
-        customName: !autoName
-      });
+        name: prefill.name || `Tile Scheme ${state.schemeSeq}`,
+        length: prefill.length ?? "",
+        width: prefill.width ?? "",
+        price: prefill.price ?? "",
+        piecesPerBox: prefill.piecesPerBox ?? "",
+        autoName: prefill.autoName ?? false,
+        userRenamed: false
+      };
 
-      renderAll();
+      if (scheme.autoName) updateSchemeAutoName(scheme);
+      state.schemes.push(scheme);
+      renderSchemes();
+      renderRooms();
+      recalculateAll();
     }
 
-    function duplicateScheme(id) {
-      const source = getScheme(id);
+    function duplicateScheme(schemeId) {
+      const source = getScheme(schemeId);
       if (!source) return;
+
       addScheme({
-        name: `${source.name} 副本`,
+        name: `${source.name} Copy`,
         length: source.length,
         width: source.width,
         price: source.price,
@@ -641,33 +704,121 @@
       });
     }
 
-    function deleteScheme(id) {
-      state.schemes = state.schemes.filter(scheme => scheme.id !== id);
-      state.spaces.forEach(space => {
-        if (space.schemeId === id) space.schemeId = "";
+    function deleteScheme(schemeId) {
+      state.schemes = state.schemes.filter(scheme => scheme.id !== schemeId);
+      state.rooms.forEach(room => {
+        if (room.schemeId === schemeId) room.schemeId = "";
       });
-      renderAll();
+      renderSchemes();
+      renderRooms();
+      recalculateAll();
     }
 
-    function addSpace(data = {}) {
-      const id = `space-${++state.spaceSeq}`;
-      state.spaces.push({
+    function applyPresetToScheme(schemeId, length, width) {
+      const scheme = getScheme(schemeId);
+      if (!scheme) return;
+
+      scheme.length = String(length);
+      scheme.width = String(width);
+
+      if (scheme.autoName && !scheme.userRenamed) updateSchemeAutoName(scheme);
+
+      renderSchemes();
+      renderRooms();
+      recalculateAll();
+    }
+
+    function updateSchemeAutoName(scheme) {
+      const length = toNumber(scheme.length);
+      const width = toNumber(scheme.width);
+      scheme.name = length > 0 && width > 0 ? `${formatPlain(length)}×${formatPlain(width)} Tile` : scheme.name;
+    }
+
+    function renderSchemes() {
+      els.emptyScheme.classList.toggle("hidden", state.schemes.length > 0);
+
+      els.schemeGrid.innerHTML = state.schemes.map((scheme, index) => `
+        <article class="card overflow-hidden" data-scheme-id="${escapeHtml(scheme.id)}">
+          <div class="h-1 ${index % 3 === 0 ? "bg-blue-600" : index % 3 === 1 ? "bg-amber-500" : "bg-emerald-600"}"></div>
+          <div class="p-4">
+            <div class="mb-4 flex items-start justify-between gap-3">
+              <div class="min-w-0 flex-1">
+                <label class="label">Scheme Name</label>
+                <input class="input font-black" data-field="name" type="text" value="${escapeAttr(scheme.name)}" placeholder="Example: 800×800 Tile" />
+                ${scheme.userRenamed ? `<p class="mt-1 text-xs font-bold text-slate-500">Custom name is locked.</p>` : `<p class="mt-1 text-xs font-bold text-slate-500">Name follows tile size automatically.</p>`}
+              </div>
+              <div class="mt-6 flex shrink-0 gap-2">
+                <button class="btn-light" type="button" data-action="duplicate-scheme" data-scheme-id="${escapeHtml(scheme.id)}">Copy</button>
+                <button class="btn-red" type="button" data-action="delete-scheme" data-scheme-id="${escapeHtml(scheme.id)}">Delete</button>
+              </div>
+            </div>
+
+            <div class="mb-4 flex flex-wrap gap-2">
+              ${SIZE_PRESETS.slice(0, 6).map(size => `
+                <button class="btn-chip" type="button" data-action="apply-size" data-scheme-id="${escapeHtml(scheme.id)}" data-length="${size.length}" data-width="${size.width}">
+                  ${size.label}
+                </button>
+              `).join("")}
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="label">Tile Length</label>
+                <div class="relative">
+                  <input class="input pr-12" data-field="length" type="number" min="1" step="1" value="${escapeAttr(scheme.length)}" placeholder="800" />
+                  <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">mm</span>
+                </div>
+              </div>
+              <div>
+                <label class="label">Tile Width</label>
+                <div class="relative">
+                  <input class="input pr-12" data-field="width" type="number" min="1" step="1" value="${escapeAttr(scheme.width)}" placeholder="800" />
+                  <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">mm</span>
+                </div>
+              </div>
+              <div>
+                <label class="label">Price Per Piece</label>
+                <div class="relative">
+                  <input class="input pr-14" data-field="price" type="number" min="0" step="0.01" value="${escapeAttr(scheme.price)}" placeholder="18.00" />
+                  <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">RM</span>
+                </div>
+              </div>
+              <div>
+                <label class="label">Pieces Per Box</label>
+                <div class="relative">
+                  <input class="input pr-12" data-field="piecesPerBox" type="number" min="1" step="1" value="${escapeAttr(scheme.piecesPerBox)}" placeholder="3" />
+                  <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">pcs</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function addRoom(prefill = {}) {
+      const id = `room-${++state.roomSeq}`;
+      const room = {
         id,
-        name: data.name || `空间${state.spaceSeq}`,
-        mode: data.mode || "dimension",
-        length: data.length === undefined ? "" : String(data.length),
-        width: data.width === undefined ? "" : String(data.width),
-        directArea: data.directArea === undefined ? "" : String(data.directArea),
-        schemeId: data.schemeId || (state.schemes[0] ? state.schemes[0].id : "")
-      });
-      renderAll();
+        name: prefill.name || `Room ${state.roomSeq}`,
+        mode: prefill.mode || "dimension",
+        length: prefill.length ?? "",
+        width: prefill.width ?? "",
+        directArea: prefill.directArea ?? "",
+        schemeId: prefill.schemeId || (state.schemes[0] ? state.schemes[0].id : "")
+      };
+
+      state.rooms.push(room);
+      renderRooms();
+      recalculateAll();
     }
 
-    function duplicateSpace(id) {
-      const source = getSpace(id);
+    function duplicateRoom(roomId) {
+      const source = getRoom(roomId);
       if (!source) return;
-      addSpace({
-        name: `${source.name} 副本`,
+
+      addRoom({
+        name: `${source.name} Copy`,
         mode: source.mode,
         length: source.length,
         width: source.width,
@@ -676,145 +827,89 @@
       });
     }
 
-    function deleteSpace(id) {
-      state.spaces = state.spaces.filter(space => space.id !== id);
-      renderAll();
+    function deleteRoom(roomId) {
+      state.rooms = state.rooms.filter(room => room.id !== roomId);
+      renderRooms();
+      recalculateAll();
     }
 
-    function renderAll() {
-      renderSchemeGrid();
-      renderSpaceGrid();
-      const summary = calculateGlobalSummary();
-      renderSummary(summary);
-      renderDashboard(summary);
+    function renderRooms() {
+      els.emptyRoom.classList.toggle("hidden", state.rooms.length > 0);
+      els.roomGrid.innerHTML = state.rooms.map((room, index) => renderRoomCard(room, index)).join("");
     }
 
-    function renderSchemeGrid() {
-      els.emptyScheme.classList.toggle("hidden", state.schemes.length > 0);
-      els.schemeGrid.innerHTML = state.schemes.map((scheme, index) => {
-        const usedCount = state.spaces.filter(space => space.schemeId === scheme.id).length;
-        const title = escapeHtml(scheme.name);
-        return `
-          <article class="panel overflow-hidden" data-scheme-id="${scheme.id}">
-            <div class="h-1.5 ${getAccentClass(index)}"></div>
-            <div class="p-4">
-              <div class="mb-4 flex items-start justify-between gap-3">
-                <div class="min-w-0 flex-1">
-                  <label class="label">方案名称</label>
-                  <input class="input font-black" data-field="name" type="text" value="${title}" placeholder="例如：800×800 地砖" />
-                  <p class="mt-1 text-xs font-bold text-slate-500">已分配 ${usedCount} 个空间</p>
-                </div>
-                <div class="mt-6 flex gap-2">
-                  <button class="btn-light" type="button" data-action="duplicate-scheme" data-scheme-id="${scheme.id}">复制</button>
-                  <button class="btn-red" type="button" data-action="delete-scheme" data-scheme-id="${scheme.id}">删除</button>
-                </div>
+    function renderRoomCard(room, index) {
+      const result = calculateRoom(room);
+      const isDimension = room.mode === "dimension";
+      const area = getRoomArea(room);
+
+      return `
+        <article class="card overflow-hidden" data-room-id="${escapeHtml(room.id)}">
+          <div class="h-1 ${index % 3 === 0 ? "bg-blue-600" : index % 3 === 1 ? "bg-amber-500" : "bg-emerald-600"}"></div>
+          <div class="p-4">
+            <div class="mb-4 flex items-start justify-between gap-3">
+              <div class="min-w-0 flex-1">
+                <label class="label">Room Name</label>
+                <input class="input font-black" data-field="name" type="text" value="${escapeAttr(room.name)}" placeholder="Example: Living Room" />
               </div>
+              <div class="mt-6 flex shrink-0 gap-2">
+                <button class="btn-light" type="button" data-action="duplicate-room" data-room-id="${escapeHtml(room.id)}">Copy</button>
+                <button class="btn-red" type="button" data-action="delete-room" data-room-id="${escapeHtml(room.id)}">Delete</button>
+              </div>
+            </div>
 
-              <div class="mb-4 grid grid-cols-2 gap-3">
-                <div>
-                  <label class="label">瓷砖长度</label>
-                  <div class="relative">
-                    <input class="input pr-12" data-field="length" type="number" min="0" step="1" value="${escapeHtml(scheme.length)}" placeholder="600" />
-                    <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">mm</span>
-                  </div>
-                </div>
-                <div>
-                  <label class="label">瓷砖宽度</label>
-                  <div class="relative">
-                    <input class="input pr-12" data-field="width" type="number" min="0" step="1" value="${escapeHtml(scheme.width)}" placeholder="600" />
-                    <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">mm</span>
-                  </div>
-                </div>
-                <div>
-                  <label class="label">单片价格</label>
-                  <div class="relative">
-                    <input class="input pl-12" data-field="price" type="number" min="0" step="0.01" value="${escapeHtml(scheme.price)}" placeholder="12.00" />
-                    <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">RM</span>
-                  </div>
-                </div>
-                <div>
-                  <label class="label">每箱片数</label>
-                  <div class="relative">
-                    <input class="input pr-12" data-field="piecesPerBox" type="number" min="0" step="1" value="${escapeHtml(scheme.piecesPerBox)}" placeholder="4" />
-                    <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">片</span>
-                  </div>
+            <div class="mb-4 grid gap-3 md:grid-cols-[0.9fr_1.1fr]">
+              <div>
+                <label class="label">Area Input Mode</label>
+                <div class="grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1">
+                  <button class="rounded-xl px-3 py-2 text-xs font-black ${isDimension ? "bg-slate-950 text-white" : "text-slate-600"}" type="button" data-action="switch-room-mode" data-room-id="${escapeHtml(room.id)}" data-mode="dimension">Length × Width</button>
+                  <button class="rounded-xl px-3 py-2 text-xs font-black ${!isDimension ? "bg-slate-950 text-white" : "text-slate-600"}" type="button" data-action="switch-room-mode" data-room-id="${escapeHtml(room.id)}" data-mode="area">Direct Area</button>
                 </div>
               </div>
 
               <div>
-                <p class="mb-2 text-xs font-black text-slate-500">快速填入尺寸</p>
-                <div class="flex flex-wrap gap-2">
-                  ${SIZE_PRESETS.map(size => `
-                    <button class="btn-chip" type="button" data-action="scheme-preset" data-scheme-id="${scheme.id}" data-length="${size.length}" data-width="${size.width}">${size.label}</button>
-                  `).join("")}
-                </div>
-              </div>
-            </div>
-          </article>
-        `;
-      }).join("");
-    }
-
-    function renderSpaceGrid() {
-      els.emptySpace.classList.toggle("hidden", state.spaces.length > 0);
-      els.spaceGrid.innerHTML = state.spaces.map((space, index) => {
-        const result = calculateSpace(space);
-        const isDimension = space.mode === "dimension";
-        return `
-          <article class="panel overflow-hidden" data-space-id="${space.id}">
-            <div class="h-1.5 ${getAccentClass(index + 2)}"></div>
-            <div class="p-4">
-              <div class="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                <div class="min-w-0 flex-1">
-                  <label class="label">空间名称</label>
-                  <input class="input font-black" data-field="name" type="text" value="${escapeHtml(space.name)}" placeholder="例如：客厅" />
-                </div>
-                <div class="flex gap-2 md:mt-6">
-                  <button class="btn-light" type="button" data-action="duplicate-space" data-space-id="${space.id}">复制</button>
-                  <button class="btn-red" type="button" data-action="delete-space" data-space-id="${space.id}">删除</button>
-                </div>
-              </div>
-
-              <div class="mb-4 grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1.5">
-                <button class="tab ${isDimension ? "active" : ""}" type="button" data-action="space-mode" data-space-id="${space.id}" data-mode="dimension">长 × 宽</button>
-                <button class="tab ${!isDimension ? "active" : ""}" type="button" data-action="space-mode" data-space-id="${space.id}" data-mode="area">直接面积</button>
-              </div>
-
-              ${isDimension ? renderDimensionInputs(space) : renderAreaInput(space)}
-
-              <div class="mt-4">
-                <label class="label">指定铺贴瓷砖</label>
+                <label class="label">Assigned Tile Scheme</label>
                 <select class="input" data-field="schemeId">
-                  <option value="">请选择瓷砖方案</option>
+                  <option value="">Select tile scheme</option>
                   ${state.schemes.map(scheme => `
-                    <option value="${scheme.id}" ${scheme.id === space.schemeId ? "selected" : ""}>${escapeHtml(scheme.name)}（${escapeHtml(scheme.length || "?")}×${escapeHtml(scheme.width || "?")}mm）</option>
+                    <option value="${escapeAttr(scheme.id)}" ${scheme.id === room.schemeId ? "selected" : ""}>
+                      ${escapeHtml(scheme.name)} (${escapeHtml(scheme.length || "-")}×${escapeHtml(scheme.width || "-")}mm)
+                    </option>
                   `).join("")}
                 </select>
               </div>
-
-              <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                ${renderSpaceResult(result, isDimension)}
-              </div>
             </div>
-          </article>
-        `;
-      }).join("");
+
+            <div class="mb-4">
+              ${isDimension ? renderDimensionInput(room) : renderAreaInput(room)}
+            </div>
+
+            <div class="mb-4 rounded-2xl bg-blue-50 p-3 text-sm font-bold text-blue-800 ring-1 ring-blue-100">
+              Current room area: ${formatNumber(area, 2)} ㎡
+            </div>
+
+            <div class="panel bg-slate-50 p-4">
+              ${renderRoomResult(result, isDimension)}
+            </div>
+          </div>
+        </article>
+      `;
     }
 
-    function renderDimensionInputs(space) {
+    function renderDimensionInput(room) {
       return `
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="label">空间长度</label>
+            <label class="label">Room Length</label>
             <div class="relative">
-              <input class="input pr-10" data-field="length" type="number" min="0" step="0.01" value="${escapeHtml(space.length)}" placeholder="5.4" />
+              <input class="input pr-10" data-field="length" type="number" min="0" step="0.01" value="${escapeAttr(room.length)}" placeholder="5.4" />
               <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">m</span>
             </div>
           </div>
           <div>
-            <label class="label">空间宽度</label>
+            <label class="label">Room Width</label>
             <div class="relative">
-              <input class="input pr-10" data-field="width" type="number" min="0" step="0.01" value="${escapeHtml(space.width)}" placeholder="4.2" />
+              <input class="input pr-10" data-field="width" type="number" min="0" step="0.01" value="${escapeAttr(room.width)}" placeholder="4.2" />
               <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">m</span>
             </div>
           </div>
@@ -822,23 +917,23 @@
       `;
     }
 
-    function renderAreaInput(space) {
+    function renderAreaInput(room) {
       return `
         <div>
-          <label class="label">空间总面积</label>
+          <label class="label">Room Area</label>
           <div class="relative">
-            <input class="input pr-12" data-field="directArea" type="number" min="0" step="0.01" value="${escapeHtml(space.directArea)}" placeholder="20" />
+            <input class="input pr-12" data-field="directArea" type="number" min="0" step="0.01" value="${escapeAttr(room.directArea)}" placeholder="20" />
             <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">㎡</span>
           </div>
         </div>
       `;
     }
 
-    function renderSpaceResult(result, isDimension) {
+    function renderRoomResult(result, isDimension) {
       if (!result.valid) {
         return `
           <div class="text-center text-sm font-bold text-slate-500">
-            请填写有效面积，并为空间选择可用的瓷砖方案。
+            Enter a valid area and assign a usable tile scheme to start calculation.
           </div>
         `;
       }
@@ -846,41 +941,41 @@
       return `
         <div class="mb-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div>
-            <p class="text-sm font-black text-slate-950">单空间局部明细</p>
-            <p class="text-xs font-bold text-slate-500">面积 ${formatNumber(result.area, 2)} ㎡ · ${escapeHtml(result.scheme.name)}</p>
+            <p class="text-sm font-black text-slate-950">Room Detail</p>
+            <p class="text-xs font-bold text-slate-500">Area ${formatNumber(result.area, 2)} ㎡ · ${escapeHtml(result.scheme.name)}</p>
           </div>
           <div class="rounded-full bg-blue-100 px-3 py-1 text-xs font-black text-blue-700">
-            ${result.scheme.length}×${result.scheme.width}mm
+            ${escapeHtml(result.scheme.length)}×${escapeHtml(result.scheme.width)}mm
           </div>
         </div>
         <div class="grid grid-cols-2 gap-3 md:grid-cols-5">
           <div class="metric">
-            <p class="text-xs font-black text-slate-500">净片数</p>
-            <p class="metric-value">${result.netPieces}</p>
+            <p class="text-xs font-black text-slate-500">Net Pieces</p>
+            <p class="metric-value">${formatInt(result.netPieces)}</p>
           </div>
           <div class="metric">
-            <p class="text-xs font-black text-slate-500">损耗后</p>
-            <p class="metric-value">${result.totalPieces}</p>
+            <p class="text-xs font-black text-slate-500">With Waste</p>
+            <p class="metric-value">${formatInt(result.totalPieces)}</p>
           </div>
           <div class="metric">
-            <p class="text-xs font-black text-slate-500">箱数</p>
-            <p class="metric-value">${result.boxes === null ? "—" : result.boxes}</p>
+            <p class="text-xs font-black text-slate-500">Boxes</p>
+            <p class="metric-value">${result.boxes === null ? "—" : formatInt(result.boxes)}</p>
           </div>
           <div class="metric">
-            <p class="text-xs font-black text-slate-500">小计</p>
+            <p class="text-xs font-black text-slate-500">Subtotal</p>
             <p class="metric-value text-lg">${result.cost === null ? "—" : formatRM(result.cost)}</p>
           </div>
           <div class="metric">
-            <p class="text-xs font-black text-slate-500">踢脚线</p>
+            <p class="text-xs font-black text-slate-500">Skirting</p>
             <p class="metric-value">${isDimension ? formatNumber(result.skirting, 2) : "—"}</p>
           </div>
         </div>
       `;
     }
 
-    function calculateSpace(space) {
-      const area = getSpaceArea(space);
-      const scheme = getScheme(space.schemeId);
+    function calculateRoom(room) {
+      const area = getRoomArea(room);
+      const scheme = getScheme(room.schemeId);
       const grout = Math.max(0, toNumber(els.grout.value));
       const waste = Math.max(0, toNumber(els.waste.value));
       const doorWidth = Math.max(0, toNumber(els.doorWidth.value));
@@ -888,10 +983,10 @@
       if (!scheme || area <= 0 || toNumber(scheme.length) <= 0 || toNumber(scheme.width) <= 0) {
         return {
           valid: false,
-          space,
+          room,
           scheme,
           area,
-          skirting: getSkirtingLength(space, doorWidth)
+          skirting: getSkirtingLength(room, doorWidth)
         };
       }
 
@@ -905,7 +1000,7 @@
 
       return {
         valid: true,
-        space,
+        room,
         scheme,
         area,
         tileArea,
@@ -914,12 +1009,12 @@
         wastePieces: Math.max(0, totalPieces - netPieces),
         boxes,
         cost,
-        skirting: getSkirtingLength(space, doorWidth)
+        skirting: getSkirtingLength(room, doorWidth)
       };
     }
 
     function calculateGlobalSummary() {
-      const results = state.spaces.map(calculateSpace);
+      const results = state.rooms.map(calculateRoom);
       const validResults = results.filter(item => item.valid);
       const totalArea = results.reduce((sum, item) => sum + Math.max(0, item.area || 0), 0);
       const totalSkirting = results.reduce((sum, item) => sum + Math.max(0, item.skirting || 0), 0);
@@ -937,7 +1032,7 @@
             width: scheme.width,
             price: scheme.price,
             piecesPerBox: scheme.piecesPerBox,
-            spaces: [],
+            rooms: [],
             area: 0,
             netPieces: 0,
             totalPieces: 0,
@@ -950,7 +1045,7 @@
         }
 
         const group = groupsMap.get(key);
-        group.spaces.push(item.space.name);
+        group.rooms.push(item.room.name);
         group.area += item.area;
         group.netPieces += item.netPieces;
         group.totalPieces += item.totalPieces;
@@ -987,7 +1082,7 @@
       document.getElementById("summary-total-pieces").textContent = formatInt(summary.totalPieces);
       document.getElementById("summary-total-boxes").textContent = formatInt(summary.totalBoxes);
       document.getElementById("summary-total-cost").textContent = formatRM(summary.totalCost);
-      document.getElementById("summary-group-count").textContent = `${summary.groups.length} 类规格`;
+      document.getElementById("summary-group-count").textContent = `${summary.groups.length} groups`;
       document.getElementById("material-cement").textContent = formatInt(summary.cementBags);
       document.getElementById("material-sand-cubic").textContent = formatNumber(summary.sandCubic, 2);
       document.getElementById("material-sand-bags").textContent = formatInt(summary.sandBags);
@@ -1003,11 +1098,11 @@
             <p class="font-black text-slate-950">${escapeHtml(group.length)}×${escapeHtml(group.width)}mm</p>
             <p class="mt-1 text-xs font-bold text-slate-500">${escapeHtml(group.schemeName)}</p>
           </td>
-          <td class="px-3 py-3 align-top text-slate-600">${group.spaces.map(escapeHtml).join("、")}</td>
+          <td class="px-3 py-3 align-top text-slate-600">${group.rooms.map(escapeHtml).join(", ")}</td>
           <td class="px-3 py-3 text-right align-top font-bold">${formatNumber(group.area, 2)} ㎡</td>
-          <td class="px-3 py-3 text-right align-top font-black">${formatInt(group.totalPieces)} 片</td>
-          <td class="px-3 py-3 text-right align-top font-black">${group.hasBoxes ? `${formatInt(group.boxes)} 箱` : "未填"}</td>
-          <td class="px-3 py-3 text-right align-top font-black">${group.hasCost ? formatRM(group.cost) : "未填"}</td>
+          <td class="px-3 py-3 text-right align-top font-black">${formatInt(group.totalPieces)} pcs</td>
+          <td class="px-3 py-3 text-right align-top font-black">${group.hasBoxes ? `${formatInt(group.boxes)} boxes` : "Not set"}</td>
+          <td class="px-3 py-3 text-right align-top font-black">${group.hasCost ? formatRM(group.cost) : "Not set"}</td>
         </tr>
       `).join("");
     }
@@ -1015,10 +1110,47 @@
     function renderDashboard(summary) {
       document.getElementById("head-total-area").textContent = formatNumber(summary.totalArea, 2);
       document.getElementById("head-total-cost").textContent = formatRM(summary.totalCost);
-      document.getElementById("dash-space-count").textContent = state.spaces.length;
+      document.getElementById("dash-room-count").textContent = state.rooms.length;
       document.getElementById("dash-scheme-count").textContent = state.schemes.length;
       document.getElementById("dash-cement").textContent = formatInt(summary.cementBags);
       document.getElementById("dash-skirting").textContent = formatNumber(summary.totalSkirting, 2);
+    }
+
+    function recalculateAll() {
+      renderRoomResultsOnly();
+      const summary = calculateGlobalSummary();
+      renderSummary(summary);
+      renderDashboard(summary);
+    }
+
+    function renderRoomResultsOnly() {
+      state.rooms.forEach(room => {
+        const card = Array.from(els.roomGrid.querySelectorAll("[data-room-id]")).find(item => item.dataset.roomId === room.id);
+        if (!card) return;
+
+        const resultBox = card.querySelector(".panel.bg-slate-50");
+        const areaBox = card.querySelector(".rounded-2xl.bg-blue-50");
+        if (resultBox) resultBox.innerHTML = renderRoomResult(calculateRoom(room), room.mode === "dimension");
+        if (areaBox) areaBox.textContent = `Current room area: ${formatNumber(getRoomArea(room), 2)} ㎡`;
+      });
+    }
+
+    function getRoomArea(room) {
+      if (room.mode === "dimension") {
+        const length = toNumber(room.length);
+        const width = toNumber(room.width);
+        return length > 0 && width > 0 ? length * width : 0;
+      }
+      const directArea = toNumber(room.directArea);
+      return directArea > 0 ? directArea : 0;
+    }
+
+    function getSkirtingLength(room, doorWidth) {
+      if (room.mode !== "dimension") return 0;
+      const length = toNumber(room.length);
+      const width = toNumber(room.width);
+      if (length <= 0 || width <= 0) return 0;
+      return Math.max(0, 2 * (length + width) - doorWidth);
     }
 
     function copyGlobalSummary() {
@@ -1026,7 +1158,8 @@
       const text = buildSummaryText(summary);
 
       if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text).then(() => showToast("总清单已复制到剪贴板"))
+        navigator.clipboard.writeText(text)
+          .then(() => showToast("Full purchase list copied."))
           .catch(() => fallbackCopy(text));
       } else {
         fallbackCopy(text);
@@ -1038,96 +1171,64 @@
       textarea.value = text;
       textarea.setAttribute("readonly", "");
       textarea.style.position = "fixed";
+      textarea.style.top = "-9999px";
       textarea.style.left = "-9999px";
       document.body.appendChild(textarea);
       textarea.select();
+      textarea.setSelectionRange(0, textarea.value.length);
 
       try {
         document.execCommand("copy");
-        showToast("总清单已复制到剪贴板");
+        showToast("Full purchase list copied.");
       } catch (error) {
-        showToast("复制失败，请手动选择清单内容");
+        showToast("Copy failed. Please copy manually.");
+      } finally {
+        document.body.removeChild(textarea);
       }
-
-      document.body.removeChild(textarea);
     }
 
     function buildSummaryText(summary) {
       const lines = [];
-      lines.push("全屋瓷砖采购清单");
-      lines.push("--------------------");
-      lines.push(`全屋总面积：${formatNumber(summary.totalArea, 2)} ㎡`);
-      lines.push(`全屋总片数：${formatInt(summary.totalPieces)} 片`);
-      lines.push(`全屋总箱数：${formatInt(summary.totalBoxes)} 箱`);
-      lines.push(`全屋总造价：${formatRM(summary.totalCost)}`);
-      lines.push(`踢脚线总长度：${formatNumber(summary.totalSkirting, 2)} 米`);
+      lines.push("Whole House Tile Purchase List");
+      lines.push("--------------------------------");
+      lines.push(`Total area: ${formatNumber(summary.totalArea, 2)} ㎡`);
+      lines.push(`Total tile pieces: ${formatInt(summary.totalPieces)} pcs`);
+      lines.push(`Total boxes: ${formatInt(summary.totalBoxes)} boxes`);
+      lines.push(`Total tile cost: ${formatRM(summary.totalCost)}`);
+      lines.push(`Skirting length: ${formatNumber(summary.totalSkirting, 2)} m`);
       lines.push("");
-      lines.push("按瓷砖规格汇总：");
+      lines.push("Tile summary by specification:");
 
       if (summary.groups.length === 0) {
-        lines.push("暂无有效瓷砖数据");
+        lines.push("No valid tile data yet.");
       } else {
         summary.groups.forEach((group, index) => {
-          lines.push(`${index + 1}. ${group.length}×${group.width}mm`);
-          lines.push(`   使用空间：${group.spaces.join("、")}`);
-          lines.push(`   面积合计：${formatNumber(group.area, 2)} ㎡`);
-          lines.push(`   总片数：${formatInt(group.totalPieces)} 片`);
-          lines.push(`   总箱数：${group.hasBoxes ? `${formatInt(group.boxes)} 箱` : "未填写每箱片数"}`);
-          lines.push(`   小计金额：${group.hasCost ? formatRM(group.cost) : "未填写单片价格"}`);
+          lines.push(`${index + 1}. ${group.length}×${group.width}mm - ${group.schemeName}`);
+          lines.push(`   Rooms: ${group.rooms.join(", ")}`);
+          lines.push(`   Area: ${formatNumber(group.area, 2)} ㎡`);
+          lines.push(`   Pieces: ${formatInt(group.totalPieces)} pcs`);
+          lines.push(`   Boxes: ${group.hasBoxes ? `${formatInt(group.boxes)} boxes` : "not set"}`);
+          lines.push(`   Cost: ${group.hasCost ? formatRM(group.cost) : "not set"}`);
         });
       }
 
       lines.push("");
-      lines.push("辅材估算：");
-      lines.push(`水泥：${formatInt(summary.cementBags)} 包（50kg/包）`);
-      lines.push(`沙子：${formatNumber(summary.sandCubic, 2)} 立方米，约 ${formatInt(summary.sandBags)} 包`);
+      lines.push("Material estimate:");
+      lines.push(`Cement: ${formatInt(summary.cementBags)} bags of 50 kg`);
+      lines.push(`Sand: ${formatNumber(summary.sandCubic, 2)} m³, about ${formatInt(summary.sandBags)} bags`);
       lines.push("");
-      lines.push("备注：以上为估算数量，实际采购请结合现场切割、损耗、门洞和施工方式确认。");
-
+      lines.push(`Grout joint: ${formatNumber(toNumber(els.grout.value), 1)} mm`);
+      lines.push(`Waste percentage: ${formatNumber(toNumber(els.waste.value), 1)}%`);
+      lines.push(`Door deduction per length × width room: ${formatNumber(toNumber(els.doorWidth.value), 2)} m`);
       return lines.join("\n");
     }
 
-    function getSpaceArea(space) {
-      if (space.mode === "dimension") {
-        const length = toNumber(space.length);
-        const width = toNumber(space.width);
-        return length > 0 && width > 0 ? length * width : 0;
-      }
-      return Math.max(0, toNumber(space.directArea));
-    }
-
-    function getSkirtingLength(space, doorWidth) {
-      if (space.mode !== "dimension") return 0;
-      const length = toNumber(space.length);
-      const width = toNumber(space.width);
-      if (length <= 0 || width <= 0) return 0;
-      return Math.max(0, 2 * (length + width) - doorWidth);
-    }
-
     function getScheme(id) {
-      return state.schemes.find(scheme => scheme.id === id);
+      return state.schemes.find(scheme => String(scheme.id) === String(id));
     }
 
-    function getSpace(id) {
-      return state.spaces.find(space => space.id === id);
-    }
-
-    function makeSchemeName(length, width) {
-      const l = toNumber(length);
-      const w = toNumber(width);
-      if (l > 0 && w > 0) return `${formatInt(l)}×${formatInt(w)} 瓷砖`;
-      return "";
-    }
-
-    function getAccentClass(index) {
-      const classes = [
-        "bg-gradient-to-r from-blue-600 to-amber-500",
-        "bg-gradient-to-r from-emerald-600 to-blue-500",
-        "bg-gradient-to-r from-fuchsia-600 to-rose-500",
-        "bg-gradient-to-r from-orange-500 to-red-500",
-        "bg-gradient-to-r from-cyan-500 to-blue-600"
-      ];
-      return classes[index % classes.length];
+    function getRoom(id) {
+      return state.rooms.find(room => String(room.id) === String(id));
     }
 
     function toNumber(value) {
@@ -1135,25 +1236,25 @@
       return Number.isFinite(number) ? number : 0;
     }
 
-    function formatNumber(value, digits = 2) {
-      const number = Number(value);
-      if (!Number.isFinite(number)) return (0).toFixed(digits);
-      return number.toLocaleString("en-MY", {
-        minimumFractionDigits: digits,
-        maximumFractionDigits: digits
+    function formatNumber(value, decimals = 2) {
+      return Number(value || 0).toLocaleString("en-MY", {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      });
+    }
+
+    function formatPlain(value) {
+      return Number(value || 0).toLocaleString("en-MY", {
+        maximumFractionDigits: 4
       });
     }
 
     function formatInt(value) {
-      const number = Number(value);
-      if (!Number.isFinite(number)) return "0";
-      return Math.round(number).toLocaleString("en-MY");
+      return Math.round(Number(value || 0)).toLocaleString("en-MY");
     }
 
     function formatRM(value) {
-      const number = Number(value);
-      if (!Number.isFinite(number)) return "RM 0.00";
-      return `RM ${number.toLocaleString("en-MY", {
+      return `RM ${Number(value || 0).toLocaleString("en-MY", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       })}`;
@@ -1168,11 +1269,15 @@
         .replaceAll("'", "&#039;");
     }
 
+    function escapeAttr(value) {
+      return escapeHtml(value);
+    }
+
     function showToast(message) {
       els.toast.textContent = message;
       els.toast.classList.add("show");
-      clearTimeout(showToast.timer);
-      showToast.timer = setTimeout(() => {
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => {
         els.toast.classList.remove("show");
       }, 1800);
     }
