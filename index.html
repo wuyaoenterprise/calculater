@@ -4,1231 +4,1195 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Whole House Tile Calculator</title>
-  <meta name="description" content="A whole-house tile quantity, cost, material, and skirting estimation calculator." />
-
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          boxShadow: {
-            soft: "0 16px 45px rgba(15, 23, 42, 0.10)",
-            card: "0 10px 28px rgba(15, 23, 42, 0.08)"
-          }
-        }
-      }
-    };
-  </script>
-
   <style>
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      min-height: 100vh;
-      background:
-        radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 30rem),
-        radial-gradient(circle at bottom right, rgba(245, 158, 11, 0.15), transparent 30rem),
-        #f8fafc;
-      color: #0f172a;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-    input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+    input[type="number"]::-webkit-outer-spin-button { opacity: 0.35; }
 
-    .app-shell { padding-bottom: 5.25rem; }
-
-    .card {
-      border: 1px solid #e2e8f0;
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 1.35rem;
-      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+    .field-label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 0.35rem;
     }
 
-    .panel {
-      border: 1px solid #e2e8f0;
-      background: #ffffff;
-      border-radius: 1rem;
-    }
-
-    .input {
+    .field-input,
+    .field-select {
       width: 100%;
-      border-radius: 0.85rem;
       border: 1px solid #cbd5e1;
       background: #ffffff;
+      color: #0f172a;
+      border-radius: 0.85rem;
       padding: 0.72rem 0.85rem;
       font-size: 0.95rem;
-      color: #0f172a;
       outline: none;
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
 
-    .input:focus {
+    .field-input:focus,
+    .field-select:focus {
       border-color: #2563eb;
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
     }
 
-    .input[disabled] {
-      background: #f1f5f9;
-      color: #64748b;
-      cursor: not-allowed;
+    .card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 1.35rem;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.07);
     }
 
-    .label {
-      display: block;
-      margin-bottom: 0.35rem;
-      font-size: 0.76rem;
-      font-weight: 900;
+    .metric-card {
+      background: #ffffff;
+      border: 1px solid #dbe3ef;
+      border-radius: 1.1rem;
+      padding: 1rem;
+    }
+
+    .tab-btn {
       color: #475569;
     }
 
-    .btn-main {
-      border-radius: 0.95rem;
-      background: #0f172a;
-      color: white;
-      padding: 0.78rem 1.1rem;
-      font-size: 0.9rem;
-      font-weight: 900;
-      transition: transform 0.12s ease, background 0.12s ease;
+    .tab-btn.active {
+      color: #1d4ed8;
+      background: #eff6ff;
+      border-color: #93c5fd;
     }
-    .btn-main:hover { background: #1e293b; }
-    .btn-main:active { transform: scale(0.98); }
 
-    .btn-blue {
-      border-radius: 0.95rem;
-      background: #2563eb;
-      color: white;
-      padding: 0.72rem 1rem;
-      font-size: 0.9rem;
-      font-weight: 900;
-    }
-    .btn-blue:hover { background: #1d4ed8; }
-
-    .btn-green {
-      border-radius: 1rem;
-      background: #059669;
-      color: white;
-      padding: 0.85rem 1.2rem;
-      font-size: 0.95rem;
-      font-weight: 950;
-    }
-    .btn-green:hover { background: #047857; }
-
-    .btn-red {
-      border-radius: 0.85rem;
-      border: 1px solid #fecaca;
-      background: #fff1f2;
-      color: #be123c;
-      padding: 0.55rem 0.8rem;
-      font-size: 0.8rem;
-      font-weight: 900;
-    }
-    .btn-red:hover { background: #ffe4e6; }
-
-    .btn-light {
-      border-radius: 0.85rem;
-      border: 1px solid #cbd5e1;
-      background: white;
-      color: #334155;
-      padding: 0.55rem 0.8rem;
-      font-size: 0.8rem;
-      font-weight: 900;
-    }
-    .btn-light:hover { background: #f8fafc; border-color: #94a3b8; }
-
-    .btn-chip {
-      border-radius: 999px;
+    .pill-btn {
       border: 1px solid #cbd5e1;
       background: #ffffff;
-      color: #334155;
-      padding: 0.42rem 0.72rem;
-      font-size: 0.8rem;
-      font-weight: 900;
-    }
-    .btn-chip:hover { background: #0f172a; color: white; border-color: #0f172a; }
-
-    .metric {
-      border-radius: 1rem;
-      border: 1px solid #e2e8f0;
-      background: #f8fafc;
-      padding: 0.9rem;
-    }
-    .metric-value {
-      margin-top: 0.25rem;
-      font-size: 1.28rem;
-      line-height: 1.1;
-      font-weight: 950;
-      color: #0f172a;
-    }
-
-    .notice {
-      border-radius: 1rem;
-      border: 1px solid #fde68a;
-      background: #fffbeb;
-      color: #92400e;
-      padding: 0.9rem;
-      font-size: 0.9rem;
-      line-height: 1.55;
-    }
-
-    .accent-line {
-      height: 0.25rem;
       border-radius: 999px;
-      background: linear-gradient(90deg, #2563eb, #f59e0b);
+      padding: 0.5rem 0.8rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #334155;
     }
 
-    .app-tab {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.35rem;
-      border-radius: 0.95rem;
-      padding: 0.72rem 0.65rem;
-      font-size: 0.82rem;
-      font-weight: 950;
-      color: #64748b;
-      background: transparent;
-      transition: color 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
-      white-space: nowrap;
+    .pill-btn:hover {
+      background: #f1f5f9;
     }
-    .app-tab.active {
-      background: #0f172a;
-      color: #ffffff;
-      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.2);
-    }
-
-    .bottom-tab {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.18rem;
-      border-radius: 1rem;
-      padding: 0.55rem 0.35rem;
-      font-size: 0.68rem;
-      font-weight: 950;
-      color: #64748b;
-    }
-    .bottom-tab.active {
-      background: #0f172a;
-      color: #ffffff;
-    }
-
-    .table-wrap { overflow-x: auto; }
-    .table-wrap table { min-width: 780px; }
 
     .toast {
       position: fixed;
       left: 50%;
-      bottom: 5.35rem;
+      bottom: 5.6rem;
       transform: translateX(-50%);
-      z-index: 80;
-      display: none;
-      border-radius: 999px;
-      background: #0f172a;
-      color: white;
-      padding: 0.72rem 1.1rem;
-      font-size: 0.88rem;
-      font-weight: 900;
-      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.3);
-      max-width: calc(100vw - 2rem);
-      text-align: center;
-    }
-    .toast.show { display: block; }
-
-    @media (min-width: 768px) {
-      .app-shell { padding-bottom: 2rem; }
-      .toast { bottom: 1.25rem; }
+      z-index: 60;
     }
   </style>
 </head>
 
-<body>
-  <div id="toast" class="toast">Copied to clipboard.</div>
-
-  <div class="app-shell mx-auto max-w-7xl px-4 py-4 md:px-6 lg:px-8">
-    <header class="sticky top-0 z-40 mb-4 rounded-3xl border border-slate-200 bg-white/95 p-3 shadow-soft backdrop-blur">
-      <div class="flex items-center justify-between gap-3">
-        <div class="min-w-0">
-          <p class="text-xs font-black text-blue-700">Whole House Tile Calculator</p>
-          <h1 class="truncate text-lg font-black text-slate-950 md:text-2xl">Tile Project Dashboard</h1>
-        </div>
-        <div class="grid shrink-0 grid-cols-2 gap-2">
-          <div class="rounded-2xl bg-slate-950 px-3 py-2 text-white md:px-4">
-            <p class="text-[0.65rem] font-black text-slate-400">Total Area</p>
-            <p class="text-sm font-black md:text-lg"><span id="head-total-area">0.00</span> ㎡</p>
+<body class="min-h-screen bg-slate-50 text-slate-900 pb-28">
+  <div id="app" class="mx-auto max-w-6xl">
+    <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
+      <div class="px-4 py-3 sm:px-6">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <h1 class="text-lg font-black tracking-tight text-slate-950 sm:text-2xl">
+              Whole House Tile Calculator
+            </h1>
+            <p class="text-xs font-semibold text-slate-500">
+              Light mode site calculator
+            </p>
           </div>
-          <div class="rounded-2xl bg-blue-600 px-3 py-2 text-white md:px-4">
-            <p class="text-[0.65rem] font-black text-blue-100">Total Cost</p>
-            <p class="text-sm font-black md:text-lg"><span id="head-total-cost">RM 0.00</span></p>
+
+          <div class="text-right">
+            <p class="text-xs font-bold text-slate-500">Total Cost</p>
+            <p id="headerTotalCost" class="text-lg font-black text-blue-700 sm:text-2xl">RM 0.00</p>
+          </div>
+        </div>
+
+        <div class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div class="rounded-xl bg-slate-100 px-3 py-2">
+            <p class="text-[11px] font-bold text-slate-500">Total Area</p>
+            <p id="headerTotalArea" class="text-sm font-black text-slate-950">0.00 ㎡</p>
+          </div>
+          <div class="rounded-xl bg-slate-100 px-3 py-2">
+            <p class="text-[11px] font-bold text-slate-500">Rooms</p>
+            <p id="headerRoomCount" class="text-sm font-black text-slate-950">0</p>
+          </div>
+          <div class="rounded-xl bg-slate-100 px-3 py-2">
+            <p class="text-[11px] font-bold text-slate-500">Tiles</p>
+            <p id="headerTileCount" class="text-sm font-black text-slate-950">0</p>
+          </div>
+          <div class="rounded-xl bg-slate-100 px-3 py-2">
+            <p class="text-[11px] font-bold text-slate-500">Pieces</p>
+            <p id="headerTotalPieces" class="text-sm font-black text-slate-950">0</p>
           </div>
         </div>
       </div>
-
-      <nav class="mt-3 hidden grid-cols-3 gap-2 rounded-2xl bg-slate-100 p-1 md:grid" aria-label="Main navigation">
-        <button class="app-tab active" type="button" data-tab-button="settings">⚙️ Settings & Tiles</button>
-        <button class="app-tab" type="button" data-tab-button="rooms">🏠 Rooms</button>
-        <button class="app-tab" type="button" data-tab-button="report">📋 Report</button>
-      </nav>
     </header>
 
-    <main>
-      <section id="tab-settings" data-tab-panel="settings" class="space-y-4">
-        <section class="card overflow-hidden">
-          <div class="accent-line"></div>
-          <div class="p-5 md:p-6">
-            <div class="mb-5 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-              <div>
-                <h2 class="text-xl font-black text-slate-950">Global Parameters</h2>
-                <p class="mt-1 text-sm leading-6 text-slate-600">Grout, waste percentage, and default door width are applied to every room.</p>
-              </div>
-              <div class="rounded-2xl bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800 ring-1 ring-amber-100">
-                Material guide: per 1 ㎡, about 0.35 bag of cement and 0.05 m³ of sand.
-              </div>
-            </div>
-
-            <div class="grid gap-4 md:grid-cols-4">
-              <div>
-                <label class="label" for="global-grout">Grout Joint</label>
-                <div class="relative">
-                  <input id="global-grout" class="input pr-12" type="number" min="0" step="0.1" value="2" />
-                  <span class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm font-black text-slate-400">mm</span>
-                </div>
-              </div>
-
-              <div>
-                <label class="label" for="global-waste">Waste Percentage</label>
-                <div class="relative">
-                  <input id="global-waste" class="input pr-12" type="number" min="0" step="0.1" value="10" />
-                  <span class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm font-black text-slate-400">%</span>
-                </div>
-              </div>
-
-              <div>
-                <label class="label">Laying Method Presets</label>
-                <div class="grid grid-cols-2 gap-2">
-                  <button class="btn-light" type="button" data-waste-preset="10">Straight 10%</button>
-                  <button class="btn-light" type="button" data-waste-preset="15">Diagonal 15%</button>
-                </div>
-              </div>
-
-              <div>
-                <label class="label" for="global-door-width">Default Door Deduction</label>
-                <div class="relative">
-                  <input id="global-door-width" class="input pr-12" type="number" min="0" step="0.1" value="0.9" />
-                  <span class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm font-black text-slate-400">m</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="card p-5 md:p-6">
-          <div class="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h2 class="text-xl font-black text-slate-950">Tile Schemes</h2>
-              <p class="mt-1 text-sm leading-6 text-slate-600">Create tile specifications first. Each room can then be assigned one tile scheme.</p>
-            </div>
-            <button id="add-scheme-btn" class="btn-main" type="button">+ Add Tile Scheme</button>
+    <main class="px-4 py-5 sm:px-6">
+      <section id="tabRooms" class="space-y-5">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-black text-slate-950">Rooms & Shapes</h2>
+            <p class="text-sm font-medium text-slate-600">
+              Add rooms first, choose a shape, then assign a tile scheme.
+            </p>
           </div>
 
-          <div class="mb-5 flex flex-wrap gap-2" id="quick-size-bar"></div>
-          <div id="scheme-grid" class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"></div>
-          <div id="empty-scheme" class="hidden rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm font-bold text-slate-500">
-            No tile schemes yet. Add at least one tile scheme first.
-          </div>
-        </section>
+          <button
+            id="addRoomBtn"
+            type="button"
+            class="rounded-2xl bg-blue-700 px-4 py-3 text-sm font-black text-white shadow-sm hover:bg-blue-800"
+          >
+            + Add Room
+          </button>
+        </div>
+
+        <div id="roomsList" class="space-y-4"></div>
       </section>
 
-      <section id="tab-rooms" data-tab-panel="rooms" class="hidden space-y-4">
-        <section class="grid gap-4 md:grid-cols-4">
-          <div class="metric">
-            <p class="text-xs font-black text-slate-500">Rooms</p>
-            <p class="metric-value"><span id="dash-room-count">0</span></p>
-          </div>
-          <div class="metric">
-            <p class="text-xs font-black text-slate-500">Tile Schemes</p>
-            <p class="metric-value"><span id="dash-scheme-count">0</span></p>
-          </div>
-          <div class="metric">
-            <p class="text-xs font-black text-slate-500">Cement Estimate</p>
-            <p class="metric-value"><span id="dash-cement">0</span> bags</p>
-          </div>
-          <div class="metric">
-            <p class="text-xs font-black text-slate-500">Skirting</p>
-            <p class="metric-value"><span id="dash-skirting">0.00</span> m</p>
-          </div>
-        </section>
+      <section id="tabSettings" class="hidden space-y-5">
+        <div>
+          <h2 class="text-xl font-black text-slate-950">Settings & Tiles</h2>
+          <p class="text-sm font-medium text-slate-600">
+            Set global calculation parameters and create tile schemes.
+          </p>
+        </div>
 
-        <section class="card p-5 md:p-6">
-          <div class="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div class="card p-4 sm:p-5">
+          <h3 class="mb-4 text-lg font-black text-slate-950">Global Settings</h3>
+
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div>
-              <h2 class="text-xl font-black text-slate-950">Room List</h2>
-              <p class="mt-1 text-sm leading-6 text-slate-600">Each room can use length × width or direct area, and can be assigned a tile scheme.</p>
+              <label class="field-label" for="groutInput">Grout Joint (mm)</label>
+              <input id="groutInput" class="field-input" type="number" min="0" step="0.1" />
             </div>
-            <button id="add-room-btn" class="btn-blue" type="button">+ Add Room</button>
+
+            <div>
+              <label class="field-label" for="wasteInput">Waste Percentage (%)</label>
+              <input id="wasteInput" class="field-input" type="number" min="0" step="0.1" />
+              <div class="mt-2 flex flex-wrap gap-2">
+                <button type="button" class="pill-btn" data-action="set-waste" data-value="10">
+                  Standard (10%)
+                </button>
+                <button type="button" class="pill-btn" data-action="set-waste" data-value="15">
+                  Diagonal (15%)
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label class="field-label" for="doorInput">Default Door Width (m)</label>
+              <input id="doorInput" class="field-input" type="number" min="0" step="0.01" />
+            </div>
+
+            <div class="rounded-2xl border border-blue-200 bg-blue-50 p-4">
+              <p class="text-sm font-black text-blue-900">Calculation Rule</p>
+              <p class="mt-1 text-xs font-semibold leading-5 text-blue-800">
+                Tile length and width use meters. Grout is converted from mm to m before effective tile area is calculated.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-4 sm:p-5">
+          <div class="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <h3 class="text-lg font-black text-slate-950">Tile Scheme Library</h3>
+              <p class="text-sm font-medium text-slate-600">
+                Tile length and width must be entered in meters.
+              </p>
+            </div>
+
+            <button
+              id="addTileBtn"
+              type="button"
+              class="rounded-2xl bg-blue-700 px-4 py-3 text-sm font-black text-white shadow-sm hover:bg-blue-800"
+            >
+              + Add Tile
+            </button>
           </div>
 
-          <div id="room-grid" class="grid gap-4 xl:grid-cols-2"></div>
-          <div id="empty-room" class="hidden rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm font-bold text-slate-500">
-            No rooms yet. Add living room, bedroom, kitchen, or any other room.
-          </div>
-        </section>
+          <div id="tilesList" class="grid gap-4 lg:grid-cols-2"></div>
+        </div>
       </section>
 
-      <section id="tab-report" data-tab-panel="report" class="hidden space-y-4">
-        <section class="card overflow-hidden">
-          <div class="accent-line"></div>
-          <div class="p-5 md:p-6">
-            <div class="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              <div>
-                <h2 class="text-xl font-black text-slate-950">Global Purchase Report</h2>
-                <p class="mt-1 text-sm leading-6 text-slate-600">All room quantities are grouped by tile specification for whole-house purchasing.</p>
-              </div>
-              <button id="copy-summary-btn" class="btn-green" type="button">Copy Full Purchase List</button>
+      <section id="tabReport" class="hidden space-y-5">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-black text-slate-950">Final Report</h2>
+            <p class="text-sm font-medium text-slate-600">
+              Global metrics, material estimation, and tile breakdown.
+            </p>
+          </div>
+
+          <button
+            id="copySummaryBtn"
+            type="button"
+            class="rounded-2xl bg-emerald-700 px-4 py-3 text-sm font-black text-white shadow-sm hover:bg-emerald-800"
+          >
+            Copy Summary
+          </button>
+        </div>
+
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="metric-card">
+            <p class="text-xs font-black text-slate-500">Total Area</p>
+            <p id="reportArea" class="mt-1 text-2xl font-black text-slate-950">0.00 ㎡</p>
+          </div>
+          <div class="metric-card">
+            <p class="text-xs font-black text-slate-500">Total Pieces</p>
+            <p id="reportPieces" class="mt-1 text-2xl font-black text-slate-950">0</p>
+          </div>
+          <div class="metric-card">
+            <p class="text-xs font-black text-slate-500">Total Boxes</p>
+            <p id="reportBoxes" class="mt-1 text-2xl font-black text-slate-950">0</p>
+          </div>
+          <div class="metric-card">
+            <p class="text-xs font-black text-slate-500">Total Cost</p>
+            <p id="reportCost" class="mt-1 text-2xl font-black text-blue-700">RM 0.00</p>
+          </div>
+        </div>
+
+        <div class="card p-4 sm:p-5">
+          <h3 class="mb-4 text-lg font-black text-slate-950">Material Estimation</h3>
+
+          <div class="grid gap-3 sm:grid-cols-3">
+            <div class="rounded-2xl bg-slate-100 p-4">
+              <p class="text-xs font-black text-slate-500">Cement (50kg bags)</p>
+              <p id="reportCement" class="mt-1 text-xl font-black text-slate-950">0 bags</p>
             </div>
-
-            <div class="grid gap-4 md:grid-cols-4">
-              <div class="metric">
-                <p class="text-xs font-black text-slate-500">Total Area</p>
-                <p class="metric-value"><span id="summary-total-area">0.00</span> ㎡</p>
-              </div>
-              <div class="metric">
-                <p class="text-xs font-black text-slate-500">Total Pieces</p>
-                <p class="metric-value"><span id="summary-total-pieces">0</span> pcs</p>
-              </div>
-              <div class="metric">
-                <p class="text-xs font-black text-slate-500">Total Boxes</p>
-                <p class="metric-value"><span id="summary-total-boxes">0</span> boxes</p>
-              </div>
-              <div class="metric">
-                <p class="text-xs font-black text-slate-500">Total Cost</p>
-                <p class="metric-value"><span id="summary-total-cost">RM 0.00</span></p>
-              </div>
+            <div class="rounded-2xl bg-slate-100 p-4">
+              <p class="text-xs font-black text-slate-500">Sand</p>
+              <p id="reportSand" class="mt-1 text-xl font-black text-slate-950">0.00 m³</p>
             </div>
-
-            <div class="mt-5 grid gap-5 lg:grid-cols-[1.25fr_0.75fr]">
-              <div class="panel p-4">
-                <div class="mb-3 flex items-center justify-between gap-3">
-                  <h3 class="font-black text-slate-950">Grouped by Tile Specification</h3>
-                  <span id="summary-group-count" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-600">0 groups</span>
-                </div>
-                <div class="table-wrap">
-                  <table class="w-full border-collapse text-left text-sm">
-                    <thead>
-                      <tr class="border-b border-slate-200 bg-slate-50 text-xs text-slate-500">
-                        <th class="px-3 py-3 font-black">Tile Size</th>
-                        <th class="px-3 py-3 font-black">Rooms</th>
-                        <th class="px-3 py-3 font-black text-right">Area</th>
-                        <th class="px-3 py-3 font-black text-right">Pieces</th>
-                        <th class="px-3 py-3 font-black text-right">Boxes</th>
-                        <th class="px-3 py-3 font-black text-right">Cost</th>
-                      </tr>
-                    </thead>
-                    <tbody id="summary-table-body"></tbody>
-                  </table>
-                </div>
-                <div id="empty-summary-table" class="hidden rounded-2xl bg-slate-50 p-8 text-center text-sm font-bold text-slate-500">
-                  No report data yet. Add rooms and assign tile schemes first.
-                </div>
-              </div>
-
-              <div class="grid gap-4">
-                <div class="panel p-4">
-                  <h3 class="mb-3 font-black text-slate-950">Material Estimation</h3>
-                  <div class="grid gap-3">
-                    <div class="metric">
-                      <p class="text-xs font-black text-slate-500">Cement</p>
-                      <p class="metric-value"><span id="material-cement">0</span> bags</p>
-                      <p class="mt-1 text-xs font-bold text-slate-500">Estimated as 50 kg per bag.</p>
-                    </div>
-                    <div class="metric">
-                      <p class="text-xs font-black text-slate-500">Sand</p>
-                      <p class="metric-value"><span id="material-sand-cubic">0.00</span> m³</p>
-                      <p class="mt-1 text-xs font-bold text-slate-500">About <span id="material-sand-bags">0</span> bags, estimated at 0.025 m³ per bag.</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="panel p-4">
-                  <h3 class="mb-3 font-black text-slate-950">Skirting Length</h3>
-                  <div class="metric">
-                    <p class="text-xs font-black text-slate-500">Only rooms using length × width mode are counted.</p>
-                    <p class="metric-value"><span id="summary-skirting">0.00</span> m</p>
-                    <p class="mt-1 text-xs font-bold text-slate-500">Default door width is deducted per room.</p>
-                  </div>
-                </div>
-
-                <div class="notice">
-                  Final purchasing should still be checked against site cutting, tile direction, door openings, edge finishing, and installer preference. This report is intended for fast estimating and supplier quotation.
-                </div>
-              </div>
+            <div class="rounded-2xl bg-slate-100 p-4">
+              <p class="text-xs font-black text-slate-500">Skirting Length</p>
+              <p id="reportSkirting" class="mt-1 text-xl font-black text-slate-950">0.00 m</p>
             </div>
           </div>
-        </section>
+
+          <p class="mt-3 text-xs font-semibold leading-5 text-slate-500">
+            Material assumption: 1 ㎡ requires approximately 0.35 bag of 50kg cement and 0.05 m³ of sand.
+          </p>
+        </div>
+
+        <div class="card overflow-hidden">
+          <div class="border-b border-slate-200 p-4 sm:p-5">
+            <h3 class="text-lg font-black text-slate-950">Breakdown by Tile Type</h3>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-left text-sm">
+              <thead class="bg-slate-100 text-xs font-black uppercase text-slate-600">
+                <tr>
+                  <th class="px-4 py-3">Tile Scheme</th>
+                  <th class="px-4 py-3">Rooms</th>
+                  <th class="px-4 py-3">Area</th>
+                  <th class="px-4 py-3">Pieces</th>
+                  <th class="px-4 py-3">Boxes</th>
+                  <th class="px-4 py-3">Cost</th>
+                </tr>
+              </thead>
+              <tbody id="breakdownTable" class="divide-y divide-slate-200 bg-white"></tbody>
+            </table>
+          </div>
+        </div>
       </section>
     </main>
   </div>
 
-  <nav class="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 px-3 pb-3 pt-2 shadow-[0_-10px_30px_rgba(15,23,42,0.10)] backdrop-blur md:hidden" aria-label="Mobile navigation">
-    <div class="mx-auto flex max-w-lg gap-2 rounded-2xl bg-slate-100 p-1">
-      <button class="bottom-tab active" type="button" data-tab-button="settings"><span>⚙️</span><span>Settings & Tiles</span></button>
-      <button class="bottom-tab" type="button" data-tab-button="rooms"><span>🏠</span><span>Rooms</span></button>
-      <button class="bottom-tab" type="button" data-tab-button="report"><span>📋</span><span>Report</span></button>
+  <nav class="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white px-2 py-2 shadow-[0_-10px_30px_rgba(15,23,42,0.08)]">
+    <div class="mx-auto grid max-w-3xl grid-cols-3 gap-2">
+      <button
+        type="button"
+        class="tab-btn active rounded-2xl border border-transparent px-2 py-3 text-center text-xs font-black sm:text-sm"
+        data-tab="rooms"
+      >
+        Rooms & Shapes
+      </button>
+      <button
+        type="button"
+        class="tab-btn rounded-2xl border border-transparent px-2 py-3 text-center text-xs font-black sm:text-sm"
+        data-tab="settings"
+      >
+        Settings & Tiles
+      </button>
+      <button
+        type="button"
+        class="tab-btn rounded-2xl border border-transparent px-2 py-3 text-center text-xs font-black sm:text-sm"
+        data-tab="report"
+      >
+        Final Report
+      </button>
     </div>
   </nav>
 
-  <script>
-    "use strict";
+  <div id="toast" class="toast hidden rounded-2xl bg-slate-950 px-4 py-3 text-sm font-bold text-white shadow-xl"></div>
 
-    const SIZE_PRESETS = [
-      { label: "300×300", length: 300, width: 300 },
-      { label: "300×600", length: 300, width: 600 },
-      { label: "600×600", length: 600, width: 600 },
-      { label: "600×1200", length: 600, width: 1200 },
-      { label: "750×1500", length: 750, width: 1500 },
-      { label: "800×800", length: 800, width: 800 },
-      { label: "800×1600", length: 800, width: 1600 },
-      { label: "900×1800", length: 900, width: 1800 }
-    ];
+  <script>
+    'use strict';
 
     const state = {
-      activeTab: "settings",
-      schemeSeq: 0,
-      roomSeq: 0,
-      schemes: [],
+      activeTab: 'rooms',
+      settings: {
+        grout: '2',
+        waste: '10',
+        doorWidth: '0.9'
+      },
+      tiles: [],
       rooms: []
     };
 
+    const roomValueKeys = [
+      'length',
+      'width',
+      'roomLength',
+      'roomWidth',
+      'columnLength',
+      'columnWidth',
+      'sectionALength',
+      'sectionAWidth',
+      'sectionBLength',
+      'sectionBWidth'
+    ];
+
     const els = {
-      grout: document.getElementById("global-grout"),
-      waste: document.getElementById("global-waste"),
-      doorWidth: document.getElementById("global-door-width"),
-      quickSizeBar: document.getElementById("quick-size-bar"),
-      schemeGrid: document.getElementById("scheme-grid"),
-      roomGrid: document.getElementById("room-grid"),
-      emptyScheme: document.getElementById("empty-scheme"),
-      emptyRoom: document.getElementById("empty-room"),
-      toast: document.getElementById("toast")
+      tabRooms: document.getElementById('tabRooms'),
+      tabSettings: document.getElementById('tabSettings'),
+      tabReport: document.getElementById('tabReport'),
+      roomsList: document.getElementById('roomsList'),
+      tilesList: document.getElementById('tilesList'),
+      groutInput: document.getElementById('groutInput'),
+      wasteInput: document.getElementById('wasteInput'),
+      doorInput: document.getElementById('doorInput'),
+      toast: document.getElementById('toast')
     };
 
-    init();
+    document.addEventListener('DOMContentLoaded', init);
 
     function init() {
-      renderQuickSizes();
+      els.groutInput.value = state.settings.grout;
+      els.wasteInput.value = state.settings.waste;
+      els.doorInput.value = state.settings.doorWidth;
+
+      addRoom(false);
       bindEvents();
-
-      addScheme({ name: "600×600 Tile", length: 600, width: 600, price: 12, piecesPerBox: 4, autoName: true });
-      addScheme({ name: "800×800 Tile", length: 800, width: 800, price: 18, piecesPerBox: 3, autoName: true });
-      addScheme({ name: "300×600 Wall Tile", length: 300, width: 600, price: 8, piecesPerBox: 6, autoName: true });
-
-      addRoom({ name: "Room 1 - Living Room", mode: "dimension", length: 5.4, width: 4.2, schemeId: state.schemes[1].id });
-      addRoom({ name: "Room 2 - Master Bedroom", mode: "dimension", length: 4.2, width: 3.6, schemeId: state.schemes[0].id });
-      addRoom({ name: "Room 3 - Kitchen", mode: "area", directArea: 10.5, schemeId: state.schemes[2].id });
-
-      setActiveTab("settings");
-      recalculateAll();
+      renderAll();
     }
 
     function bindEvents() {
-      document.querySelectorAll("[data-tab-button]").forEach(button => {
-        button.addEventListener("click", () => setActiveTab(button.dataset.tabButton));
+      document.querySelectorAll('[data-tab]').forEach((button) => {
+        button.addEventListener('click', () => setActiveTab(button.dataset.tab));
       });
 
-      [els.grout, els.waste, els.doorWidth].forEach(input => {
-        input.addEventListener("input", recalculateAll);
+      document.getElementById('addRoomBtn').addEventListener('click', () => addRoom(true));
+      document.getElementById('addTileBtn').addEventListener('click', () => addTile(true));
+      document.getElementById('copySummaryBtn').addEventListener('click', copySummary);
+
+      els.groutInput.addEventListener('input', (event) => {
+        state.settings.grout = event.target.value;
+        updateAllCalculatedViews();
       });
 
-      document.querySelectorAll("[data-waste-preset]").forEach(button => {
-        button.addEventListener("click", () => {
-          els.waste.value = button.dataset.wastePreset;
-          showToast(`Waste percentage set to ${button.dataset.wastePreset}%.`);
-          recalculateAll();
-        });
+      els.wasteInput.addEventListener('input', (event) => {
+        state.settings.waste = event.target.value;
+        updateAllCalculatedViews();
       });
 
-      document.getElementById("add-scheme-btn").addEventListener("click", () => addScheme());
-      document.getElementById("add-room-btn").addEventListener("click", () => addRoom());
-      document.getElementById("copy-summary-btn").addEventListener("click", copyGlobalSummary);
+      els.doorInput.addEventListener('input', (event) => {
+        state.settings.doorWidth = event.target.value;
+        updateAllCalculatedViews();
+      });
 
-      els.schemeGrid.addEventListener("input", event => {
-        const target = event.target;
-        const card = target.closest("[data-scheme-id]");
-        if (!card || !target.dataset.field) return;
+      document.body.addEventListener('click', (event) => {
+        const actionTarget = event.target.closest('[data-action]');
+        if (!actionTarget) return;
 
-        const scheme = getScheme(card.dataset.schemeId);
-        if (!scheme) return;
+        const action = actionTarget.dataset.action;
 
-        const field = target.dataset.field;
-        scheme[field] = target.value;
-
-        if (field === "name") {
-          scheme.autoName = false;
-          scheme.userRenamed = true;
+        if (action === 'set-waste') {
+          state.settings.waste = actionTarget.dataset.value;
+          els.wasteInput.value = state.settings.waste;
+          updateAllCalculatedViews();
         }
 
-        if ((field === "length" || field === "width") && scheme.autoName && !scheme.userRenamed) {
-          updateSchemeAutoName(scheme);
-          const nameInput = card.querySelector("[data-field='name']");
-          if (nameInput) nameInput.value = scheme.name;
+        if (action === 'delete-room') {
+          deleteRoom(actionTarget.dataset.id);
         }
 
-        renderRooms();
-        recalculateAll();
-      });
-
-      els.schemeGrid.addEventListener("click", event => {
-        const button = event.target.closest("button");
-        if (!button) return;
-
-        const action = button.dataset.action;
-        const schemeId = button.dataset.schemeId;
-
-        if (action === "delete-scheme") deleteScheme(schemeId);
-        if (action === "duplicate-scheme") duplicateScheme(schemeId);
-        if (action === "apply-size") applyPresetToScheme(schemeId, button.dataset.length, button.dataset.width);
-      });
-
-      els.roomGrid.addEventListener("input", event => {
-        const target = event.target;
-        const card = target.closest("[data-room-id]");
-        if (!card || !target.dataset.field) return;
-
-        const room = getRoom(card.dataset.roomId);
-        if (!room) return;
-
-        room[target.dataset.field] = target.value;
-        recalculateAll();
-      });
-
-      els.roomGrid.addEventListener("change", event => {
-        const target = event.target;
-        const card = target.closest("[data-room-id]");
-        if (!card || !target.dataset.field) return;
-
-        const room = getRoom(card.dataset.roomId);
-        if (!room) return;
-
-        room[target.dataset.field] = target.value;
-        renderRooms();
-        recalculateAll();
-      });
-
-      els.roomGrid.addEventListener("click", event => {
-        const button = event.target.closest("button");
-        if (!button) return;
-
-        const action = button.dataset.action;
-        const roomId = button.dataset.roomId;
-
-        if (action === "delete-room") deleteRoom(roomId);
-        if (action === "duplicate-room") duplicateRoom(roomId);
-        if (action === "switch-room-mode") {
-          const room = getRoom(roomId);
-          if (!room) return;
-          room.mode = button.dataset.mode;
-          renderRooms();
-          recalculateAll();
+        if (action === 'delete-tile') {
+          deleteTile(actionTarget.dataset.id);
         }
       });
+
+      els.roomsList.addEventListener('input', handleRoomInput);
+      els.roomsList.addEventListener('change', handleRoomInput);
+      els.tilesList.addEventListener('input', handleTileInput);
+      els.tilesList.addEventListener('change', handleTileInput);
     }
 
-    function setActiveTab(tabName) {
-      state.activeTab = tabName;
+    function setActiveTab(tab) {
+      state.activeTab = tab;
 
-      document.querySelectorAll("[data-tab-panel]").forEach(panel => {
-        panel.classList.toggle("hidden", panel.dataset.tabPanel !== tabName);
+      els.tabRooms.classList.toggle('hidden', tab !== 'rooms');
+      els.tabSettings.classList.toggle('hidden', tab !== 'settings');
+      els.tabReport.classList.toggle('hidden', tab !== 'report');
+
+      document.querySelectorAll('[data-tab]').forEach((button) => {
+        button.classList.toggle('active', button.dataset.tab === tab);
       });
 
-      document.querySelectorAll("[data-tab-button]").forEach(button => {
-        button.classList.toggle("active", button.dataset.tabButton === tabName);
-      });
-
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      updateAllCalculatedViews();
     }
 
-    function renderQuickSizes() {
-      els.quickSizeBar.innerHTML = SIZE_PRESETS.map(size => `
-        <button class="btn-chip" type="button" data-quick-length="${size.length}" data-quick-width="${size.width}">
-          ${size.label} mm
-        </button>
-      `).join("");
+    function addRoom(showToastAfter) {
+      const nextNumber = state.rooms.length + 1;
 
-      els.quickSizeBar.addEventListener("click", event => {
-        const button = event.target.closest("[data-quick-length]");
-        if (!button) return;
-        addScheme({
-          name: `${button.dataset.quickLength}×${button.dataset.quickWidth} Tile`,
-          length: button.dataset.quickLength,
-          width: button.dataset.quickWidth,
-          price: "",
-          piecesPerBox: "",
-          autoName: true
-        });
+      state.rooms.push({
+        id: createId('room'),
+        name: `Room ${nextNumber}`,
+        shape: 'rectangle',
+        tileId: '',
+        values: createEmptyRoomValues()
       });
-    }
 
-    function addScheme(prefill = {}) {
-      const id = `scheme-${++state.schemeSeq}`;
-      const scheme = {
-        id,
-        name: prefill.name || `Tile Scheme ${state.schemeSeq}`,
-        length: prefill.length ?? "",
-        width: prefill.width ?? "",
-        price: prefill.price ?? "",
-        piecesPerBox: prefill.piecesPerBox ?? "",
-        autoName: prefill.autoName ?? false,
-        userRenamed: false
-      };
-
-      if (scheme.autoName) updateSchemeAutoName(scheme);
-      state.schemes.push(scheme);
-      renderSchemes();
       renderRooms();
-      recalculateAll();
-    }
+      updateAllCalculatedViews();
 
-    function duplicateScheme(schemeId) {
-      const source = getScheme(schemeId);
-      if (!source) return;
-
-      addScheme({
-        name: `${source.name} Copy`,
-        length: source.length,
-        width: source.width,
-        price: source.price,
-        piecesPerBox: source.piecesPerBox,
-        autoName: false
-      });
-    }
-
-    function deleteScheme(schemeId) {
-      state.schemes = state.schemes.filter(scheme => scheme.id !== schemeId);
-      state.rooms.forEach(room => {
-        if (room.schemeId === schemeId) room.schemeId = "";
-      });
-      renderSchemes();
-      renderRooms();
-      recalculateAll();
-    }
-
-    function applyPresetToScheme(schemeId, length, width) {
-      const scheme = getScheme(schemeId);
-      if (!scheme) return;
-
-      scheme.length = String(length);
-      scheme.width = String(width);
-
-      if (scheme.autoName && !scheme.userRenamed) updateSchemeAutoName(scheme);
-
-      renderSchemes();
-      renderRooms();
-      recalculateAll();
-    }
-
-    function updateSchemeAutoName(scheme) {
-      const length = toNumber(scheme.length);
-      const width = toNumber(scheme.width);
-      scheme.name = length > 0 && width > 0 ? `${formatPlain(length)}×${formatPlain(width)} Tile` : scheme.name;
-    }
-
-    function renderSchemes() {
-      els.emptyScheme.classList.toggle("hidden", state.schemes.length > 0);
-
-      els.schemeGrid.innerHTML = state.schemes.map((scheme, index) => `
-        <article class="card overflow-hidden" data-scheme-id="${escapeHtml(scheme.id)}">
-          <div class="h-1 ${index % 3 === 0 ? "bg-blue-600" : index % 3 === 1 ? "bg-amber-500" : "bg-emerald-600"}"></div>
-          <div class="p-4">
-            <div class="mb-4 flex items-start justify-between gap-3">
-              <div class="min-w-0 flex-1">
-                <label class="label">Scheme Name</label>
-                <input class="input font-black" data-field="name" type="text" value="${escapeAttr(scheme.name)}" placeholder="Example: 800×800 Tile" />
-                ${scheme.userRenamed ? `<p class="mt-1 text-xs font-bold text-slate-500">Custom name is locked.</p>` : `<p class="mt-1 text-xs font-bold text-slate-500">Name follows tile size automatically.</p>`}
-              </div>
-              <div class="mt-6 flex shrink-0 gap-2">
-                <button class="btn-light" type="button" data-action="duplicate-scheme" data-scheme-id="${escapeHtml(scheme.id)}">Copy</button>
-                <button class="btn-red" type="button" data-action="delete-scheme" data-scheme-id="${escapeHtml(scheme.id)}">Delete</button>
-              </div>
-            </div>
-
-            <div class="mb-4 flex flex-wrap gap-2">
-              ${SIZE_PRESETS.slice(0, 6).map(size => `
-                <button class="btn-chip" type="button" data-action="apply-size" data-scheme-id="${escapeHtml(scheme.id)}" data-length="${size.length}" data-width="${size.width}">
-                  ${size.label}
-                </button>
-              `).join("")}
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="label">Tile Length</label>
-                <div class="relative">
-                  <input class="input pr-12" data-field="length" type="number" min="1" step="1" value="${escapeAttr(scheme.length)}" placeholder="800" />
-                  <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">mm</span>
-                </div>
-              </div>
-              <div>
-                <label class="label">Tile Width</label>
-                <div class="relative">
-                  <input class="input pr-12" data-field="width" type="number" min="1" step="1" value="${escapeAttr(scheme.width)}" placeholder="800" />
-                  <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">mm</span>
-                </div>
-              </div>
-              <div>
-                <label class="label">Price Per Piece</label>
-                <div class="relative">
-                  <input class="input pr-14" data-field="price" type="number" min="0" step="0.01" value="${escapeAttr(scheme.price)}" placeholder="18.00" />
-                  <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">RM</span>
-                </div>
-              </div>
-              <div>
-                <label class="label">Pieces Per Box</label>
-                <div class="relative">
-                  <input class="input pr-12" data-field="piecesPerBox" type="number" min="1" step="1" value="${escapeAttr(scheme.piecesPerBox)}" placeholder="3" />
-                  <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">pcs</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </article>
-      `).join("");
-    }
-
-    function addRoom(prefill = {}) {
-      const id = `room-${++state.roomSeq}`;
-      const room = {
-        id,
-        name: prefill.name || `Room ${state.roomSeq}`,
-        mode: prefill.mode || "dimension",
-        length: prefill.length ?? "",
-        width: prefill.width ?? "",
-        directArea: prefill.directArea ?? "",
-        schemeId: prefill.schemeId || (state.schemes[0] ? state.schemes[0].id : "")
-      };
-
-      state.rooms.push(room);
-      renderRooms();
-      recalculateAll();
-    }
-
-    function duplicateRoom(roomId) {
-      const source = getRoom(roomId);
-      if (!source) return;
-
-      addRoom({
-        name: `${source.name} Copy`,
-        mode: source.mode,
-        length: source.length,
-        width: source.width,
-        directArea: source.directArea,
-        schemeId: source.schemeId
-      });
+      if (showToastAfter) showToast('Room added.');
     }
 
     function deleteRoom(roomId) {
-      state.rooms = state.rooms.filter(room => room.id !== roomId);
+      state.rooms = state.rooms.filter((room) => room.id !== roomId);
       renderRooms();
-      recalculateAll();
+      updateAllCalculatedViews();
+      showToast('Room deleted.');
+    }
+
+    function addTile(showToastAfter) {
+      const tile = {
+        id: createId('tile'),
+        name: '',
+        length: '0.6',
+        width: '0.6',
+        price: '0',
+        piecesPerBox: '4',
+        nameLocked: false
+      };
+
+      tile.name = getAutoTileName(tile);
+
+      state.tiles.push(tile);
+
+      renderTiles();
+      renderRooms();
+      updateAllCalculatedViews();
+
+      if (showToastAfter) showToast('Tile scheme added.');
+    }
+
+    function deleteTile(tileId) {
+      state.tiles = state.tiles.filter((tile) => tile.id !== tileId);
+
+      state.rooms.forEach((room) => {
+        if (room.tileId === tileId) room.tileId = '';
+      });
+
+      renderTiles();
+      renderRooms();
+      updateAllCalculatedViews();
+
+      showToast('Tile scheme deleted.');
+    }
+
+    function handleRoomInput(event) {
+      const target = event.target;
+      const roomId = target.dataset.roomId;
+
+      if (!roomId) return;
+
+      const room = state.rooms.find((item) => item.id === roomId);
+      if (!room) return;
+
+      if (target.dataset.field === 'name') {
+        room.name = target.value;
+      }
+
+      if (target.dataset.field === 'shape') {
+        room.shape = target.value;
+        renderRooms();
+      }
+
+      if (target.dataset.field === 'tileId') {
+        room.tileId = target.value;
+      }
+
+      if (target.dataset.valueKey) {
+        room.values[target.dataset.valueKey] = target.value;
+      }
+
+      updateAllCalculatedViews();
+    }
+
+    function handleTileInput(event) {
+      const target = event.target;
+      const tileId = target.dataset.tileId;
+
+      if (!tileId) return;
+
+      const tile = state.tiles.find((item) => item.id === tileId);
+      if (!tile) return;
+
+      const field = target.dataset.field;
+
+      if (field === 'name') {
+        if (target.value.trim() === '') {
+          tile.nameLocked = false;
+          tile.name = getAutoTileName(tile);
+          target.value = tile.name;
+        } else {
+          tile.nameLocked = true;
+          tile.name = target.value;
+        }
+
+        renderRooms();
+      }
+
+      if (['length', 'width', 'price', 'piecesPerBox'].includes(field)) {
+        tile[field] = target.value;
+
+        if ((field === 'length' || field === 'width') && (!tile.nameLocked || tile.name.trim() === '')) {
+          tile.nameLocked = false;
+          tile.name = getAutoTileName(tile);
+
+          const nameInput = document.querySelector(`[data-tile-id="${tile.id}"][data-field="name"]`);
+          if (nameInput) nameInput.value = tile.name;
+
+          renderRooms();
+        }
+      }
+
+      updateAllCalculatedViews();
+    }
+
+    function renderAll() {
+      renderRooms();
+      renderTiles();
+      updateAllCalculatedViews();
     }
 
     function renderRooms() {
-      els.emptyRoom.classList.toggle("hidden", state.rooms.length > 0);
-      els.roomGrid.innerHTML = state.rooms.map((room, index) => renderRoomCard(room, index)).join("");
+      if (state.rooms.length === 0) {
+        els.roomsList.innerHTML = `
+          <div class="card p-8 text-center">
+            <p class="text-lg font-black text-slate-800">No rooms yet.</p>
+            <p class="mt-1 text-sm font-semibold text-slate-500">Tap Add Room to start.</p>
+          </div>
+        `;
+        return;
+      }
+
+      els.roomsList.innerHTML = state.rooms
+        .map((room, index) => renderRoomCard(room, index))
+        .join('');
     }
 
-    function renderRoomCard(room, index) {
+    function renderRoomCard(room) {
       const result = calculateRoom(room);
-      const isDimension = room.mode === "dimension";
-      const area = getRoomArea(room);
+      const tileOptions = getTileSelectOptions(room.tileId);
+      const tilePrompt = state.tiles.length === 0
+        ? '<p class="mt-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-800">Please create a tile scheme in Tab 2.</p>'
+        : '';
 
       return `
-        <article class="card overflow-hidden" data-room-id="${escapeHtml(room.id)}">
-          <div class="h-1 ${index % 3 === 0 ? "bg-blue-600" : index % 3 === 1 ? "bg-amber-500" : "bg-emerald-600"}"></div>
-          <div class="p-4">
-            <div class="mb-4 flex items-start justify-between gap-3">
-              <div class="min-w-0 flex-1">
-                <label class="label">Room Name</label>
-                <input class="input font-black" data-field="name" type="text" value="${escapeAttr(room.name)}" placeholder="Example: Living Room" />
-              </div>
-              <div class="mt-6 flex shrink-0 gap-2">
-                <button class="btn-light" type="button" data-action="duplicate-room" data-room-id="${escapeHtml(room.id)}">Copy</button>
-                <button class="btn-red" type="button" data-action="delete-room" data-room-id="${escapeHtml(room.id)}">Delete</button>
-              </div>
+        <article class="card p-4 sm:p-5">
+          <div class="mb-4 flex items-start justify-between gap-3">
+            <div class="flex-1">
+              <label class="field-label" for="room-name-${room.id}">Room Name</label>
+              <input
+                id="room-name-${room.id}"
+                class="field-input font-bold"
+                type="text"
+                value="${escapeAttr(room.name)}"
+                data-room-id="${room.id}"
+                data-field="name"
+                placeholder="Example: Living Room"
+              />
             </div>
 
-            <div class="mb-4 grid gap-3 md:grid-cols-[0.9fr_1.1fr]">
+            <button
+              type="button"
+              class="mt-6 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-black text-red-700 hover:bg-red-100"
+              data-action="delete-room"
+              data-id="${room.id}"
+            >
+              Delete
+            </button>
+          </div>
+
+          <div class="grid gap-4 lg:grid-cols-3">
+            <div>
+              <label class="field-label" for="shape-${room.id}">Room Shape</label>
+              <select
+                id="shape-${room.id}"
+                class="field-select"
+                data-room-id="${room.id}"
+                data-field="shape"
+              >
+                <option value="rectangle" ${room.shape === 'rectangle' ? 'selected' : ''}>Standard Rectangle</option>
+                <option value="column" ${room.shape === 'column' ? 'selected' : ''}>Rectangle with Column Cutout</option>
+                <option value="lshape" ${room.shape === 'lshape' ? 'selected' : ''}>L-Shaped Room</option>
+              </select>
+            </div>
+
+            <div class="lg:col-span-2">
+              <label class="field-label" for="tile-${room.id}">Assigned Tile Scheme</label>
+              <select
+                id="tile-${room.id}"
+                class="field-select"
+                data-room-id="${room.id}"
+                data-field="tileId"
+                ${state.tiles.length === 0 ? 'disabled' : ''}
+              >
+                ${tileOptions}
+              </select>
+              ${tilePrompt}
+            </div>
+          </div>
+
+          <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            ${renderShapeInputs(room)}
+          </div>
+
+          <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4" data-room-result-id="${room.id}">
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
               <div>
-                <label class="label">Area Input Mode</label>
-                <div class="grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1">
-                  <button class="rounded-xl px-3 py-2 text-xs font-black ${isDimension ? "bg-slate-950 text-white" : "text-slate-600"}" type="button" data-action="switch-room-mode" data-room-id="${escapeHtml(room.id)}" data-mode="dimension">Length × Width</button>
-                  <button class="rounded-xl px-3 py-2 text-xs font-black ${!isDimension ? "bg-slate-950 text-white" : "text-slate-600"}" type="button" data-action="switch-room-mode" data-room-id="${escapeHtml(room.id)}" data-mode="area">Direct Area</button>
-                </div>
+                <p class="text-xs font-black text-slate-500">Area</p>
+                <p class="mt-1 text-lg font-black text-slate-950" data-output="area">
+                  ${formatNumber(result.area, 2)} ㎡
+                </p>
               </div>
-
               <div>
-                <label class="label">Assigned Tile Scheme</label>
-                <select class="input" data-field="schemeId">
-                  <option value="">Select tile scheme</option>
-                  ${state.schemes.map(scheme => `
-                    <option value="${escapeAttr(scheme.id)}" ${scheme.id === room.schemeId ? "selected" : ""}>
-                      ${escapeHtml(scheme.name)} (${escapeHtml(scheme.length || "-")}×${escapeHtml(scheme.width || "-")}mm)
-                    </option>
-                  `).join("")}
-                </select>
+                <p class="text-xs font-black text-slate-500">Skirting</p>
+                <p class="mt-1 text-lg font-black text-slate-950" data-output="skirting">
+                  ${formatNumber(result.skirting, 2)} m
+                </p>
+              </div>
+              <div>
+                <p class="text-xs font-black text-slate-500">Net Pieces</p>
+                <p class="mt-1 text-lg font-black text-slate-950" data-output="netPieces">
+                  ${result.netPieces.toLocaleString()}
+                </p>
+              </div>
+              <div>
+                <p class="text-xs font-black text-slate-500">Total Pieces</p>
+                <p class="mt-1 text-lg font-black text-slate-950" data-output="totalPieces">
+                  ${result.totalPieces.toLocaleString()}
+                </p>
+              </div>
+              <div>
+                <p class="text-xs font-black text-slate-500">Subtotal</p>
+                <p class="mt-1 text-lg font-black text-blue-700" data-output="cost">
+                  ${formatRM(result.cost)}
+                </p>
               </div>
             </div>
 
-            <div class="mb-4">
-              ${isDimension ? renderDimensionInput(room) : renderAreaInput(room)}
-            </div>
-
-            <div class="mb-4 rounded-2xl bg-blue-50 p-3 text-sm font-bold text-blue-800 ring-1 ring-blue-100">
-              Current room area: ${formatNumber(area, 2)} ㎡
-            </div>
-
-            <div class="panel bg-slate-50 p-4">
-              ${renderRoomResult(result, isDimension)}
-            </div>
+            <p class="mt-3 text-xs font-semibold text-slate-500" data-output="boxes">
+              Boxes: ${result.boxes.toLocaleString()}${result.warning ? ' · ' + result.warning : ''}
+            </p>
           </div>
         </article>
       `;
     }
 
-    function renderDimensionInput(room) {
-      return `
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="label">Room Length</label>
-            <div class="relative">
-              <input class="input pr-10" data-field="length" type="number" min="0" step="0.01" value="${escapeAttr(room.length)}" placeholder="5.4" />
-              <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">m</span>
-            </div>
-          </div>
-          <div>
-            <label class="label">Room Width</label>
-            <div class="relative">
-              <input class="input pr-10" data-field="width" type="number" min="0" step="0.01" value="${escapeAttr(room.width)}" placeholder="4.2" />
-              <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">m</span>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderAreaInput(room) {
-      return `
+    function renderShapeInputs(room) {
+      const field = (key, label, placeholder) => `
         <div>
-          <label class="label">Room Area</label>
-          <div class="relative">
-            <input class="input pr-12" data-field="directArea" type="number" min="0" step="0.01" value="${escapeAttr(room.directArea)}" placeholder="20" />
-            <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">㎡</span>
-          </div>
+          <label class="field-label" for="${key}-${room.id}">${label}</label>
+          <input
+            id="${key}-${room.id}"
+            class="field-input"
+            type="number"
+            min="0"
+            step="0.01"
+            value="${escapeAttr(room.values[key])}"
+            placeholder="${placeholder}"
+            data-room-id="${room.id}"
+            data-value-key="${key}"
+          />
         </div>
       `;
-    }
 
-    function renderRoomResult(result, isDimension) {
-      if (!result.valid) {
-        return `
-          <div class="text-center text-sm font-bold text-slate-500">
-            Enter a valid area and assign a usable tile scheme to start calculation.
-          </div>
-        `;
+      if (room.shape === 'rectangle') {
+        return field('length', 'Length (m)', '5.00') +
+          field('width', 'Width (m)', '4.00');
       }
 
-      return `
-        <div class="mb-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p class="text-sm font-black text-slate-950">Room Detail</p>
-            <p class="text-xs font-bold text-slate-500">Area ${formatNumber(result.area, 2)} ㎡ · ${escapeHtml(result.scheme.name)}</p>
+      if (room.shape === 'column') {
+        return [
+          field('roomLength', 'Room Length (m)', '5.00'),
+          field('roomWidth', 'Room Width (m)', '4.00'),
+          field('columnLength', 'Column Length (m)', '0.50'),
+          field('columnWidth', 'Column Width (m)', '0.50')
+        ].join('');
+      }
+
+      return [
+        field('sectionALength', 'Section A Length (m)', '5.00'),
+        field('sectionAWidth', 'Section A Width (m)', '3.00'),
+        field('sectionBLength', 'Section B Length (m)', '2.00'),
+        field('sectionBWidth', 'Section B Width (m)', '2.00'),
+        '<div class="sm:col-span-2 lg:col-span-4 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold leading-5 text-slate-500">For L-shaped rooms, Section B is treated as attached to Section A along the smaller shared width for skirting estimation.</div>'
+      ].join('');
+    }
+
+    function getTileSelectOptions(selectedId) {
+      if (state.tiles.length === 0) {
+        return '<option value="">Please create a tile scheme in Tab 2</option>';
+      }
+
+      const base = '<option value="">Select tile scheme</option>';
+
+      return base + state.tiles
+        .map((tile) => `
+          <option value="${tile.id}" ${tile.id === selectedId ? 'selected' : ''}>
+            ${escapeHtml(tile.name)} · ${formatTileSize(tile)}
+          </option>
+        `)
+        .join('');
+    }
+
+    function renderTiles() {
+      if (state.tiles.length === 0) {
+        els.tilesList.innerHTML = `
+          <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center lg:col-span-2">
+            <p class="text-lg font-black text-slate-800">No tile schemes yet.</p>
+            <p class="mt-1 text-sm font-semibold text-slate-500">Tap Add Tile to create a scheme for room assignment.</p>
           </div>
-          <div class="rounded-full bg-blue-100 px-3 py-1 text-xs font-black text-blue-700">
-            ${escapeHtml(result.scheme.length)}×${escapeHtml(result.scheme.width)}mm
+        `;
+        return;
+      }
+
+      els.tilesList.innerHTML = state.tiles.map((tile) => `
+        <article class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <div class="mb-4 flex items-start justify-between gap-3">
+            <div class="flex-1">
+              <label class="field-label" for="tile-name-${tile.id}">Scheme Name</label>
+              <input
+                id="tile-name-${tile.id}"
+                class="field-input font-bold"
+                type="text"
+                value="${escapeAttr(tile.name)}"
+                data-tile-id="${tile.id}"
+                data-field="name"
+                placeholder="0.6m × 0.6m Tile"
+              />
+              <p class="mt-1 text-xs font-semibold ${tile.nameLocked ? 'text-amber-700' : 'text-blue-700'}">
+                ${tile.nameLocked ? 'Custom name locked. Clear the name field to enable auto-naming again.' : 'Auto-name is active.'}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="mt-6 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-black text-red-700 hover:bg-red-100"
+              data-action="delete-tile"
+              data-id="${tile.id}"
+            >
+              Delete
+            </button>
           </div>
-        </div>
-        <div class="grid grid-cols-2 gap-3 md:grid-cols-5">
-          <div class="metric">
-            <p class="text-xs font-black text-slate-500">Net Pieces</p>
-            <p class="metric-value">${formatInt(result.netPieces)}</p>
+
+          <div class="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label class="field-label" for="tile-length-${tile.id}">Tile Length (m)</label>
+              <input
+                id="tile-length-${tile.id}"
+                class="field-input"
+                type="number"
+                min="0"
+                step="0.001"
+                value="${escapeAttr(tile.length)}"
+                placeholder="0.6"
+                data-tile-id="${tile.id}"
+                data-field="length"
+              />
+            </div>
+
+            <div>
+              <label class="field-label" for="tile-width-${tile.id}">Tile Width (m)</label>
+              <input
+                id="tile-width-${tile.id}"
+                class="field-input"
+                type="number"
+                min="0"
+                step="0.001"
+                value="${escapeAttr(tile.width)}"
+                placeholder="0.6"
+                data-tile-id="${tile.id}"
+                data-field="width"
+              />
+            </div>
+
+            <div>
+              <label class="field-label" for="tile-price-${tile.id}">Price Per Piece (RM)</label>
+              <input
+                id="tile-price-${tile.id}"
+                class="field-input"
+                type="number"
+                min="0"
+                step="0.01"
+                value="${escapeAttr(tile.price)}"
+                placeholder="12.50"
+                data-tile-id="${tile.id}"
+                data-field="price"
+              />
+            </div>
+
+            <div>
+              <label class="field-label" for="tile-box-${tile.id}">Pieces Per Box</label>
+              <input
+                id="tile-box-${tile.id}"
+                class="field-input"
+                type="number"
+                min="1"
+                step="1"
+                value="${escapeAttr(tile.piecesPerBox)}"
+                placeholder="4"
+                data-tile-id="${tile.id}"
+                data-field="piecesPerBox"
+              />
+            </div>
           </div>
-          <div class="metric">
-            <p class="text-xs font-black text-slate-500">With Waste</p>
-            <p class="metric-value">${formatInt(result.totalPieces)}</p>
-          </div>
-          <div class="metric">
-            <p class="text-xs font-black text-slate-500">Boxes</p>
-            <p class="metric-value">${result.boxes === null ? "—" : formatInt(result.boxes)}</p>
-          </div>
-          <div class="metric">
-            <p class="text-xs font-black text-slate-500">Subtotal</p>
-            <p class="metric-value text-lg">${result.cost === null ? "—" : formatRM(result.cost)}</p>
-          </div>
-          <div class="metric">
-            <p class="text-xs font-black text-slate-500">Skirting</p>
-            <p class="metric-value">${isDimension ? formatNumber(result.skirting, 2) : "—"}</p>
-          </div>
-        </div>
-      `;
+        </article>
+      `).join('');
+    }
+
+    function updateAllCalculatedViews() {
+      const summary = calculateSummary();
+      updateHeader(summary);
+      updateRoomResultCards();
+      updateReport(summary);
+    }
+
+    function updateRoomResultCards() {
+      if (state.activeTab !== 'rooms') return;
+
+      state.rooms.forEach((room) => {
+        const result = calculateRoom(room);
+        const box = document.querySelector(`[data-room-result-id="${room.id}"]`);
+
+        if (!box) return;
+
+        const set = (key, value) => {
+          const node = box.querySelector(`[data-output="${key}"]`);
+          if (node) node.textContent = value;
+        };
+
+        set('area', `${formatNumber(result.area, 2)} ㎡`);
+        set('skirting', `${formatNumber(result.skirting, 2)} m`);
+        set('netPieces', result.netPieces.toLocaleString());
+        set('totalPieces', result.totalPieces.toLocaleString());
+        set('cost', formatRM(result.cost));
+        set('boxes', `Boxes: ${result.boxes.toLocaleString()}${result.warning ? ' · ' + result.warning : ''}`);
+      });
     }
 
     function calculateRoom(room) {
-      const area = getRoomArea(room);
-      const scheme = getScheme(room.schemeId);
-      const grout = Math.max(0, toNumber(els.grout.value));
-      const waste = Math.max(0, toNumber(els.waste.value));
-      const doorWidth = Math.max(0, toNumber(els.doorWidth.value));
+      const values = room.values;
+      const door = Math.max(0, toNumber(state.settings.doorWidth));
 
-      if (!scheme || area <= 0 || toNumber(scheme.length) <= 0 || toNumber(scheme.width) <= 0) {
-        return {
-          valid: false,
-          room,
-          scheme,
-          area,
-          skirting: getSkirtingLength(room, doorWidth)
-        };
+      let area = 0;
+      let perimeter = 0;
+      let warning = '';
+
+      if (room.shape === 'rectangle') {
+        const length = toNumber(values.length);
+        const width = toNumber(values.width);
+
+        if (length > 0 && width > 0) {
+          area = length * width;
+          perimeter = 2 * (length + width);
+        }
       }
 
-      const tileArea = ((toNumber(scheme.length) + grout) * (toNumber(scheme.width) + grout)) / 1000000;
-      const netPieces = Math.ceil(area / tileArea);
-      const totalPieces = Math.ceil(netPieces * (1 + waste / 100));
-      const piecesPerBox = toNumber(scheme.piecesPerBox);
-      const price = toNumber(scheme.price);
-      const boxes = piecesPerBox > 0 ? Math.ceil(totalPieces / piecesPerBox) : null;
-      const cost = scheme.price !== "" && price >= 0 ? totalPieces * price : null;
+      if (room.shape === 'column') {
+        const roomLength = toNumber(values.roomLength);
+        const roomWidth = toNumber(values.roomWidth);
+        const columnLength = toNumber(values.columnLength);
+        const columnWidth = toNumber(values.columnWidth);
+
+        const roomArea = roomLength * roomWidth;
+        const columnArea = columnLength * columnWidth;
+
+        if (roomLength > 0 && roomWidth > 0) {
+          area = Math.max(0, roomArea - columnArea);
+          perimeter = 2 * (roomLength + roomWidth);
+
+          if (columnLength > 0 && columnWidth > 0) {
+            perimeter += 2 * (columnLength + columnWidth);
+          }
+
+          if (columnArea >= roomArea && roomArea > 0) {
+            warning = 'Column cutout is larger than or equal to room area.';
+          }
+        }
+      }
+
+      if (room.shape === 'lshape') {
+        const aLength = toNumber(values.sectionALength);
+        const aWidth = toNumber(values.sectionAWidth);
+        const bLength = toNumber(values.sectionBLength);
+        const bWidth = toNumber(values.sectionBWidth);
+
+        if (aLength > 0 && aWidth > 0 && bLength > 0 && bWidth > 0) {
+          area = (aLength * aWidth) + (bLength * bWidth);
+
+          const sharedEdge = Math.min(aWidth, bWidth);
+          perimeter = (2 * (aLength + aWidth)) + (2 * (bLength + bWidth)) - (2 * sharedEdge);
+        }
+      }
+
+      const skirting = perimeter > 0 ? Math.max(0, perimeter - door) : 0;
+      const tile = state.tiles.find((item) => item.id === room.tileId);
+
+      let netPieces = 0;
+      let totalPieces = 0;
+      let boxes = 0;
+      let cost = 0;
+
+      if (tile && area > 0) {
+        const tileArea = getEffectiveTileArea(tile);
+        const waste = Math.max(0, toNumber(state.settings.waste));
+        const piecesPerBox = Math.floor(toNumber(tile.piecesPerBox));
+        const price = Math.max(0, toNumber(tile.price));
+
+        if (tileArea > 0) {
+          netPieces = Math.ceil(area / tileArea);
+          totalPieces = Math.ceil(netPieces * (1 + waste / 100));
+          boxes = piecesPerBox > 0 ? Math.ceil(totalPieces / piecesPerBox) : 0;
+          cost = totalPieces * price;
+        }
+      }
 
       return {
-        valid: true,
         room,
-        scheme,
+        tile,
         area,
-        tileArea,
+        perimeter,
+        skirting,
         netPieces,
         totalPieces,
-        wastePieces: Math.max(0, totalPieces - netPieces),
         boxes,
         cost,
-        skirting: getSkirtingLength(room, doorWidth)
+        warning
       };
     }
 
-    function calculateGlobalSummary() {
-      const results = state.rooms.map(calculateRoom);
-      const validResults = results.filter(item => item.valid);
-      const totalArea = results.reduce((sum, item) => sum + Math.max(0, item.area || 0), 0);
-      const totalSkirting = results.reduce((sum, item) => sum + Math.max(0, item.skirting || 0), 0);
-      const groupsMap = new Map();
+    function calculateSummary() {
+      const roomResults = state.rooms.map(calculateRoom);
 
-      validResults.forEach(item => {
-        const scheme = item.scheme;
-        const key = `${scheme.length}×${scheme.width}|${scheme.price}|${scheme.piecesPerBox}|${scheme.name}`;
+      const totalArea = roomResults.reduce((sum, item) => sum + item.area, 0);
+      const totalSkirting = roomResults.reduce((sum, item) => sum + item.skirting, 0);
+      const totalPieces = roomResults.reduce((sum, item) => sum + item.totalPieces, 0);
+      const totalBoxes = roomResults.reduce((sum, item) => sum + item.boxes, 0);
+      const totalCost = roomResults.reduce((sum, item) => sum + item.cost, 0);
 
-        if (!groupsMap.has(key)) {
-          groupsMap.set(key, {
-            key,
-            schemeName: scheme.name,
-            length: scheme.length,
-            width: scheme.width,
-            price: scheme.price,
-            piecesPerBox: scheme.piecesPerBox,
-            rooms: [],
+      const cementBags = Math.ceil(totalArea * 0.35);
+      const sand = totalArea * 0.05;
+
+      const breakdownMap = new Map();
+
+      roomResults.forEach((item) => {
+        if (!item.tile || item.area <= 0) return;
+
+        const key = item.tile.id;
+
+        if (!breakdownMap.has(key)) {
+          breakdownMap.set(key, {
+            tile: item.tile,
+            roomNames: [],
             area: 0,
             netPieces: 0,
             totalPieces: 0,
-            wastePieces: 0,
             boxes: 0,
-            cost: 0,
-            hasBoxes: toNumber(scheme.piecesPerBox) > 0,
-            hasCost: scheme.price !== "" && toNumber(scheme.price) >= 0
+            cost: 0
           });
         }
 
-        const group = groupsMap.get(key);
-        group.rooms.push(item.room.name);
-        group.area += item.area;
-        group.netPieces += item.netPieces;
-        group.totalPieces += item.totalPieces;
-        group.wastePieces += item.wastePieces;
-        group.boxes += item.boxes || 0;
-        group.cost += item.cost || 0;
+        const row = breakdownMap.get(key);
+
+        row.roomNames.push(item.room.name || 'Unnamed Room');
+        row.area += item.area;
+        row.netPieces += item.netPieces;
+        row.totalPieces += item.totalPieces;
+        row.boxes += item.boxes;
+        row.cost += item.cost;
       });
 
-      const groups = Array.from(groupsMap.values());
-      const totalPieces = groups.reduce((sum, group) => sum + group.totalPieces, 0);
-      const totalBoxes = groups.reduce((sum, group) => sum + group.boxes, 0);
-      const totalCost = groups.reduce((sum, group) => sum + group.cost, 0);
-      const cementBags = Math.ceil(totalArea * 0.35);
-      const sandCubic = totalArea * 0.05;
-      const sandBags = Math.ceil(sandCubic / 0.025);
-
       return {
-        results,
-        validResults,
-        groups,
+        roomResults,
         totalArea,
         totalSkirting,
         totalPieces,
         totalBoxes,
         totalCost,
         cementBags,
-        sandCubic,
-        sandBags
+        sand,
+        breakdown: Array.from(breakdownMap.values())
       };
     }
 
-    function renderSummary(summary) {
-      document.getElementById("summary-total-area").textContent = formatNumber(summary.totalArea, 2);
-      document.getElementById("summary-total-pieces").textContent = formatInt(summary.totalPieces);
-      document.getElementById("summary-total-boxes").textContent = formatInt(summary.totalBoxes);
-      document.getElementById("summary-total-cost").textContent = formatRM(summary.totalCost);
-      document.getElementById("summary-group-count").textContent = `${summary.groups.length} groups`;
-      document.getElementById("material-cement").textContent = formatInt(summary.cementBags);
-      document.getElementById("material-sand-cubic").textContent = formatNumber(summary.sandCubic, 2);
-      document.getElementById("material-sand-bags").textContent = formatInt(summary.sandBags);
-      document.getElementById("summary-skirting").textContent = formatNumber(summary.totalSkirting, 2);
+    function updateHeader(summary) {
+      document.getElementById('headerTotalCost').textContent = formatRM(summary.totalCost);
+      document.getElementById('headerTotalArea').textContent = `${formatNumber(summary.totalArea, 2)} ㎡`;
+      document.getElementById('headerRoomCount').textContent = state.rooms.length.toLocaleString();
+      document.getElementById('headerTileCount').textContent = state.tiles.length.toLocaleString();
+      document.getElementById('headerTotalPieces').textContent = summary.totalPieces.toLocaleString();
+    }
 
-      const tbody = document.getElementById("summary-table-body");
-      const empty = document.getElementById("empty-summary-table");
-      empty.classList.toggle("hidden", summary.groups.length > 0);
+    function updateReport(summary) {
+      document.getElementById('reportArea').textContent = `${formatNumber(summary.totalArea, 2)} ㎡`;
+      document.getElementById('reportPieces').textContent = summary.totalPieces.toLocaleString();
+      document.getElementById('reportBoxes').textContent = summary.totalBoxes.toLocaleString();
+      document.getElementById('reportCost').textContent = formatRM(summary.totalCost);
+      document.getElementById('reportCement').textContent = `${summary.cementBags.toLocaleString()} bags`;
+      document.getElementById('reportSand').textContent = `${formatNumber(summary.sand, 2)} m³`;
+      document.getElementById('reportSkirting').textContent = `${formatNumber(summary.totalSkirting, 2)} m`;
 
-      tbody.innerHTML = summary.groups.map(group => `
-        <tr class="border-b border-slate-100 last:border-0">
-          <td class="px-3 py-3 align-top">
-            <p class="font-black text-slate-950">${escapeHtml(group.length)}×${escapeHtml(group.width)}mm</p>
-            <p class="mt-1 text-xs font-bold text-slate-500">${escapeHtml(group.schemeName)}</p>
+      const table = document.getElementById('breakdownTable');
+
+      if (summary.breakdown.length === 0) {
+        table.innerHTML = `
+          <tr>
+            <td class="px-4 py-6 text-center font-semibold text-slate-500" colspan="6">
+              No tile assignment data yet.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      table.innerHTML = summary.breakdown.map((row) => `
+        <tr>
+          <td class="px-4 py-3 align-top">
+            <p class="font-black text-slate-950">${escapeHtml(row.tile.name)}</p>
+            <p class="text-xs font-semibold text-slate-500">${formatTileSize(row.tile)}</p>
           </td>
-          <td class="px-3 py-3 align-top text-slate-600">${group.rooms.map(escapeHtml).join(", ")}</td>
-          <td class="px-3 py-3 text-right align-top font-bold">${formatNumber(group.area, 2)} ㎡</td>
-          <td class="px-3 py-3 text-right align-top font-black">${formatInt(group.totalPieces)} pcs</td>
-          <td class="px-3 py-3 text-right align-top font-black">${group.hasBoxes ? `${formatInt(group.boxes)} boxes` : "Not set"}</td>
-          <td class="px-3 py-3 text-right align-top font-black">${group.hasCost ? formatRM(group.cost) : "Not set"}</td>
+          <td class="px-4 py-3 align-top text-slate-700">${escapeHtml(row.roomNames.join(', '))}</td>
+          <td class="px-4 py-3 align-top font-bold">${formatNumber(row.area, 2)} ㎡</td>
+          <td class="px-4 py-3 align-top font-bold">${row.totalPieces.toLocaleString()}</td>
+          <td class="px-4 py-3 align-top font-bold">${row.boxes.toLocaleString()}</td>
+          <td class="px-4 py-3 align-top font-black text-blue-700">${formatRM(row.cost)}</td>
         </tr>
-      `).join("");
+      `).join('');
     }
 
-    function renderDashboard(summary) {
-      document.getElementById("head-total-area").textContent = formatNumber(summary.totalArea, 2);
-      document.getElementById("head-total-cost").textContent = formatRM(summary.totalCost);
-      document.getElementById("dash-room-count").textContent = state.rooms.length;
-      document.getElementById("dash-scheme-count").textContent = state.schemes.length;
-      document.getElementById("dash-cement").textContent = formatInt(summary.cementBags);
-      document.getElementById("dash-skirting").textContent = formatNumber(summary.totalSkirting, 2);
-    }
-
-    function recalculateAll() {
-      renderRoomResultsOnly();
-      const summary = calculateGlobalSummary();
-      renderSummary(summary);
-      renderDashboard(summary);
-    }
-
-    function renderRoomResultsOnly() {
-      state.rooms.forEach(room => {
-        const card = Array.from(els.roomGrid.querySelectorAll("[data-room-id]")).find(item => item.dataset.roomId === room.id);
-        if (!card) return;
-
-        const resultBox = card.querySelector(".panel.bg-slate-50");
-        const areaBox = card.querySelector(".rounded-2xl.bg-blue-50");
-        if (resultBox) resultBox.innerHTML = renderRoomResult(calculateRoom(room), room.mode === "dimension");
-        if (areaBox) areaBox.textContent = `Current room area: ${formatNumber(getRoomArea(room), 2)} ㎡`;
-      });
-    }
-
-    function getRoomArea(room) {
-      if (room.mode === "dimension") {
-        const length = toNumber(room.length);
-        const width = toNumber(room.width);
-        return length > 0 && width > 0 ? length * width : 0;
-      }
-      const directArea = toNumber(room.directArea);
-      return directArea > 0 ? directArea : 0;
-    }
-
-    function getSkirtingLength(room, doorWidth) {
-      if (room.mode !== "dimension") return 0;
-      const length = toNumber(room.length);
-      const width = toNumber(room.width);
-      if (length <= 0 || width <= 0) return 0;
-      return Math.max(0, 2 * (length + width) - doorWidth);
-    }
-
-    function copyGlobalSummary() {
-      const summary = calculateGlobalSummary();
-      const text = buildSummaryText(summary);
-
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text)
-          .then(() => showToast("Full purchase list copied."))
-          .catch(() => fallbackCopy(text));
-      } else {
-        fallbackCopy(text);
-      }
-    }
-
-    function fallbackCopy(text) {
-      const textarea = document.createElement("textarea");
-      textarea.value = text;
-      textarea.setAttribute("readonly", "");
-      textarea.style.position = "fixed";
-      textarea.style.top = "-9999px";
-      textarea.style.left = "-9999px";
-      document.body.appendChild(textarea);
-      textarea.select();
-      textarea.setSelectionRange(0, textarea.value.length);
+    async function copySummary() {
+      const text = buildSummaryText(calculateSummary());
 
       try {
-        document.execCommand("copy");
-        showToast("Full purchase list copied.");
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          fallbackCopy(text);
+        }
+
+        showToast('Summary copied to clipboard.');
       } catch (error) {
-        showToast("Copy failed. Please copy manually.");
-      } finally {
-        document.body.removeChild(textarea);
+        fallbackCopy(text);
+        showToast('Summary copied to clipboard.');
       }
     }
 
     function buildSummaryText(summary) {
       const lines = [];
-      lines.push("Whole House Tile Purchase List");
-      lines.push("--------------------------------");
-      lines.push(`Total area: ${formatNumber(summary.totalArea, 2)} ㎡`);
-      lines.push(`Total tile pieces: ${formatInt(summary.totalPieces)} pcs`);
-      lines.push(`Total boxes: ${formatInt(summary.totalBoxes)} boxes`);
-      lines.push(`Total tile cost: ${formatRM(summary.totalCost)}`);
-      lines.push(`Skirting length: ${formatNumber(summary.totalSkirting, 2)} m`);
-      lines.push("");
-      lines.push("Tile summary by specification:");
 
-      if (summary.groups.length === 0) {
-        lines.push("No valid tile data yet.");
+      lines.push('WHOLE HOUSE TILE SUMMARY');
+      lines.push('');
+      lines.push(`Total area: ${formatNumber(summary.totalArea, 2)} ㎡`);
+      lines.push(`Total pieces: ${summary.totalPieces.toLocaleString()} pcs`);
+      lines.push(`Total boxes: ${summary.totalBoxes.toLocaleString()} boxes`);
+      lines.push(`Total tile cost: ${formatRM(summary.totalCost)}`);
+      lines.push(`Estimated cement: ${summary.cementBags.toLocaleString()} bags of 50kg`);
+      lines.push(`Estimated sand: ${formatNumber(summary.sand, 2)} m³`);
+      lines.push(`Estimated skirting length: ${formatNumber(summary.totalSkirting, 2)} m`);
+      lines.push('');
+      lines.push('BREAKDOWN BY TILE TYPE');
+
+      if (summary.breakdown.length === 0) {
+        lines.push('No tile assignment data yet.');
       } else {
-        summary.groups.forEach((group, index) => {
-          lines.push(`${index + 1}. ${group.length}×${group.width}mm - ${group.schemeName}`);
-          lines.push(`   Rooms: ${group.rooms.join(", ")}`);
-          lines.push(`   Area: ${formatNumber(group.area, 2)} ㎡`);
-          lines.push(`   Pieces: ${formatInt(group.totalPieces)} pcs`);
-          lines.push(`   Boxes: ${group.hasBoxes ? `${formatInt(group.boxes)} boxes` : "not set"}`);
-          lines.push(`   Cost: ${group.hasCost ? formatRM(group.cost) : "not set"}`);
+        summary.breakdown.forEach((row, index) => {
+          lines.push(`${index + 1}. ${row.tile.name}`);
+          lines.push(`   Size: ${formatTileSize(row.tile)}`);
+          lines.push(`   Rooms: ${row.roomNames.join(', ')}`);
+          lines.push(`   Area: ${formatNumber(row.area, 2)} ㎡`);
+          lines.push(`   Pieces: ${row.totalPieces.toLocaleString()} pcs`);
+          lines.push(`   Boxes: ${row.boxes.toLocaleString()} boxes`);
+          lines.push(`   Cost: ${formatRM(row.cost)}`);
         });
       }
 
-      lines.push("");
-      lines.push("Material estimate:");
-      lines.push(`Cement: ${formatInt(summary.cementBags)} bags of 50 kg`);
-      lines.push(`Sand: ${formatNumber(summary.sandCubic, 2)} m³, about ${formatInt(summary.sandBags)} bags`);
-      lines.push("");
-      lines.push(`Grout joint: ${formatNumber(toNumber(els.grout.value), 1)} mm`);
-      lines.push(`Waste percentage: ${formatNumber(toNumber(els.waste.value), 1)}%`);
-      lines.push(`Door deduction per length × width room: ${formatNumber(toNumber(els.doorWidth.value), 2)} m`);
-      return lines.join("\n");
+      return lines.join('\n');
     }
 
-    function getScheme(id) {
-      return state.schemes.find(scheme => String(scheme.id) === String(id));
+    function fallbackCopy(text) {
+      const textarea = document.createElement('textarea');
+
+      textarea.value = text;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-9999px';
+
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      textarea.remove();
     }
 
-    function getRoom(id) {
-      return state.rooms.find(room => String(room.id) === String(id));
+    function getEffectiveTileArea(tile) {
+      const groutM = Math.max(0, toNumber(state.settings.grout)) / 1000;
+      const length = toNumber(tile.length);
+      const width = toNumber(tile.width);
+
+      if (length <= 0 || width <= 0) return 0;
+
+      return (length + groutM) * (width + groutM);
+    }
+
+    function getAutoTileName(tile) {
+      const length = normalizeDimensionText(tile.length);
+      const width = normalizeDimensionText(tile.width);
+
+      if (!length || !width) return 'New Tile Scheme';
+
+      return `${length}m × ${width}m Tile`;
+    }
+
+    function formatTileSize(tile) {
+      const length = normalizeDimensionText(tile.length) || '0';
+      const width = normalizeDimensionText(tile.width) || '0';
+
+      return `${length}m × ${width}m`;
+    }
+
+    function normalizeDimensionText(value) {
+      const number = toNumber(value);
+
+      if (number <= 0) return '';
+
+      return String(Number(number.toFixed(3))).replace(/\.0+$/, '');
+    }
+
+    function createEmptyRoomValues() {
+      return roomValueKeys.reduce((obj, key) => {
+        obj[key] = '';
+        return obj;
+      }, {});
+    }
+
+    function createId(prefix) {
+      return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
     }
 
     function toNumber(value) {
@@ -1236,49 +1200,43 @@
       return Number.isFinite(number) ? number : 0;
     }
 
-    function formatNumber(value, decimals = 2) {
-      return Number(value || 0).toLocaleString("en-MY", {
-        minimumFractionDigits: decimals,
-        maximumFractionDigits: decimals
+    function formatNumber(value, digits) {
+      return Number(value || 0).toLocaleString('en-MY', {
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits
       });
-    }
-
-    function formatPlain(value) {
-      return Number(value || 0).toLocaleString("en-MY", {
-        maximumFractionDigits: 4
-      });
-    }
-
-    function formatInt(value) {
-      return Math.round(Number(value || 0)).toLocaleString("en-MY");
     }
 
     function formatRM(value) {
-      return `RM ${Number(value || 0).toLocaleString("en-MY", {
+      return `RM ${Number(value || 0).toLocaleString('en-MY', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       })}`;
     }
 
     function escapeHtml(value) {
-      return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     }
 
     function escapeAttr(value) {
       return escapeHtml(value);
     }
 
+    let toastTimer = null;
+
     function showToast(message) {
+      clearTimeout(toastTimer);
+
       els.toast.textContent = message;
-      els.toast.classList.add("show");
-      window.clearTimeout(showToast.timer);
-      showToast.timer = window.setTimeout(() => {
-        els.toast.classList.remove("show");
+      els.toast.classList.remove('hidden');
+
+      toastTimer = setTimeout(() => {
+        els.toast.classList.add('hidden');
       }, 1800);
     }
   </script>
