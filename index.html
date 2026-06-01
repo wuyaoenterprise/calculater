@@ -3,1242 +3,1286 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Whole House Tile Calculator</title>
+  <title>AI-Driven Tile Installation Planning System</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>
     * { box-sizing: border-box; }
-    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     input[type="number"]::-webkit-inner-spin-button,
     input[type="number"]::-webkit-outer-spin-button { opacity: 0.35; }
-
-    .field-label {
-      display: block;
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: #334155;
-      margin-bottom: 0.35rem;
-    }
-
-    .field-input,
-    .field-select {
+    .field-label { display: block; margin-bottom: 0.35rem; color: #334155; font-size: 0.76rem; font-weight: 800; }
+    .field-input, .field-select, .field-textarea {
       width: 100%;
       border: 1px solid #cbd5e1;
-      background: #ffffff;
+      background: #fff;
       color: #0f172a;
-      border-radius: 0.85rem;
-      padding: 0.72rem 0.85rem;
-      font-size: 0.95rem;
+      border-radius: 0.5rem;
+      padding: 0.62rem 0.72rem;
+      font-size: 0.92rem;
       outline: none;
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
-
-    .field-input:focus,
-    .field-select:focus {
+    .field-textarea { min-height: 6.5rem; resize: vertical; }
+    .field-input:focus, .field-select:focus, .field-textarea:focus {
       border-color: #2563eb;
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
     }
-
-    .card {
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 1.35rem;
-      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.07);
-    }
-
-    .metric-card {
-      background: #ffffff;
-      border: 1px solid #dbe3ef;
-      border-radius: 1.1rem;
-      padding: 1rem;
-    }
-
-    .tab-btn {
-      color: #475569;
-    }
-
-    .tab-btn.active {
-      color: #1d4ed8;
-      background: #eff6ff;
-      border-color: #93c5fd;
-    }
-
-    .pill-btn {
-      border: 1px solid #cbd5e1;
-      background: #ffffff;
-      border-radius: 999px;
-      padding: 0.5rem 0.8rem;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #334155;
-    }
-
-    .pill-btn:hover {
-      background: #f1f5f9;
-    }
-
-    .toast {
-      position: fixed;
-      left: 50%;
-      bottom: 5.6rem;
-      transform: translateX(-50%);
-      z-index: 60;
+    .panel { border: 1px solid #e2e8f0; border-radius: 0.5rem; background: #fff; box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05); }
+    .metric { border: 1px solid #dbe3ef; border-radius: 0.5rem; background: #fff; padding: 1rem; }
+    .nav-btn { border: 1px solid transparent; color: #475569; }
+    .nav-btn.active { border-color: #93c5fd; background: #eff6ff; color: #1d4ed8; }
+    .warning { border-color: #f59e0b; background: #fffbeb; color: #92400e; }
+    .danger { border-color: #fca5a5; background: #fef2f2; color: #991b1b; }
+    .success { border-color: #86efac; background: #f0fdf4; color: #166534; }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #fff !important; padding: 0 !important; }
+      #printReport { display: block !important; }
+      #appShell { max-width: 100% !important; }
     }
   </style>
 </head>
-
-<body class="min-h-screen bg-slate-50 text-slate-900 pb-28">
-  <div id="app" class="mx-auto max-w-6xl">
-    <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
+<body class="min-h-screen bg-slate-50 text-slate-900">
+  <div id="appShell" class="mx-auto max-w-7xl">
+    <header class="no-print sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
       <div class="px-4 py-3 sm:px-6">
-        <div class="flex items-center justify-between gap-3">
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h1 class="text-lg font-black tracking-tight text-slate-950 sm:text-2xl">
-              Whole House Tile Calculator
-            </h1>
-            <p class="text-xs font-semibold text-slate-500">
-              Light mode site calculator
-            </p>
+            <p class="text-xs font-black uppercase tracking-[0.18em] text-blue-700">Research Prototype</p>
+            <h1 class="text-xl font-black tracking-tight text-slate-950 sm:text-2xl">AI-Driven Tile Installation Planning System</h1>
+            <p class="mt-1 text-sm font-semibold text-slate-500">Whole-house tile estimating, mock AI room detection, material planning, duration prediction, and research evaluation.</p>
           </div>
-
-          <div class="text-right">
-            <p class="text-xs font-bold text-slate-500">Total Cost</p>
-            <p id="headerTotalCost" class="text-lg font-black text-blue-700 sm:text-2xl">RM 0.00</p>
-          </div>
-        </div>
-
-        <div class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          <div class="rounded-xl bg-slate-100 px-3 py-2">
-            <p class="text-[11px] font-bold text-slate-500">Total Area</p>
-            <p id="headerTotalArea" class="text-sm font-black text-slate-950">0.00 ㎡</p>
-          </div>
-          <div class="rounded-xl bg-slate-100 px-3 py-2">
-            <p class="text-[11px] font-bold text-slate-500">Rooms</p>
-            <p id="headerRoomCount" class="text-sm font-black text-slate-950">0</p>
-          </div>
-          <div class="rounded-xl bg-slate-100 px-3 py-2">
-            <p class="text-[11px] font-bold text-slate-500">Tiles</p>
-            <p id="headerTileCount" class="text-sm font-black text-slate-950">0</p>
-          </div>
-          <div class="rounded-xl bg-slate-100 px-3 py-2">
-            <p class="text-[11px] font-bold text-slate-500">Pieces</p>
-            <p id="headerTotalPieces" class="text-sm font-black text-slate-950">0</p>
+          <div class="grid grid-cols-2 gap-2 text-right sm:grid-cols-4 lg:w-[34rem]">
+            <div class="rounded-lg bg-slate-100 px-3 py-2">
+              <p class="text-[11px] font-bold text-slate-500">Net Area</p>
+              <p id="headerTotalArea" class="text-sm font-black text-slate-950">0.00 m2</p>
+            </div>
+            <div class="rounded-lg bg-slate-100 px-3 py-2">
+              <p class="text-[11px] font-bold text-slate-500">Rooms</p>
+              <p id="headerRoomCount" class="text-sm font-black text-slate-950">0</p>
+            </div>
+            <div class="rounded-lg bg-slate-100 px-3 py-2">
+              <p class="text-[11px] font-bold text-slate-500">Boxes</p>
+              <p id="headerTotalBoxes" class="text-sm font-black text-slate-950">0</p>
+            </div>
+            <div class="rounded-lg bg-slate-100 px-3 py-2">
+              <p class="text-[11px] font-bold text-slate-500">Cost</p>
+              <p id="headerTotalCost" class="text-sm font-black text-blue-700">RM 0.00</p>
+            </div>
           </div>
         </div>
       </div>
+      <nav id="topNav" class="flex gap-2 overflow-x-auto px-4 pb-3 sm:px-6"></nav>
     </header>
 
-    <main class="px-4 py-5 sm:px-6">
-      <section id="tabRooms" class="space-y-5">
-        <div class="flex items-center justify-between gap-3">
-          <div>
-            <h2 class="text-xl font-black text-slate-950">Rooms & Shapes</h2>
-            <p class="text-sm font-medium text-slate-600">
-              Add rooms first, choose a shape, then assign a tile scheme.
-            </p>
-          </div>
-
-          <button
-            id="addRoomBtn"
-            type="button"
-            class="rounded-2xl bg-blue-700 px-4 py-3 text-sm font-black text-white shadow-sm hover:bg-blue-800"
-          >
-            + Add Room
-          </button>
-        </div>
-
-        <div id="roomsList" class="space-y-4"></div>
-      </section>
-
-      <section id="tabSettings" class="hidden space-y-5">
-        <div>
-          <h2 class="text-xl font-black text-slate-950">Settings & Tiles</h2>
-          <p class="text-sm font-medium text-slate-600">
-            Set global calculation parameters and create tile schemes.
-          </p>
-        </div>
-
-        <div class="card p-4 sm:p-5">
-          <h3 class="mb-4 text-lg font-black text-slate-950">Global Settings</h3>
-
-          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div>
-              <label class="field-label" for="groutInput">Grout Joint (mm)</label>
-              <input id="groutInput" class="field-input" type="number" min="0" step="0.1" />
-            </div>
-
-            <div>
-              <label class="field-label" for="wasteInput">Waste Percentage (%)</label>
-              <input id="wasteInput" class="field-input" type="number" min="0" step="0.1" />
-              <div class="mt-2 flex flex-wrap gap-2">
-                <button type="button" class="pill-btn" data-action="set-waste" data-value="10">
-                  Standard (10%)
-                </button>
-                <button type="button" class="pill-btn" data-action="set-waste" data-value="15">
-                  Diagonal (15%)
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label class="field-label" for="doorInput">Default Door Width (m)</label>
-              <input id="doorInput" class="field-input" type="number" min="0" step="0.01" />
-            </div>
-
-            <div class="rounded-2xl border border-blue-200 bg-blue-50 p-4">
-              <p class="text-sm font-black text-blue-900">Calculation Rule</p>
-              <p class="mt-1 text-xs font-semibold leading-5 text-blue-800">
-                Tile length and width use meters. Grout is converted from mm to m before effective tile area is calculated.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card p-4 sm:p-5">
-          <div class="mb-4 flex items-center justify-between gap-3">
-            <div>
-              <h3 class="text-lg font-black text-slate-950">Tile Scheme Library</h3>
-              <p class="text-sm font-medium text-slate-600">
-                Tile length and width must be entered in meters.
-              </p>
-            </div>
-
-            <button
-              id="addTileBtn"
-              type="button"
-              class="rounded-2xl bg-blue-700 px-4 py-3 text-sm font-black text-white shadow-sm hover:bg-blue-800"
-            >
-              + Add Tile
-            </button>
-          </div>
-
-          <div id="tilesList" class="grid gap-4 lg:grid-cols-2"></div>
-        </div>
-      </section>
-
-      <section id="tabReport" class="hidden space-y-5">
-        <div class="flex items-center justify-between gap-3">
-          <div>
-            <h2 class="text-xl font-black text-slate-950">Final Report</h2>
-            <p class="text-sm font-medium text-slate-600">
-              Global metrics, material estimation, and tile breakdown.
-            </p>
-          </div>
-
-          <button
-            id="copySummaryBtn"
-            type="button"
-            class="rounded-2xl bg-emerald-700 px-4 py-3 text-sm font-black text-white shadow-sm hover:bg-emerald-800"
-          >
-            Copy Summary
-          </button>
-        </div>
-
-        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div class="metric-card">
-            <p class="text-xs font-black text-slate-500">Total Area</p>
-            <p id="reportArea" class="mt-1 text-2xl font-black text-slate-950">0.00 ㎡</p>
-          </div>
-          <div class="metric-card">
-            <p class="text-xs font-black text-slate-500">Total Pieces</p>
-            <p id="reportPieces" class="mt-1 text-2xl font-black text-slate-950">0</p>
-          </div>
-          <div class="metric-card">
-            <p class="text-xs font-black text-slate-500">Total Boxes</p>
-            <p id="reportBoxes" class="mt-1 text-2xl font-black text-slate-950">0</p>
-          </div>
-          <div class="metric-card">
-            <p class="text-xs font-black text-slate-500">Total Cost</p>
-            <p id="reportCost" class="mt-1 text-2xl font-black text-blue-700">RM 0.00</p>
-          </div>
-        </div>
-
-        <div class="card p-4 sm:p-5">
-          <h3 class="mb-4 text-lg font-black text-slate-950">Material Estimation</h3>
-
-          <div class="grid gap-3 sm:grid-cols-3">
-            <div class="rounded-2xl bg-slate-100 p-4">
-              <p class="text-xs font-black text-slate-500">Cement (50kg bags)</p>
-              <p id="reportCement" class="mt-1 text-xl font-black text-slate-950">0 bags</p>
-            </div>
-            <div class="rounded-2xl bg-slate-100 p-4">
-              <p class="text-xs font-black text-slate-500">Sand</p>
-              <p id="reportSand" class="mt-1 text-xl font-black text-slate-950">0.00 m³</p>
-            </div>
-            <div class="rounded-2xl bg-slate-100 p-4">
-              <p class="text-xs font-black text-slate-500">Skirting Length</p>
-              <p id="reportSkirting" class="mt-1 text-xl font-black text-slate-950">0.00 m</p>
-            </div>
-          </div>
-
-          <p class="mt-3 text-xs font-semibold leading-5 text-slate-500">
-            Material assumption: 1 ㎡ requires approximately 0.35 bag of 50kg cement and 0.05 m³ of sand.
-          </p>
-        </div>
-
-        <div class="card overflow-hidden">
-          <div class="border-b border-slate-200 p-4 sm:p-5">
-            <h3 class="text-lg font-black text-slate-950">Breakdown by Tile Type</h3>
-          </div>
-
-          <div class="overflow-x-auto">
-            <table class="min-w-full text-left text-sm">
-              <thead class="bg-slate-100 text-xs font-black uppercase text-slate-600">
-                <tr>
-                  <th class="px-4 py-3">Tile Scheme</th>
-                  <th class="px-4 py-3">Rooms</th>
-                  <th class="px-4 py-3">Area</th>
-                  <th class="px-4 py-3">Pieces</th>
-                  <th class="px-4 py-3">Boxes</th>
-                  <th class="px-4 py-3">Cost</th>
-                </tr>
-              </thead>
-              <tbody id="breakdownTable" class="divide-y divide-slate-200 bg-white"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-    </main>
+    <main id="app" class="px-4 py-5 sm:px-6"></main>
+    <section id="printReport" class="hidden p-8"></section>
   </div>
 
-  <nav class="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white px-2 py-2 shadow-[0_-10px_30px_rgba(15,23,42,0.08)]">
-    <div class="mx-auto grid max-w-3xl grid-cols-3 gap-2">
-      <button
-        type="button"
-        class="tab-btn active rounded-2xl border border-transparent px-2 py-3 text-center text-xs font-black sm:text-sm"
-        data-tab="rooms"
-      >
-        Rooms & Shapes
-      </button>
-      <button
-        type="button"
-        class="tab-btn rounded-2xl border border-transparent px-2 py-3 text-center text-xs font-black sm:text-sm"
-        data-tab="settings"
-      >
-        Settings & Tiles
-      </button>
-      <button
-        type="button"
-        class="tab-btn rounded-2xl border border-transparent px-2 py-3 text-center text-xs font-black sm:text-sm"
-        data-tab="report"
-      >
-        Final Report
-      </button>
-    </div>
-  </nav>
-
-  <div id="toast" class="toast hidden rounded-2xl bg-slate-950 px-4 py-3 text-sm font-bold text-white shadow-xl"></div>
-
   <script>
-    'use strict';
+    /*
+      Future backend API plan:
+      POST /api/upload-plan
+      POST /api/detect-rooms
+      POST /api/calculate-materials
+      POST /api/predict-duration
+      GET  /api/project-report/:id
 
-    const state = {
-      activeTab: 'rooms',
-      settings: {
-        grout: '2',
-        waste: '10',
-        doorWidth: '0.9'
-      },
-      tiles: [],
-      rooms: []
-    };
+      Future AI / Computer Vision methods:
+      OCR for floor-plan text and dimension annotations.
+      Image Segmentation for room boundary detection.
+      Object Detection for columns, obstacles, doors, and walls.
+      Polygon Area Calculation for irregular room shapes.
+      Scale Calibration for converting drawing scale into real dimensions.
+      Manual Correction Layer for user review and adjustment of AI results.
+    */
 
-    const roomValueKeys = [
-      'length',
-      'width',
-      'roomLength',
-      'roomWidth',
-      'columnLength',
-      'columnWidth',
-      'sectionALength',
-      'sectionAWidth',
-      'sectionBLength',
-      'sectionBWidth'
+    const pages = [
+      ["dashboard", "Dashboard", "layout-dashboard"],
+      ["upload", "Floor Plan Upload", "upload"],
+      ["ai", "AI Room Detection", "scan-search"],
+      ["rooms", "Rooms & Shapes", "ruler"],
+      ["settings", "Tile & Materials", "settings"],
+      ["duration", "Labour & Duration", "calendar-clock"],
+      ["weather", "Weather & Risk", "cloud-rain"],
+      ["accuracy", "Accuracy Evaluation", "chart-no-axes-combined"],
+      ["report", "Project Report", "file-text"]
     ];
 
-    const els = {
-      tabRooms: document.getElementById('tabRooms'),
-      tabSettings: document.getElementById('tabSettings'),
-      tabReport: document.getElementById('tabReport'),
-      roomsList: document.getElementById('roomsList'),
-      tilesList: document.getElementById('tilesList'),
-      groutInput: document.getElementById('groutInput'),
-      wasteInput: document.getElementById('wasteInput'),
-      doorInput: document.getElementById('doorInput'),
-      toast: document.getElementById('toast')
+    const roomTypes = ["Living Room", "Bedroom", "Kitchen", "Bathroom", "Office", "Corridor", "Others"];
+    const shapeTypes = [
+      ["rectangle", "Standard Rectangle"],
+      ["column-cutout", "Rectangle with Column Cutout"],
+      ["l-shape", "L-Shaped Room"],
+      ["u-shape", "U-Shaped Room"],
+      ["polygon", "Polygon / Irregular Shape"],
+      ["hollow", "Room with Hollow Area / Void Area"],
+      ["multiple-obstacles", "Room with Multiple Obstacles"]
+    ];
+    const obstacleTypes = ["Column", "Void Area", "Staircase", "Fixed Cabinet", "Island Counter", "Other Obstacle"];
+
+    const state = {
+      activePage: "dashboard",
+      uploadedPlan: null,
+      mockAiImported: false,
+      settings: {
+        groutJointMm: 3,
+        wastePercentage: 10,
+        defaultDoorWidth: 0.9,
+        cementBagsPerM2: 0.35,
+        sandM3PerM2: 0.05,
+        adhesiveKgPerM2: 4,
+        groutKgPerM2: 0.25,
+        cementCostPerBag: 22,
+        sandCostPerM3: 95,
+        adhesiveCostPerKg: 2.8,
+        groutCostPerKg: 4.2,
+        skirtingCostPerM: 8
+      },
+      tileSchemes: [
+        { id: uid(), name: "Standard 600 x 600", length: 0.6, width: 0.6, piecesPerBox: 4, costPerBox: 58 },
+        { id: uid(), name: "Bathroom 300 x 300", length: 0.3, width: 0.3, piecesPerBox: 11, costPerBox: 42 }
+      ],
+      rooms: [
+        {
+          id: uid(),
+          name: "Living Room",
+          roomType: "Living Room",
+          shapeType: "rectangle",
+          tileSchemeId: null,
+          length: 5.8,
+          width: 4.2,
+          cutLength: 0,
+          cutWidth: 0,
+          innerLength: 0,
+          innerWidth: 0,
+          hollowLength: 0,
+          hollowWidth: 0,
+          polygonPoints: "0,0 4,0 4,3 2.5,4 0,3",
+          obstacles: [{ id: uid(), type: "Column", length: 0.45, width: 0.45 }]
+        },
+        {
+          id: uid(),
+          name: "Kitchen",
+          roomType: "Kitchen",
+          shapeType: "l-shape",
+          tileSchemeId: null,
+          length: 4.2,
+          width: 3.6,
+          cutLength: 1.4,
+          cutWidth: 1.1,
+          innerLength: 0,
+          innerWidth: 0,
+          hollowLength: 0,
+          hollowWidth: 0,
+          polygonPoints: "",
+          obstacles: [{ id: uid(), type: "Island Counter", length: 1.2, width: 0.65 }]
+        }
+      ],
+      labour: {
+        workers: 4,
+        productivity: 7.5,
+        workingHours: 8,
+        complexityFactor: 1.15,
+        weatherDelayFactor: 1.05,
+        workerAbsenceRiskFactor: 1.08,
+        injuryRiskFactor: 1.03,
+        productivityVariationFactor: 1.1,
+        dailyWorkerCost: 140
+      },
+      weather: {
+        rainfall: 45,
+        humidity: 78,
+        temperature: 32,
+        projectType: "Indoor",
+        materialDeliveryRisk: 12,
+        weatherDelayPercentage: 8
+      },
+      accuracy: {
+        aiEstimatedMaterial: 240,
+        manualEstimatedMaterial: 265,
+        actualMaterialUsed: 248,
+        aiEstimatedDuration: 8.5,
+        manualEstimatedDuration: 10.5,
+        actualDuration: 9,
+        aiCalculationTime: 4,
+        manualCalculationTime: 75
+      }
     };
 
-    document.addEventListener('DOMContentLoaded', init);
+    state.rooms.forEach(room => { room.tileSchemeId = state.tileSchemes[0].id; });
 
-    function init() {
-      els.groutInput.value = state.settings.grout;
-      els.wasteInput.value = state.settings.waste;
-      els.doorInput.value = state.settings.doorWidth;
+    const mockAiRooms = [
+      { name: "Detected Living Area", roomType: "Living Room", shapeType: "rectangle", grossArea: 23.9, obstacles: 1, deductedArea: 0.25, confidence: 94, warning: "Column detected near north wall; manual verification recommended." },
+      { name: "Detected Kitchen", roomType: "Kitchen", shapeType: "l-shape", grossArea: 15.6, obstacles: 2, deductedArea: 2.2, confidence: 88, warning: "L-shaped boundary estimated from wall segmentation." },
+      { name: "Detected Bedroom 1", roomType: "Bedroom", shapeType: "rectangle", grossArea: 13.8, obstacles: 0, deductedArea: 0, confidence: 91, warning: "No major obstacles detected." },
+      { name: "Detected Bathroom", roomType: "Bathroom", shapeType: "hollow", grossArea: 5.7, obstacles: 1, deductedArea: 0.6, confidence: 82, warning: "Sanitary fixture void area simulated." }
+    ];
 
-      addRoom(false);
-      bindEvents();
-      renderAll();
+    function uid() {
+      return Math.random().toString(36).slice(2, 9);
     }
 
-    function bindEvents() {
-      document.querySelectorAll('[data-tab]').forEach((button) => {
-        button.addEventListener('click', () => setActiveTab(button.dataset.tab));
-      });
-
-      document.getElementById('addRoomBtn').addEventListener('click', () => addRoom(true));
-      document.getElementById('addTileBtn').addEventListener('click', () => addTile(true));
-      document.getElementById('copySummaryBtn').addEventListener('click', copySummary);
-
-      els.groutInput.addEventListener('input', (event) => {
-        state.settings.grout = event.target.value;
-        updateAllCalculatedViews();
-      });
-
-      els.wasteInput.addEventListener('input', (event) => {
-        state.settings.waste = event.target.value;
-        updateAllCalculatedViews();
-      });
-
-      els.doorInput.addEventListener('input', (event) => {
-        state.settings.doorWidth = event.target.value;
-        updateAllCalculatedViews();
-      });
-
-      document.body.addEventListener('click', (event) => {
-        const actionTarget = event.target.closest('[data-action]');
-        if (!actionTarget) return;
-
-        const action = actionTarget.dataset.action;
-
-        if (action === 'set-waste') {
-          state.settings.waste = actionTarget.dataset.value;
-          els.wasteInput.value = state.settings.waste;
-          updateAllCalculatedViews();
-        }
-
-        if (action === 'delete-room') {
-          deleteRoom(actionTarget.dataset.id);
-        }
-
-        if (action === 'delete-tile') {
-          deleteTile(actionTarget.dataset.id);
-        }
-      });
-
-      els.roomsList.addEventListener('input', handleRoomInput);
-      els.roomsList.addEventListener('change', handleRoomInput);
-      els.tilesList.addEventListener('input', handleTileInput);
-      els.tilesList.addEventListener('change', handleTileInput);
+    function toNumber(value, fallback = 0) {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : fallback;
     }
 
-    function setActiveTab(tab) {
-      state.activeTab = tab;
-
-      els.tabRooms.classList.toggle('hidden', tab !== 'rooms');
-      els.tabSettings.classList.toggle('hidden', tab !== 'settings');
-      els.tabReport.classList.toggle('hidden', tab !== 'report');
-
-      document.querySelectorAll('[data-tab]').forEach((button) => {
-        button.classList.toggle('active', button.dataset.tab === tab);
-      });
-
-      updateAllCalculatedViews();
+    function clampZero(value) {
+      return Math.max(0, toNumber(value, 0));
     }
 
-    function addRoom(showToastAfter) {
-      const nextNumber = state.rooms.length + 1;
-
-      state.rooms.push({
-        id: createId('room'),
-        name: `Room ${nextNumber}`,
-        shape: 'rectangle',
-        tileId: '',
-        values: createEmptyRoomValues()
-      });
-
-      renderRooms();
-      updateAllCalculatedViews();
-
-      if (showToastAfter) showToast('Room added.');
+    function fmt(value, digits = 2) {
+      return toNumber(value, 0).toLocaleString("en-MY", { minimumFractionDigits: digits, maximumFractionDigits: digits });
     }
 
-    function deleteRoom(roomId) {
-      state.rooms = state.rooms.filter((room) => room.id !== roomId);
-      renderRooms();
-      updateAllCalculatedViews();
-      showToast('Room deleted.');
-    }
-
-    function addTile(showToastAfter) {
-      const tile = {
-        id: createId('tile'),
-        name: '',
-        length: '0.6',
-        width: '0.6',
-        price: '0',
-        piecesPerBox: '4',
-        nameLocked: false
-      };
-
-      tile.name = getAutoTileName(tile);
-
-      state.tiles.push(tile);
-
-      renderTiles();
-      renderRooms();
-      updateAllCalculatedViews();
-
-      if (showToastAfter) showToast('Tile scheme added.');
-    }
-
-    function deleteTile(tileId) {
-      state.tiles = state.tiles.filter((tile) => tile.id !== tileId);
-
-      state.rooms.forEach((room) => {
-        if (room.tileId === tileId) room.tileId = '';
-      });
-
-      renderTiles();
-      renderRooms();
-      updateAllCalculatedViews();
-
-      showToast('Tile scheme deleted.');
-    }
-
-    function handleRoomInput(event) {
-      const target = event.target;
-      const roomId = target.dataset.roomId;
-
-      if (!roomId) return;
-
-      const room = state.rooms.find((item) => item.id === roomId);
-      if (!room) return;
-
-      if (target.dataset.field === 'name') {
-        room.name = target.value;
-      }
-
-      if (target.dataset.field === 'shape') {
-        room.shape = target.value;
-        renderRooms();
-      }
-
-      if (target.dataset.field === 'tileId') {
-        room.tileId = target.value;
-      }
-
-      if (target.dataset.valueKey) {
-        room.values[target.dataset.valueKey] = target.value;
-      }
-
-      updateAllCalculatedViews();
-    }
-
-    function handleTileInput(event) {
-      const target = event.target;
-      const tileId = target.dataset.tileId;
-
-      if (!tileId) return;
-
-      const tile = state.tiles.find((item) => item.id === tileId);
-      if (!tile) return;
-
-      const field = target.dataset.field;
-
-      if (field === 'name') {
-        if (target.value.trim() === '') {
-          tile.nameLocked = false;
-          tile.name = getAutoTileName(tile);
-          target.value = tile.name;
-        } else {
-          tile.nameLocked = true;
-          tile.name = target.value;
-        }
-
-        renderRooms();
-      }
-
-      if (['length', 'width', 'price', 'piecesPerBox'].includes(field)) {
-        tile[field] = target.value;
-
-        if ((field === 'length' || field === 'width') && (!tile.nameLocked || tile.name.trim() === '')) {
-          tile.nameLocked = false;
-          tile.name = getAutoTileName(tile);
-
-          const nameInput = document.querySelector(`[data-tile-id="${tile.id}"][data-field="name"]`);
-          if (nameInput) nameInput.value = tile.name;
-
-          renderRooms();
-        }
-      }
-
-      updateAllCalculatedViews();
-    }
-
-    function renderAll() {
-      renderRooms();
-      renderTiles();
-      updateAllCalculatedViews();
-    }
-
-    function renderRooms() {
-      if (state.rooms.length === 0) {
-        els.roomsList.innerHTML = `
-          <div class="card p-8 text-center">
-            <p class="text-lg font-black text-slate-800">No rooms yet.</p>
-            <p class="mt-1 text-sm font-semibold text-slate-500">Tap Add Room to start.</p>
-          </div>
-        `;
-        return;
-      }
-
-      els.roomsList.innerHTML = state.rooms
-        .map((room, index) => renderRoomCard(room, index))
-        .join('');
-    }
-
-    function renderRoomCard(room) {
-      const result = calculateRoom(room);
-      const tileOptions = getTileSelectOptions(room.tileId);
-      const tilePrompt = state.tiles.length === 0
-        ? '<p class="mt-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-800">Please create a tile scheme in Tab 2.</p>'
-        : '';
-
-      return `
-        <article class="card p-4 sm:p-5">
-          <div class="mb-4 flex items-start justify-between gap-3">
-            <div class="flex-1">
-              <label class="field-label" for="room-name-${room.id}">Room Name</label>
-              <input
-                id="room-name-${room.id}"
-                class="field-input font-bold"
-                type="text"
-                value="${escapeAttr(room.name)}"
-                data-room-id="${room.id}"
-                data-field="name"
-                placeholder="Example: Living Room"
-              />
-            </div>
-
-            <button
-              type="button"
-              class="mt-6 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-black text-red-700 hover:bg-red-100"
-              data-action="delete-room"
-              data-id="${room.id}"
-            >
-              Delete
-            </button>
-          </div>
-
-          <div class="grid gap-4 lg:grid-cols-3">
-            <div>
-              <label class="field-label" for="shape-${room.id}">Room Shape</label>
-              <select
-                id="shape-${room.id}"
-                class="field-select"
-                data-room-id="${room.id}"
-                data-field="shape"
-              >
-                <option value="rectangle" ${room.shape === 'rectangle' ? 'selected' : ''}>Standard Rectangle</option>
-                <option value="column" ${room.shape === 'column' ? 'selected' : ''}>Rectangle with Column Cutout</option>
-                <option value="lshape" ${room.shape === 'lshape' ? 'selected' : ''}>L-Shaped Room</option>
-              </select>
-            </div>
-
-            <div class="lg:col-span-2">
-              <label class="field-label" for="tile-${room.id}">Assigned Tile Scheme</label>
-              <select
-                id="tile-${room.id}"
-                class="field-select"
-                data-room-id="${room.id}"
-                data-field="tileId"
-                ${state.tiles.length === 0 ? 'disabled' : ''}
-              >
-                ${tileOptions}
-              </select>
-              ${tilePrompt}
-            </div>
-          </div>
-
-          <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            ${renderShapeInputs(room)}
-          </div>
-
-          <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4" data-room-result-id="${room.id}">
-            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-              <div>
-                <p class="text-xs font-black text-slate-500">Area</p>
-                <p class="mt-1 text-lg font-black text-slate-950" data-output="area">
-                  ${formatNumber(result.area, 2)} ㎡
-                </p>
-              </div>
-              <div>
-                <p class="text-xs font-black text-slate-500">Skirting</p>
-                <p class="mt-1 text-lg font-black text-slate-950" data-output="skirting">
-                  ${formatNumber(result.skirting, 2)} m
-                </p>
-              </div>
-              <div>
-                <p class="text-xs font-black text-slate-500">Net Pieces</p>
-                <p class="mt-1 text-lg font-black text-slate-950" data-output="netPieces">
-                  ${result.netPieces.toLocaleString()}
-                </p>
-              </div>
-              <div>
-                <p class="text-xs font-black text-slate-500">Total Pieces</p>
-                <p class="mt-1 text-lg font-black text-slate-950" data-output="totalPieces">
-                  ${result.totalPieces.toLocaleString()}
-                </p>
-              </div>
-              <div>
-                <p class="text-xs font-black text-slate-500">Subtotal</p>
-                <p class="mt-1 text-lg font-black text-blue-700" data-output="cost">
-                  ${formatRM(result.cost)}
-                </p>
-              </div>
-            </div>
-
-            <p class="mt-3 text-xs font-semibold text-slate-500" data-output="boxes">
-              Boxes: ${result.boxes.toLocaleString()}${result.warning ? ' · ' + result.warning : ''}
-            </p>
-          </div>
-        </article>
-      `;
-    }
-
-    function renderShapeInputs(room) {
-      const field = (key, label, placeholder) => `
-        <div>
-          <label class="field-label" for="${key}-${room.id}">${label}</label>
-          <input
-            id="${key}-${room.id}"
-            class="field-input"
-            type="number"
-            min="0"
-            step="0.01"
-            value="${escapeAttr(room.values[key])}"
-            placeholder="${placeholder}"
-            data-room-id="${room.id}"
-            data-value-key="${key}"
-          />
-        </div>
-      `;
-
-      if (room.shape === 'rectangle') {
-        return field('length', 'Length (m)', '5.00') +
-          field('width', 'Width (m)', '4.00');
-      }
-
-      if (room.shape === 'column') {
-        return [
-          field('roomLength', 'Room Length (m)', '5.00'),
-          field('roomWidth', 'Room Width (m)', '4.00'),
-          field('columnLength', 'Column Length (m)', '0.50'),
-          field('columnWidth', 'Column Width (m)', '0.50')
-        ].join('');
-      }
-
-      return [
-        field('sectionALength', 'Section A Length (m)', '5.00'),
-        field('sectionAWidth', 'Section A Width (m)', '3.00'),
-        field('sectionBLength', 'Section B Length (m)', '2.00'),
-        field('sectionBWidth', 'Section B Width (m)', '2.00'),
-        '<div class="sm:col-span-2 lg:col-span-4 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold leading-5 text-slate-500">For L-shaped rooms, Section B is treated as attached to Section A along the smaller shared width for skirting estimation.</div>'
-      ].join('');
-    }
-
-    function getTileSelectOptions(selectedId) {
-      if (state.tiles.length === 0) {
-        return '<option value="">Please create a tile scheme in Tab 2</option>';
-      }
-
-      const base = '<option value="">Select tile scheme</option>';
-
-      return base + state.tiles
-        .map((tile) => `
-          <option value="${tile.id}" ${tile.id === selectedId ? 'selected' : ''}>
-            ${escapeHtml(tile.name)} · ${formatTileSize(tile)}
-          </option>
-        `)
-        .join('');
-    }
-
-    function renderTiles() {
-      if (state.tiles.length === 0) {
-        els.tilesList.innerHTML = `
-          <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center lg:col-span-2">
-            <p class="text-lg font-black text-slate-800">No tile schemes yet.</p>
-            <p class="mt-1 text-sm font-semibold text-slate-500">Tap Add Tile to create a scheme for room assignment.</p>
-          </div>
-        `;
-        return;
-      }
-
-      els.tilesList.innerHTML = state.tiles.map((tile) => `
-        <article class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <div class="mb-4 flex items-start justify-between gap-3">
-            <div class="flex-1">
-              <label class="field-label" for="tile-name-${tile.id}">Scheme Name</label>
-              <input
-                id="tile-name-${tile.id}"
-                class="field-input font-bold"
-                type="text"
-                value="${escapeAttr(tile.name)}"
-                data-tile-id="${tile.id}"
-                data-field="name"
-                placeholder="0.6m × 0.6m Tile"
-              />
-              <p class="mt-1 text-xs font-semibold ${tile.nameLocked ? 'text-amber-700' : 'text-blue-700'}">
-                ${tile.nameLocked ? 'Custom name locked. Clear the name field to enable auto-naming again.' : 'Auto-name is active.'}
-              </p>
-            </div>
-
-            <button
-              type="button"
-              class="mt-6 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-black text-red-700 hover:bg-red-100"
-              data-action="delete-tile"
-              data-id="${tile.id}"
-            >
-              Delete
-            </button>
-          </div>
-
-          <div class="grid gap-3 sm:grid-cols-2">
-            <div>
-              <label class="field-label" for="tile-length-${tile.id}">Tile Length (m)</label>
-              <input
-                id="tile-length-${tile.id}"
-                class="field-input"
-                type="number"
-                min="0"
-                step="0.001"
-                value="${escapeAttr(tile.length)}"
-                placeholder="0.6"
-                data-tile-id="${tile.id}"
-                data-field="length"
-              />
-            </div>
-
-            <div>
-              <label class="field-label" for="tile-width-${tile.id}">Tile Width (m)</label>
-              <input
-                id="tile-width-${tile.id}"
-                class="field-input"
-                type="number"
-                min="0"
-                step="0.001"
-                value="${escapeAttr(tile.width)}"
-                placeholder="0.6"
-                data-tile-id="${tile.id}"
-                data-field="width"
-              />
-            </div>
-
-            <div>
-              <label class="field-label" for="tile-price-${tile.id}">Price Per Piece (RM)</label>
-              <input
-                id="tile-price-${tile.id}"
-                class="field-input"
-                type="number"
-                min="0"
-                step="0.01"
-                value="${escapeAttr(tile.price)}"
-                placeholder="12.50"
-                data-tile-id="${tile.id}"
-                data-field="price"
-              />
-            </div>
-
-            <div>
-              <label class="field-label" for="tile-box-${tile.id}">Pieces Per Box</label>
-              <input
-                id="tile-box-${tile.id}"
-                class="field-input"
-                type="number"
-                min="1"
-                step="1"
-                value="${escapeAttr(tile.piecesPerBox)}"
-                placeholder="4"
-                data-tile-id="${tile.id}"
-                data-field="piecesPerBox"
-              />
-            </div>
-          </div>
-        </article>
-      `).join('');
-    }
-
-    function updateAllCalculatedViews() {
-      const summary = calculateSummary();
-      updateHeader(summary);
-      updateRoomResultCards();
-      updateReport(summary);
-    }
-
-    function updateRoomResultCards() {
-      if (state.activeTab !== 'rooms') return;
-
-      state.rooms.forEach((room) => {
-        const result = calculateRoom(room);
-        const box = document.querySelector(`[data-room-result-id="${room.id}"]`);
-
-        if (!box) return;
-
-        const set = (key, value) => {
-          const node = box.querySelector(`[data-output="${key}"]`);
-          if (node) node.textContent = value;
-        };
-
-        set('area', `${formatNumber(result.area, 2)} ㎡`);
-        set('skirting', `${formatNumber(result.skirting, 2)} m`);
-        set('netPieces', result.netPieces.toLocaleString());
-        set('totalPieces', result.totalPieces.toLocaleString());
-        set('cost', formatRM(result.cost));
-        set('boxes', `Boxes: ${result.boxes.toLocaleString()}${result.warning ? ' · ' + result.warning : ''}`);
-      });
-    }
-
-    function calculateRoom(room) {
-      const values = room.values;
-      const door = Math.max(0, toNumber(state.settings.doorWidth));
-
-      let area = 0;
-      let perimeter = 0;
-      let warning = '';
-
-      if (room.shape === 'rectangle') {
-        const length = toNumber(values.length);
-        const width = toNumber(values.width);
-
-        if (length > 0 && width > 0) {
-          area = length * width;
-          perimeter = 2 * (length + width);
-        }
-      }
-
-      if (room.shape === 'column') {
-        const roomLength = toNumber(values.roomLength);
-        const roomWidth = toNumber(values.roomWidth);
-        const columnLength = toNumber(values.columnLength);
-        const columnWidth = toNumber(values.columnWidth);
-
-        const roomArea = roomLength * roomWidth;
-        const columnArea = columnLength * columnWidth;
-
-        if (roomLength > 0 && roomWidth > 0) {
-          area = Math.max(0, roomArea - columnArea);
-          perimeter = 2 * (roomLength + roomWidth);
-
-          if (columnLength > 0 && columnWidth > 0) {
-            perimeter += 2 * (columnLength + columnWidth);
-          }
-
-          if (columnArea >= roomArea && roomArea > 0) {
-            warning = 'Column cutout is larger than or equal to room area.';
-          }
-        }
-      }
-
-      if (room.shape === 'lshape') {
-        const aLength = toNumber(values.sectionALength);
-        const aWidth = toNumber(values.sectionAWidth);
-        const bLength = toNumber(values.sectionBLength);
-        const bWidth = toNumber(values.sectionBWidth);
-
-        if (aLength > 0 && aWidth > 0 && bLength > 0 && bWidth > 0) {
-          area = (aLength * aWidth) + (bLength * bWidth);
-
-          const sharedEdge = Math.min(aWidth, bWidth);
-          perimeter = (2 * (aLength + aWidth)) + (2 * (bLength + bWidth)) - (2 * sharedEdge);
-        }
-      }
-
-      const skirting = perimeter > 0 ? Math.max(0, perimeter - door) : 0;
-      const tile = state.tiles.find((item) => item.id === room.tileId);
-
-      let netPieces = 0;
-      let totalPieces = 0;
-      let boxes = 0;
-      let cost = 0;
-
-      if (tile && area > 0) {
-        const tileArea = getEffectiveTileArea(tile);
-        const waste = Math.max(0, toNumber(state.settings.waste));
-        const piecesPerBox = Math.floor(toNumber(tile.piecesPerBox));
-        const price = Math.max(0, toNumber(tile.price));
-
-        if (tileArea > 0) {
-          netPieces = Math.ceil(area / tileArea);
-          totalPieces = Math.ceil(netPieces * (1 + waste / 100));
-          boxes = piecesPerBox > 0 ? Math.ceil(totalPieces / piecesPerBox) : 0;
-          cost = totalPieces * price;
-        }
-      }
-
-      return {
-        room,
-        tile,
-        area,
-        perimeter,
-        skirting,
-        netPieces,
-        totalPieces,
-        boxes,
-        cost,
-        warning
-      };
-    }
-
-    function calculateSummary() {
-      const roomResults = state.rooms.map(calculateRoom);
-
-      const totalArea = roomResults.reduce((sum, item) => sum + item.area, 0);
-      const totalSkirting = roomResults.reduce((sum, item) => sum + item.skirting, 0);
-      const totalPieces = roomResults.reduce((sum, item) => sum + item.totalPieces, 0);
-      const totalBoxes = roomResults.reduce((sum, item) => sum + item.boxes, 0);
-      const totalCost = roomResults.reduce((sum, item) => sum + item.cost, 0);
-
-      const cementBags = Math.ceil(totalArea * 0.35);
-      const sand = totalArea * 0.05;
-
-      const breakdownMap = new Map();
-
-      roomResults.forEach((item) => {
-        if (!item.tile || item.area <= 0) return;
-
-        const key = item.tile.id;
-
-        if (!breakdownMap.has(key)) {
-          breakdownMap.set(key, {
-            tile: item.tile,
-            roomNames: [],
-            area: 0,
-            netPieces: 0,
-            totalPieces: 0,
-            boxes: 0,
-            cost: 0
-          });
-        }
-
-        const row = breakdownMap.get(key);
-
-        row.roomNames.push(item.room.name || 'Unnamed Room');
-        row.area += item.area;
-        row.netPieces += item.netPieces;
-        row.totalPieces += item.totalPieces;
-        row.boxes += item.boxes;
-        row.cost += item.cost;
-      });
-
-      return {
-        roomResults,
-        totalArea,
-        totalSkirting,
-        totalPieces,
-        totalBoxes,
-        totalCost,
-        cementBags,
-        sand,
-        breakdown: Array.from(breakdownMap.values())
-      };
-    }
-
-    function updateHeader(summary) {
-      document.getElementById('headerTotalCost').textContent = formatRM(summary.totalCost);
-      document.getElementById('headerTotalArea').textContent = `${formatNumber(summary.totalArea, 2)} ㎡`;
-      document.getElementById('headerRoomCount').textContent = state.rooms.length.toLocaleString();
-      document.getElementById('headerTileCount').textContent = state.tiles.length.toLocaleString();
-      document.getElementById('headerTotalPieces').textContent = summary.totalPieces.toLocaleString();
-    }
-
-    function updateReport(summary) {
-      document.getElementById('reportArea').textContent = `${formatNumber(summary.totalArea, 2)} ㎡`;
-      document.getElementById('reportPieces').textContent = summary.totalPieces.toLocaleString();
-      document.getElementById('reportBoxes').textContent = summary.totalBoxes.toLocaleString();
-      document.getElementById('reportCost').textContent = formatRM(summary.totalCost);
-      document.getElementById('reportCement').textContent = `${summary.cementBags.toLocaleString()} bags`;
-      document.getElementById('reportSand').textContent = `${formatNumber(summary.sand, 2)} m³`;
-      document.getElementById('reportSkirting').textContent = `${formatNumber(summary.totalSkirting, 2)} m`;
-
-      const table = document.getElementById('breakdownTable');
-
-      if (summary.breakdown.length === 0) {
-        table.innerHTML = `
-          <tr>
-            <td class="px-4 py-6 text-center font-semibold text-slate-500" colspan="6">
-              No tile assignment data yet.
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      table.innerHTML = summary.breakdown.map((row) => `
-        <tr>
-          <td class="px-4 py-3 align-top">
-            <p class="font-black text-slate-950">${escapeHtml(row.tile.name)}</p>
-            <p class="text-xs font-semibold text-slate-500">${formatTileSize(row.tile)}</p>
-          </td>
-          <td class="px-4 py-3 align-top text-slate-700">${escapeHtml(row.roomNames.join(', '))}</td>
-          <td class="px-4 py-3 align-top font-bold">${formatNumber(row.area, 2)} ㎡</td>
-          <td class="px-4 py-3 align-top font-bold">${row.totalPieces.toLocaleString()}</td>
-          <td class="px-4 py-3 align-top font-bold">${row.boxes.toLocaleString()}</td>
-          <td class="px-4 py-3 align-top font-black text-blue-700">${formatRM(row.cost)}</td>
-        </tr>
-      `).join('');
-    }
-
-    async function copySummary() {
-      const text = buildSummaryText(calculateSummary());
-
-      try {
-        if (navigator.clipboard && window.isSecureContext) {
-          await navigator.clipboard.writeText(text);
-        } else {
-          fallbackCopy(text);
-        }
-
-        showToast('Summary copied to clipboard.');
-      } catch (error) {
-        fallbackCopy(text);
-        showToast('Summary copied to clipboard.');
-      }
-    }
-
-    function buildSummaryText(summary) {
-      const lines = [];
-
-      lines.push('WHOLE HOUSE TILE SUMMARY');
-      lines.push('');
-      lines.push(`Total area: ${formatNumber(summary.totalArea, 2)} ㎡`);
-      lines.push(`Total pieces: ${summary.totalPieces.toLocaleString()} pcs`);
-      lines.push(`Total boxes: ${summary.totalBoxes.toLocaleString()} boxes`);
-      lines.push(`Total tile cost: ${formatRM(summary.totalCost)}`);
-      lines.push(`Estimated cement: ${summary.cementBags.toLocaleString()} bags of 50kg`);
-      lines.push(`Estimated sand: ${formatNumber(summary.sand, 2)} m³`);
-      lines.push(`Estimated skirting length: ${formatNumber(summary.totalSkirting, 2)} m`);
-      lines.push('');
-      lines.push('BREAKDOWN BY TILE TYPE');
-
-      if (summary.breakdown.length === 0) {
-        lines.push('No tile assignment data yet.');
-      } else {
-        summary.breakdown.forEach((row, index) => {
-          lines.push(`${index + 1}. ${row.tile.name}`);
-          lines.push(`   Size: ${formatTileSize(row.tile)}`);
-          lines.push(`   Rooms: ${row.roomNames.join(', ')}`);
-          lines.push(`   Area: ${formatNumber(row.area, 2)} ㎡`);
-          lines.push(`   Pieces: ${row.totalPieces.toLocaleString()} pcs`);
-          lines.push(`   Boxes: ${row.boxes.toLocaleString()} boxes`);
-          lines.push(`   Cost: ${formatRM(row.cost)}`);
-        });
-      }
-
-      return lines.join('\n');
-    }
-
-    function fallbackCopy(text) {
-      const textarea = document.createElement('textarea');
-
-      textarea.value = text;
-      textarea.setAttribute('readonly', '');
-      textarea.style.position = 'fixed';
-      textarea.style.left = '-9999px';
-
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      textarea.remove();
-    }
-
-    function getEffectiveTileArea(tile) {
-      const groutM = Math.max(0, toNumber(state.settings.grout)) / 1000;
-      const length = toNumber(tile.length);
-      const width = toNumber(tile.width);
-
-      if (length <= 0 || width <= 0) return 0;
-
-      return (length + groutM) * (width + groutM);
-    }
-
-    function getAutoTileName(tile) {
-      const length = normalizeDimensionText(tile.length);
-      const width = normalizeDimensionText(tile.width);
-
-      if (!length || !width) return 'New Tile Scheme';
-
-      return `${length}m × ${width}m Tile`;
-    }
-
-    function formatTileSize(tile) {
-      const length = normalizeDimensionText(tile.length) || '0';
-      const width = normalizeDimensionText(tile.width) || '0';
-
-      return `${length}m × ${width}m`;
-    }
-
-    function normalizeDimensionText(value) {
-      const number = toNumber(value);
-
-      if (number <= 0) return '';
-
-      return String(Number(number.toFixed(3))).replace(/\.0+$/, '');
-    }
-
-    function createEmptyRoomValues() {
-      return roomValueKeys.reduce((obj, key) => {
-        obj[key] = '';
-        return obj;
-      }, {});
-    }
-
-    function createId(prefix) {
-      return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-    }
-
-    function toNumber(value) {
-      const number = Number(value);
-      return Number.isFinite(number) ? number : 0;
-    }
-
-    function formatNumber(value, digits) {
-      return Number(value || 0).toLocaleString('en-MY', {
-        minimumFractionDigits: digits,
-        maximumFractionDigits: digits
-      });
-    }
-
-    function formatRM(value) {
-      return `RM ${Number(value || 0).toLocaleString('en-MY', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      })}`;
+    function money(value) {
+      return `RM ${fmt(value, 2)}`;
     }
 
     function escapeHtml(value) {
-      return String(value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+      return String(value ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
     }
 
-    function escapeAttr(value) {
-      return escapeHtml(value);
+    function icon(name, size = 16) {
+      return `<i data-lucide="${name}" style="width:${size}px;height:${size}px" aria-hidden="true"></i>`;
     }
 
-    let toastTimer = null;
+    function renderApp() {
+      renderNav();
+      renderHeaderMetrics();
+      const app = document.getElementById("app");
+      const renderers = {
+        dashboard: renderDashboard,
+        upload: renderUpload,
+        ai: renderAiDetection,
+        rooms: renderRooms,
+        settings: renderSettings,
+        duration: renderDuration,
+        weather: renderWeather,
+        accuracy: renderAccuracy,
+        report: renderReport
+      };
+      app.innerHTML = renderers[state.activePage]();
+      document.getElementById("printReport").innerHTML = `<pre class="whitespace-pre-wrap text-sm">${escapeHtml(generateReportText())}</pre>`;
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function renderNav() {
+      document.getElementById("topNav").innerHTML = pages.map(([id, label, iconName]) => `
+        <button type="button" class="nav-btn ${state.activePage === id ? "active" : ""} flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-extrabold" data-page="${id}" title="${label}">
+          ${icon(iconName)} <span>${label}</span>
+        </button>
+      `).join("");
+    }
+
+    function renderHeaderMetrics() {
+      const totals = calculateTotals();
+      setText("headerTotalArea", `${fmt(totals.netArea)} m2`);
+      setText("headerRoomCount", totals.roomCount);
+      setText("headerTotalBoxes", totals.materials.tileBoxes);
+      setText("headerTotalCost", money(totals.materials.totalMaterialCost));
+    }
+
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    }
+
+    function metric(label, value, hint = "", tone = "slate") {
+      const colors = {
+        slate: "text-slate-950",
+        blue: "text-blue-700",
+        green: "text-emerald-700",
+        amber: "text-amber-700",
+        red: "text-red-700"
+      };
+      return `
+        <div class="metric">
+          <p class="text-xs font-black uppercase tracking-wide text-slate-500">${label}</p>
+          <p class="mt-2 text-2xl font-black ${colors[tone] || colors.slate}">${value}</p>
+          ${hint ? `<p class="mt-1 text-xs font-semibold text-slate-500">${hint}</p>` : ""}
+        </div>
+      `;
+    }
+
+    function renderDashboard() {
+      const totals = calculateTotals();
+      const duration = calculateDuration(totals);
+      const riskTone = duration.riskLevel === "High" ? "red" : duration.riskLevel === "Medium" ? "amber" : "green";
+      return `
+        <section class="space-y-5">
+          <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            ${metric("Total Project Area", `${fmt(totals.netArea)} m2`, `Gross ${fmt(totals.grossArea)} m2, deducted ${fmt(totals.deductedArea)} m2`, "blue")}
+            ${metric("Number of Rooms", totals.roomCount, "Manual and imported AI rooms")}
+            ${metric("Total Tile Pieces", totals.materials.tilePieces, "Includes waste percentage")}
+            ${metric("Total Tile Boxes", totals.materials.tileBoxes, "Rounded up by pieces per box")}
+            ${metric("Total Material Cost", money(totals.materials.totalMaterialCost), "Tiles, cement, sand, grout, adhesive, skirting", "green")}
+            ${metric("Estimated Duration", `${fmt(duration.adjustedDuration, 1)} days`, `Base ${fmt(duration.baseDuration, 1)} days`, "blue")}
+            ${metric("Risk Level", duration.riskLevel, "Uses labour, weather, and delivery factors", riskTone)}
+            ${metric("Material Waste Percentage", `${fmt(state.settings.wastePercentage, 1)}%`, "Editable in material settings", "amber")}
+          </div>
+
+          <div class="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
+            <div class="panel p-4 sm:p-5">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <h2 class="text-lg font-black text-slate-950">Project Workflow</h2>
+                  <p class="mt-1 text-sm font-semibold text-slate-500">The prototype follows the research flow from plan upload to AI detection, manual correction, material estimation, duration prediction, and report generation.</p>
+                </div>
+                <button class="rounded-lg bg-blue-700 px-3 py-2 text-sm font-black text-white hover:bg-blue-800" data-page="upload">${icon("arrow-right")} Start Upload</button>
+              </div>
+              <div class="mt-5 grid gap-3 sm:grid-cols-3">
+                ${workflowStep("1", "AI Detection", "Mock computer vision output creates room records with confidence and warnings.")}
+                ${workflowStep("2", "Manual Correction", "Users can edit dimensions, shapes, obstacles, and tile assignments.")}
+                ${workflowStep("3", "Research Output", "The report combines materials, schedule, risk, and accuracy evaluation.")}
+              </div>
+            </div>
+            <div class="panel p-4 sm:p-5">
+              <h2 class="text-lg font-black text-slate-950">Validation Status</h2>
+              <div class="mt-4 space-y-2">${renderValidationList(validateAll(totals))}</div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function workflowStep(num, title, body) {
+      return `
+        <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-700 text-sm font-black text-white">${num}</div>
+          <h3 class="mt-3 font-black text-slate-950">${title}</h3>
+          <p class="mt-1 text-sm font-semibold leading-6 text-slate-600">${body}</p>
+        </div>
+      `;
+    }
+
+    function renderUpload() {
+      const plan = state.uploadedPlan;
+      return `
+        <section class="space-y-5">
+          ${pageTitle("Floor Plan Upload", "Upload JPG, PNG, PDF, or CAD-exported images. Images are previewed locally; PDFs show a mock preview message for this front-end prototype.")}
+          <div class="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
+            <div class="panel p-4 sm:p-5">
+              <label class="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-blue-200 bg-blue-50 px-6 py-10 text-center hover:bg-blue-100">
+                ${icon("upload-cloud", 38)}
+                <span class="mt-3 text-base font-black text-blue-900">Choose floor plan file</span>
+                <span class="mt-1 text-sm font-semibold text-blue-700">JPG, PNG, PDF, or exported CAD image</span>
+                <input id="planUpload" class="hidden" type="file" accept=".jpg,.jpeg,.png,.pdf,image/*,application/pdf" />
+              </label>
+              ${plan ? `
+                <div class="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                  <p class="text-xs font-black uppercase text-slate-500">Uploaded File</p>
+                  <p class="mt-1 font-black text-slate-950">${escapeHtml(plan.name)}</p>
+                  <p class="mt-1 text-sm font-semibold text-slate-600">${escapeHtml(plan.type || "Unknown type")} - ${fmt(plan.size / 1024, 1)} KB</p>
+                </div>
+              ` : ""}
+            </div>
+            <div class="panel overflow-hidden">
+              <div class="border-b border-slate-200 px-4 py-3">
+                <h3 class="font-black text-slate-950">Preview</h3>
+              </div>
+              <div class="flex min-h-[22rem] items-center justify-center bg-slate-100 p-4">
+                ${renderPlanPreview()}
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderPlanPreview() {
+      const plan = state.uploadedPlan;
+      if (!plan) {
+        return `<div class="text-center text-sm font-bold text-slate-500">${icon("image", 42)}<p class="mt-2">No floor plan uploaded yet.</p></div>`;
+      }
+      if (plan.previewUrl) {
+        return `<img src="${plan.previewUrl}" alt="Uploaded floor plan preview" class="max-h-[32rem] w-full rounded-lg object-contain" />`;
+      }
+      return `
+        <div class="max-w-md rounded-lg border border-slate-300 bg-white p-6 text-center">
+          ${icon("file-type", 44)}
+          <h3 class="mt-3 font-black text-slate-950">Mock PDF / CAD Preview</h3>
+          <p class="mt-2 text-sm font-semibold leading-6 text-slate-600">This prototype stores the uploaded file name and simulates plan analysis. A future backend can parse PDF pages or CAD exports before AI detection.</p>
+        </div>
+      `;
+    }
+
+    function renderAiDetection() {
+      return `
+        <section class="space-y-5">
+          ${pageTitle("AI Room Detection", "Mock AI detection results simulate room segmentation, obstacle detection, confidence scoring, and warnings before manual correction.")}
+          <div class="panel p-4 sm:p-5">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 class="text-lg font-black text-slate-950">Mock Detection Results</h3>
+                <p class="mt-1 text-sm font-semibold text-slate-500">Use this result as a front-end stand-in until a trained model and API are connected.</p>
+              </div>
+              <button class="flex items-center gap-2 rounded-lg bg-blue-700 px-4 py-3 text-sm font-black text-white hover:bg-blue-800" data-action="import-ai">
+                ${icon("download")} Import AI Result to Rooms
+              </button>
+            </div>
+            <div class="mt-5 overflow-x-auto">
+              <table class="w-full min-w-[900px] text-left text-sm">
+                <thead class="bg-slate-100 text-xs uppercase text-slate-500">
+                  <tr>
+                    <th class="px-3 py-3">Room</th><th class="px-3 py-3">Type</th><th class="px-3 py-3">Detected Shape</th><th class="px-3 py-3">Gross Area</th><th class="px-3 py-3">Obstacle Count</th><th class="px-3 py-3">Deducted</th><th class="px-3 py-3">Net Area</th><th class="px-3 py-3">Confidence</th><th class="px-3 py-3">AI Warning</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200">
+                  ${mockAiRooms.map(row => `
+                    <tr>
+                      <td class="px-3 py-3 font-black text-slate-950">${row.name}</td>
+                      <td class="px-3 py-3">${row.roomType}</td>
+                      <td class="px-3 py-3">${shapeLabel(row.shapeType)}</td>
+                      <td class="px-3 py-3">${fmt(row.grossArea)} m2</td>
+                      <td class="px-3 py-3">${row.obstacles}</td>
+                      <td class="px-3 py-3">${fmt(row.deductedArea)} m2</td>
+                      <td class="px-3 py-3 font-black text-blue-700">${fmt(Math.max(0, row.grossArea - row.deductedArea))} m2</td>
+                      <td class="px-3 py-3">${row.confidence}%</td>
+                      <td class="px-3 py-3 text-amber-700">${row.warning}</td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            </div>
+            ${state.mockAiImported ? `<div class="success mt-4 rounded-lg border p-3 text-sm font-bold">AI room data has been imported into Rooms & Shapes for manual correction.</div>` : ""}
+          </div>
+        </section>
+      `;
+    }
+
+    function renderRooms() {
+      const totals = calculateTotals();
+      return `
+        <section class="space-y-5">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            ${pageTitle("Manual Room Editor / Rooms & Shapes", "Edit room structure, shape-specific dimensions, tile scheme assignment, and non-tile deduction areas.")}
+            <button class="flex items-center justify-center gap-2 rounded-lg bg-blue-700 px-4 py-3 text-sm font-black text-white hover:bg-blue-800" data-action="add-room">${icon("plus")} Add Room</button>
+          </div>
+          <div class="grid gap-4 md:grid-cols-3">
+            ${metric("Gross Area", `${fmt(totals.grossArea)} m2`)}
+            ${metric("Deducted Area", `${fmt(totals.deductedArea)} m2`, "Shape voids plus obstacles", "amber")}
+            ${metric("Net Tile Area", `${fmt(totals.netArea)} m2`, "Never below zero", "blue")}
+          </div>
+          <div class="space-y-4">${state.rooms.map(renderRoomCard).join("")}</div>
+        </section>
+      `;
+    }
+
+    function renderRoomCard(room) {
+      const calc = calculateRoom(room);
+      return `
+        <article class="panel p-4 sm:p-5" data-room-card="${room.id}">
+          <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+            <div class="grid flex-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              ${field("Room Name", `<input class="field-input" data-room="${room.id}" data-field="name" value="${escapeHtml(room.name)}" />`)}
+              ${field("Room Type", selectHtml(roomTypes, room.roomType, `data-room="${room.id}" data-field="roomType"`))}
+              ${field("Shape Type", selectHtml(shapeTypes.map(s => s[1]), shapeLabel(room.shapeType), `data-room="${room.id}" data-field="shapeTypeLabel"`))}
+              ${field("Assigned Tile Scheme", tileSelect(room.tileSchemeId, `data-room="${room.id}" data-field="tileSchemeId"`))}
+            </div>
+            <button class="rounded-lg border border-red-200 px-3 py-2 text-sm font-black text-red-700 hover:bg-red-50" data-action="delete-room" data-room-id="${room.id}" title="Delete room">${icon("trash-2")} Delete</button>
+          </div>
+
+          <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            ${numberField("Length / Main Length (m)", room.id, "length", room.length)}
+            ${numberField("Width / Main Width (m)", room.id, "width", room.width)}
+            ${shapeDimensionFields(room)}
+          </div>
+
+          ${room.shapeType === "polygon" ? `
+            <div class="mt-3">
+              ${field("Polygon Points (x,y pairs in meters)", `<textarea class="field-textarea" data-room="${room.id}" data-field="polygonPoints" placeholder="0,0 4,0 4,3 2,4 0,3">${escapeHtml(room.polygonPoints)}</textarea>`)}
+            </div>
+          ` : ""}
+
+          <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            ${metric("Gross Area", `${fmt(calc.grossArea)} m2`)}
+            ${metric("Deducted Area", `${fmt(calc.deductedArea)} m2`, "Shape cuts and non-tile areas", "amber")}
+            ${metric("Net Tile Area", `${fmt(calc.netArea)} m2`, "", "blue")}
+            ${metric("Perimeter", `${fmt(calc.perimeter)} m`)}
+            ${metric("Skirting Length", `${fmt(calc.skirtingLength)} m`)}
+          </div>
+
+          <div class="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h4 class="font-black text-slate-950">Non-Tile Deduction Areas</h4>
+                <p class="text-sm font-semibold text-slate-500">Columns, voids, staircases, fixed cabinets, island counters, and other obstacles are deducted from the gross area.</p>
+              </div>
+              <button class="rounded-lg bg-slate-900 px-3 py-2 text-sm font-black text-white hover:bg-slate-700" data-action="add-obstacle" data-room-id="${room.id}">${icon("plus")} Add Deduction</button>
+            </div>
+            <div class="mt-3 space-y-2">${room.obstacles.length ? room.obstacles.map(obs => renderObstacle(room, obs)).join("") : `<p class="text-sm font-bold text-slate-500">No additional deduction areas.</p>`}</div>
+          </div>
+
+          ${calc.warning ? `<div class="warning mt-4 rounded-lg border p-3 text-sm font-bold">${calc.warning}</div>` : ""}
+        </article>
+      `;
+    }
+
+    function shapeDimensionFields(room) {
+      if (room.shapeType === "l-shape" || room.shapeType === "column-cutout") {
+        return `${numberField("Cutout Length (m)", room.id, "cutLength", room.cutLength)}${numberField("Cutout Width (m)", room.id, "cutWidth", room.cutWidth)}`;
+      }
+      if (room.shapeType === "u-shape") {
+        return `${numberField("Inner Void Length (m)", room.id, "innerLength", room.innerLength)}${numberField("Inner Void Width (m)", room.id, "innerWidth", room.innerWidth)}`;
+      }
+      if (room.shapeType === "hollow") {
+        return `${numberField("Hollow Length (m)", room.id, "hollowLength", room.hollowLength)}${numberField("Hollow Width (m)", room.id, "hollowWidth", room.hollowWidth)}`;
+      }
+      if (room.shapeType === "multiple-obstacles") {
+        return `${numberField("Reference Length (m)", room.id, "cutLength", room.cutLength)}${numberField("Reference Width (m)", room.id, "cutWidth", room.cutWidth)}`;
+      }
+      return `${numberField("Optional Cut Length (m)", room.id, "cutLength", room.cutLength)}${numberField("Optional Cut Width (m)", room.id, "cutWidth", room.cutWidth)}`;
+    }
+
+    function renderObstacle(room, obs) {
+      return `
+        <div class="grid gap-2 rounded-lg border border-slate-200 bg-white p-3 sm:grid-cols-[1.4fr_1fr_1fr_auto]">
+          ${field("Type", selectHtml(obstacleTypes, obs.type, `data-room="${room.id}" data-obstacle="${obs.id}" data-field="type"`))}
+          ${field("Length (m)", `<input class="field-input" type="number" min="0" step="0.01" data-room="${room.id}" data-obstacle="${obs.id}" data-field="length" value="${obs.length}" />`)}
+          ${field("Width (m)", `<input class="field-input" type="number" min="0" step="0.01" data-room="${room.id}" data-obstacle="${obs.id}" data-field="width" value="${obs.width}" />`)}
+          <button class="self-end rounded-lg border border-red-200 px-3 py-2 text-sm font-black text-red-700 hover:bg-red-50" data-action="delete-obstacle" data-room-id="${room.id}" data-obstacle-id="${obs.id}" title="Remove deduction">${icon("trash-2")}</button>
+        </div>
+      `;
+    }
+
+    function renderSettings() {
+      const totals = calculateTotals();
+      return `
+        <section class="space-y-5">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            ${pageTitle("Tile & Material Settings", "Configure tile schemes and material consumption rates. Rates are editable instead of hard-coded so assumptions can be adjusted for research scenarios.")}
+            <button class="flex items-center justify-center gap-2 rounded-lg bg-blue-700 px-4 py-3 text-sm font-black text-white hover:bg-blue-800" data-action="add-tile">${icon("plus")} Add Tile Scheme</button>
+          </div>
+
+          <div class="panel p-4 sm:p-5">
+            <h3 class="text-lg font-black text-slate-950">Global Calculation Settings</h3>
+            <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              ${settingsNumber("Grout Joint (mm)", "groutJointMm", state.settings.groutJointMm, 0, 0.1)}
+              ${settingsNumber("Waste Percentage (%)", "wastePercentage", state.settings.wastePercentage, 0, 0.1)}
+              ${settingsNumber("Default Door Width (m)", "defaultDoorWidth", state.settings.defaultDoorWidth, 0, 0.01)}
+              <div class="flex items-end gap-2">
+                <button class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-black hover:bg-slate-50" data-action="set-waste" data-value="10">Standard 10%</button>
+                <button class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-black hover:bg-slate-50" data-action="set-waste" data-value="15">Diagonal 15%</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel p-4 sm:p-5">
+            <h3 class="text-lg font-black text-slate-950">Material Consumption and Cost Rates</h3>
+            <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              ${settingsNumber("Cement Bags per m2", "cementBagsPerM2", state.settings.cementBagsPerM2, 0, 0.01)}
+              ${settingsNumber("Sand m3 per m2", "sandM3PerM2", state.settings.sandM3PerM2, 0, 0.01)}
+              ${settingsNumber("Adhesive kg per m2", "adhesiveKgPerM2", state.settings.adhesiveKgPerM2, 0, 0.1)}
+              ${settingsNumber("Grout kg per m2", "groutKgPerM2", state.settings.groutKgPerM2, 0, 0.01)}
+              ${settingsNumber("Cement Cost / Bag", "cementCostPerBag", state.settings.cementCostPerBag, 0, 0.1)}
+              ${settingsNumber("Sand Cost / m3", "sandCostPerM3", state.settings.sandCostPerM3, 0, 0.1)}
+              ${settingsNumber("Adhesive Cost / kg", "adhesiveCostPerKg", state.settings.adhesiveCostPerKg, 0, 0.1)}
+              ${settingsNumber("Grout Cost / kg", "groutCostPerKg", state.settings.groutCostPerKg, 0, 0.1)}
+              ${settingsNumber("Skirting Cost / m", "skirtingCostPerM", state.settings.skirtingCostPerM, 0, 0.1)}
+            </div>
+          </div>
+
+          <div class="grid gap-4 lg:grid-cols-2">${state.tileSchemes.map(renderTileCard).join("")}</div>
+
+          <div class="grid gap-4 md:grid-cols-4">
+            ${metric("Tile Cost", money(totals.materials.tileCost), "From scheme box prices", "green")}
+            ${metric("Cement Bags", totals.materials.cementBags, `${money(totals.materials.cementCost)}`)}
+            ${metric("Sand Volume", `${fmt(totals.materials.sandVolume)} m3`, `${money(totals.materials.sandCost)}`)}
+            ${metric("Total Material Cost", money(totals.materials.totalMaterialCost), "Complete estimate", "blue")}
+          </div>
+        </section>
+      `;
+    }
+
+    function renderTileCard(tile) {
+      const invalid = validateTile(tile);
+      return `
+        <article class="panel p-4 sm:p-5">
+          <div class="flex items-start justify-between gap-3">
+            <h3 class="text-lg font-black text-slate-950">${escapeHtml(tile.name)}</h3>
+            <button class="rounded-lg border border-red-200 px-3 py-2 text-sm font-black text-red-700 hover:bg-red-50" data-action="delete-tile" data-tile-id="${tile.id}" title="Delete tile scheme">${icon("trash-2")}</button>
+          </div>
+          <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            ${field("Scheme Name", `<input class="field-input" data-tile="${tile.id}" data-field="name" value="${escapeHtml(tile.name)}" />`)}
+            ${field("Length (m)", `<input class="field-input" type="number" min="0.01" step="0.01" data-tile="${tile.id}" data-field="length" value="${tile.length}" />`)}
+            ${field("Width (m)", `<input class="field-input" type="number" min="0.01" step="0.01" data-tile="${tile.id}" data-field="width" value="${tile.width}" />`)}
+            ${field("Pieces per Box", `<input class="field-input" type="number" min="1" step="1" data-tile="${tile.id}" data-field="piecesPerBox" value="${tile.piecesPerBox}" />`)}
+            ${field("Cost per Box (RM)", `<input class="field-input" type="number" min="0" step="0.1" data-tile="${tile.id}" data-field="costPerBox" value="${tile.costPerBox}" />`)}
+            ${metric("Tile Area", `${fmt(tile.length * tile.width, 3)} m2`, "Excludes grout")}
+          </div>
+          ${invalid ? `<div class="danger mt-4 rounded-lg border p-3 text-sm font-bold">${invalid}</div>` : ""}
+        </article>
+      `;
+    }
+
+    function renderDuration() {
+      const totals = calculateTotals();
+      const duration = calculateDuration(totals);
+      return `
+        <section class="space-y-5">
+          ${pageTitle("Labour & Duration Prediction", "Predict base and adjusted installation duration using workers, productivity, complexity, weather delay, and risk factors.")}
+          <div class="panel p-4 sm:p-5">
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              ${labourNumber("Number of Workers", "workers", state.labour.workers, 1, 1)}
+              ${labourNumber("Productivity / Worker / Day (m2)", "productivity", state.labour.productivity, 0.1, 0.1)}
+              ${labourNumber("Working Hours / Day", "workingHours", state.labour.workingHours, 1, 0.5)}
+              ${labourNumber("Complexity Factor", "complexityFactor", state.labour.complexityFactor, 1, 0.01)}
+              ${labourNumber("Weather Delay Factor", "weatherDelayFactor", state.labour.weatherDelayFactor, 1, 0.01)}
+              ${labourNumber("Worker Absence Risk Factor", "workerAbsenceRiskFactor", state.labour.workerAbsenceRiskFactor, 1, 0.01)}
+              ${labourNumber("Injury / Accident Risk Factor", "injuryRiskFactor", state.labour.injuryRiskFactor, 1, 0.01)}
+              ${labourNumber("Productivity Variation Factor", "productivityVariationFactor", state.labour.productivityVariationFactor, 1, 0.01)}
+              ${labourNumber("Daily Worker Cost (RM)", "dailyWorkerCost", state.labour.dailyWorkerCost, 0, 1)}
+            </div>
+          </div>
+          <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+            ${metric("Base Duration", `${fmt(duration.baseDuration, 1)} days`, "Area / workers x productivity", "blue")}
+            ${metric("Adjusted Duration", `${fmt(duration.adjustedDuration, 1)} days`, `Weather adds ${fmt(duration.weatherImpactPercent, 1)}%`, "amber")}
+            ${metric("Recommended Workers", duration.recommendedWorkers, "Targets about 10 adjusted days")}
+            ${metric("Labour Cost Estimate", money(duration.labourCost), "Workers x days x daily cost", "green")}
+            ${metric("Delay Risk Level", duration.riskLevel, "Low / Medium / High", duration.riskLevel === "High" ? "red" : duration.riskLevel === "Medium" ? "amber" : "green")}
+          </div>
+          <div class="panel p-4 sm:p-5">
+            <h3 class="text-lg font-black text-slate-950">Productivity Summary</h3>
+            <p class="mt-2 text-sm font-semibold leading-6 text-slate-600">${duration.summary}</p>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderWeather() {
+      const analysis = calculateWeatherRisk();
+      return `
+        <section class="space-y-5">
+          ${pageTitle("Weather & Risk Factors", "Simulated weather data is used until a real weather API is connected. Weather impact feeds into duration prediction.")}
+          <div class="panel p-4 sm:p-5">
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              ${weatherNumber("Rainfall (mm)", "rainfall", state.weather.rainfall, 0, 1)}
+              ${weatherNumber("Humidity (%)", "humidity", state.weather.humidity, 0, 1)}
+              ${weatherNumber("Temperature (C)", "temperature", state.weather.temperature, -10, 1)}
+              ${field("Project Type", selectHtml(["Indoor", "Outdoor"], state.weather.projectType, `data-weather="projectType"`))}
+              ${weatherNumber("Material Delivery Risk (%)", "materialDeliveryRisk", state.weather.materialDeliveryRisk, 0, 1)}
+              ${weatherNumber("Weather Delay Percentage (%)", "weatherDelayPercentage", state.weather.weatherDelayPercentage, 0, 1)}
+            </div>
+          </div>
+          <div class="grid gap-4 md:grid-cols-3">
+            ${metric("Weather Factor", `${fmt(analysis.weatherFactor, 2)}x`, "Used by duration model", "blue")}
+            ${metric("Weather Risk", analysis.level, "Indoor projects reduce weather impact", analysis.level === "High" ? "red" : analysis.level === "Medium" ? "amber" : "green")}
+            ${metric("Delivery Risk", `${fmt(state.weather.materialDeliveryRisk, 0)}%`, "Material transportation risk", "amber")}
+          </div>
+          <div class="panel p-4 sm:p-5">
+            <h3 class="text-lg font-black text-slate-950">Automatic Recommendations</h3>
+            <div class="mt-3 space-y-2">${analysis.messages.map(msg => `<div class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm font-bold text-slate-700">${msg}</div>`).join("")}</div>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderAccuracy() {
+      const result = calculateAccuracy();
+      return `
+        <section class="space-y-5">
+          ${pageTitle("Accuracy Evaluation", "Compare AI estimation, manual estimation, actual material usage, actual duration, and calculation time for research evaluation.")}
+          <div class="panel p-4 sm:p-5">
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              ${accuracyNumber("AI Estimated Material", "aiEstimatedMaterial", state.accuracy.aiEstimatedMaterial)}
+              ${accuracyNumber("Manual Estimated Material", "manualEstimatedMaterial", state.accuracy.manualEstimatedMaterial)}
+              ${accuracyNumber("Actual Material Used", "actualMaterialUsed", state.accuracy.actualMaterialUsed)}
+              ${accuracyNumber("AI Estimated Duration", "aiEstimatedDuration", state.accuracy.aiEstimatedDuration)}
+              ${accuracyNumber("Manual Estimated Duration", "manualEstimatedDuration", state.accuracy.manualEstimatedDuration)}
+              ${accuracyNumber("Actual Duration", "actualDuration", state.accuracy.actualDuration)}
+              ${accuracyNumber("AI Calculation Time (min)", "aiCalculationTime", state.accuracy.aiCalculationTime)}
+              ${accuracyNumber("Manual Calculation Time (min)", "manualCalculationTime", state.accuracy.manualCalculationTime)}
+            </div>
+          </div>
+          <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            ${metric("AI Material Error", `${fmt(result.aiMaterialError)}%`, "", result.aiMaterialError <= result.manualMaterialError ? "green" : "red")}
+            ${metric("Manual Material Error", `${fmt(result.manualMaterialError)}%`)}
+            ${metric("AI Duration Error", `${fmt(result.aiDurationError)}%`, "", result.aiDurationError <= result.manualDurationError ? "green" : "red")}
+            ${metric("Manual Duration Error", `${fmt(result.manualDurationError)}%`)}
+            ${metric("Time Saving", `${fmt(result.timeSaving)}%`, "AI vs manual calculation", "blue")}
+            ${metric("More Accurate", result.moreAccurate, "Based on average error")}
+            ${metric("Faster Method", result.faster, "Based on calculation time", "green")}
+            ${metric("Evaluation Status", result.warning ? "Check Inputs" : "Valid", result.warning || "Actual values are non-zero", result.warning ? "red" : "green")}
+          </div>
+        </section>
+      `;
+    }
+
+    function renderReport() {
+      const report = generateReportText();
+      return `
+        <section class="space-y-5">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            ${pageTitle("Project Report", "Generated engineering report for presentation, review, printing, or text export.")}
+            <div class="flex flex-wrap gap-2">
+              <button class="rounded-lg bg-slate-900 px-3 py-2 text-sm font-black text-white hover:bg-slate-700" data-action="copy-summary">${icon("copy")} Copy Summary</button>
+              <button class="rounded-lg bg-blue-700 px-3 py-2 text-sm font-black text-white hover:bg-blue-800" data-action="export-report">${icon("download")} Export Report Text</button>
+              <button class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-black hover:bg-slate-50" data-action="print-report">${icon("printer")} Print Report</button>
+            </div>
+          </div>
+          <div class="panel p-4 sm:p-6">
+            <pre id="reportText" class="whitespace-pre-wrap text-sm font-semibold leading-6 text-slate-700">${escapeHtml(report)}</pre>
+          </div>
+        </section>
+      `;
+    }
+
+    function pageTitle(title, subtitle) {
+      return `
+        <div>
+          <h2 class="text-xl font-black text-slate-950">${title}</h2>
+          <p class="mt-1 max-w-4xl text-sm font-semibold leading-6 text-slate-600">${subtitle}</p>
+        </div>
+      `;
+    }
+
+    function field(label, control) {
+      return `<label><span class="field-label">${label}</span>${control}</label>`;
+    }
+
+    function numberField(label, roomId, fieldName, value) {
+      return field(label, `<input class="field-input" type="number" min="0" step="0.01" data-room="${roomId}" data-field="${fieldName}" value="${value}" />`);
+    }
+
+    function settingsNumber(label, key, value, min, step) {
+      return field(label, `<input class="field-input" type="number" min="${min}" step="${step}" data-settings="${key}" value="${value}" />`);
+    }
+
+    function labourNumber(label, key, value, min, step) {
+      return field(label, `<input class="field-input" type="number" min="${min}" step="${step}" data-labour="${key}" value="${value}" />`);
+    }
+
+    function weatherNumber(label, key, value, min, step) {
+      return field(label, `<input class="field-input" type="number" min="${min}" step="${step}" data-weather="${key}" value="${value}" />`);
+    }
+
+    function accuracyNumber(label, key, value) {
+      return field(label, `<input class="field-input" type="number" min="0" step="0.1" data-accuracy="${key}" value="${value}" />`);
+    }
+
+    function selectHtml(options, selected, attrs) {
+      return `<select class="field-select" ${attrs}>${options.map(option => {
+        const label = Array.isArray(option) ? option[1] : option;
+        const value = Array.isArray(option) ? option[0] : option;
+        return `<option value="${escapeHtml(value)}" ${String(selected) === String(value) || String(selected) === String(label) ? "selected" : ""}>${escapeHtml(label)}</option>`;
+      }).join("")}</select>`;
+    }
+
+    function tileSelect(selected, attrs) {
+      return selectHtml(state.tileSchemes.map(t => [t.id, t.name]), selected, attrs);
+    }
+
+    function shapeLabel(value) {
+      return shapeTypes.find(s => s[0] === value)?.[1] || "Standard Rectangle";
+    }
+
+    function shapeValue(label) {
+      return shapeTypes.find(s => s[1] === label || s[0] === label)?.[0] || "rectangle";
+    }
+
+    function calculateRoom(room) {
+      const length = clampZero(room.length);
+      const width = clampZero(room.width);
+      let grossArea = length * width;
+      let shapeDeducted = 0;
+      let perimeter = 2 * (length + width);
+      const warningMessages = [];
+
+      if (room.shapeType === "polygon") {
+        const polygon = calculatePolygon(room.polygonPoints);
+        if (polygon.area > 0) {
+          grossArea = polygon.area;
+          perimeter = polygon.perimeter;
+        } else {
+          warningMessages.push("Polygon points are invalid; fallback length x width area is used.");
+        }
+      }
+
+      if (room.shapeType === "l-shape" || room.shapeType === "column-cutout") {
+        shapeDeducted += clampZero(room.cutLength) * clampZero(room.cutWidth);
+      }
+      if (room.shapeType === "u-shape") {
+        shapeDeducted += clampZero(room.innerLength) * clampZero(room.innerWidth);
+      }
+      if (room.shapeType === "hollow") {
+        shapeDeducted += clampZero(room.hollowLength) * clampZero(room.hollowWidth);
+      }
+
+      const obstacleDeducted = room.obstacles.reduce((sum, obs) => sum + clampZero(obs.length) * clampZero(obs.width), 0);
+      const deductedArea = shapeDeducted + obstacleDeducted;
+      if (deductedArea >= grossArea && grossArea > 0) {
+        warningMessages.push("Deducted area is greater than or equal to gross area. Net tile area is capped at 0.");
+      }
+      if (length < 0 || width < 0) warningMessages.push("Room length and width cannot be negative.");
+
+      const netArea = Math.max(0, grossArea - deductedArea);
+      const doorDeduction = state.settings.defaultDoorWidth || 0;
+      const skirtingLength = Math.max(0, perimeter - doorDeduction);
+
+      return { grossArea, shapeDeducted, obstacleDeducted, deductedArea, netArea, perimeter, skirtingLength, warning: warningMessages.join(" ") };
+    }
+
+    function calculatePolygon(pointsText) {
+      const points = String(pointsText || "").trim().split(/\s+/).map(pair => {
+        const [x, y] = pair.split(",").map(Number);
+        return Number.isFinite(x) && Number.isFinite(y) ? { x, y } : null;
+      }).filter(Boolean);
+      if (points.length < 3) return { area: 0, perimeter: 0 };
+      let area = 0;
+      let perimeter = 0;
+      for (let i = 0; i < points.length; i++) {
+        const current = points[i];
+        const next = points[(i + 1) % points.length];
+        area += current.x * next.y - next.x * current.y;
+        perimeter += Math.hypot(next.x - current.x, next.y - current.y);
+      }
+      return { area: Math.abs(area / 2), perimeter };
+    }
+
+    function calculateTotals() {
+      const roomCalcs = state.rooms.map(room => ({ room, calc: calculateRoom(room) }));
+      const grossArea = roomCalcs.reduce((sum, item) => sum + item.calc.grossArea, 0);
+      const deductedArea = roomCalcs.reduce((sum, item) => sum + item.calc.deductedArea, 0);
+      const netArea = roomCalcs.reduce((sum, item) => sum + item.calc.netArea, 0);
+      const skirtingLength = roomCalcs.reduce((sum, item) => sum + item.calc.skirtingLength, 0);
+      return { grossArea, deductedArea, netArea, skirtingLength, roomCount: state.rooms.length, roomCalcs, materials: calculateMaterials(roomCalcs, netArea, skirtingLength) };
+    }
+
+    function calculateMaterials(roomCalcs, netArea, skirtingLength) {
+      let tilePieces = 0;
+      let tileBoxes = 0;
+      let tileCost = 0;
+      const groutMeters = clampZero(state.settings.groutJointMm) / 1000;
+      const wasteMultiplier = 1 + clampZero(state.settings.wastePercentage) / 100;
+
+      roomCalcs.forEach(({ room, calc }) => {
+        const tile = state.tileSchemes.find(t => t.id === room.tileSchemeId) || state.tileSchemes[0];
+        if (!tile || tile.length <= 0 || tile.width <= 0 || tile.piecesPerBox <= 0) return;
+        const effectiveTileArea = (clampZero(tile.length) + groutMeters) * (clampZero(tile.width) + groutMeters);
+        const roomPieces = Math.ceil((calc.netArea * wasteMultiplier) / effectiveTileArea);
+        const roomBoxes = Math.ceil(roomPieces / clampZero(tile.piecesPerBox));
+        tilePieces += roomPieces;
+        tileBoxes += roomBoxes;
+        tileCost += roomBoxes * clampZero(tile.costPerBox);
+      });
+
+      const cementBags = Math.ceil(netArea * clampZero(state.settings.cementBagsPerM2));
+      const sandVolume = netArea * clampZero(state.settings.sandM3PerM2);
+      const adhesiveKg = netArea * clampZero(state.settings.adhesiveKgPerM2);
+      const groutKg = netArea * clampZero(state.settings.groutKgPerM2);
+      const skirtingCost = skirtingLength * clampZero(state.settings.skirtingCostPerM);
+      const cementCost = cementBags * clampZero(state.settings.cementCostPerBag);
+      const sandCost = sandVolume * clampZero(state.settings.sandCostPerM3);
+      const adhesiveCost = adhesiveKg * clampZero(state.settings.adhesiveCostPerKg);
+      const groutCost = groutKg * clampZero(state.settings.groutCostPerKg);
+      const totalMaterialCost = tileCost + cementCost + sandCost + adhesiveCost + groutCost + skirtingCost;
+
+      return { tilePieces, tileBoxes, tileCost, cementBags, sandVolume, adhesiveKg, groutKg, skirtingLength, skirtingCost, cementCost, sandCost, adhesiveCost, groutCost, totalMaterialCost };
+    }
+
+    function calculateWeatherRisk() {
+      const w = state.weather;
+      const isOutdoor = w.projectType === "Outdoor";
+      const rainfallImpact = clampZero(w.rainfall) > 60 ? 0.15 : clampZero(w.rainfall) > 25 ? 0.08 : 0.03;
+      const humidityImpact = clampZero(w.humidity) > 80 ? 0.08 : clampZero(w.humidity) > 65 ? 0.04 : 0.01;
+      const temperatureImpact = clampZero(w.temperature) > 34 ? 0.07 : clampZero(w.temperature) > 30 ? 0.03 : 0;
+      const indoorReduction = isOutdoor ? 1 : 0.45;
+      const configuredDelay = clampZero(w.weatherDelayPercentage) / 100;
+      const deliveryDelay = clampZero(w.materialDeliveryRisk) / 200;
+      const totalImpact = (rainfallImpact + humidityImpact + temperatureImpact) * indoorReduction + configuredDelay + deliveryDelay;
+      const weatherFactor = 1 + totalImpact;
+      const level = totalImpact > 0.25 ? "High" : totalImpact > 0.13 ? "Medium" : "Low";
+      const messages = [];
+      if (w.rainfall > 40) messages.push("Rainfall is high; outdoor work may be delayed and material delivery should include buffer time.");
+      if (w.humidity > 75) messages.push("Humidity is high; curing or drying time may increase, especially for grout and adhesive.");
+      if (w.temperature > 32) messages.push("Temperature is high; worker productivity may decrease during long shifts.");
+      if (!isOutdoor) messages.push("Indoor project type reduces direct weather impact, but transport and delivery can still affect the schedule.");
+      if (isOutdoor) messages.push("Outdoor project type increases exposure to rainfall and temperature risks.");
+      if (w.materialDeliveryRisk > 15) messages.push("Material delivery risk is elevated; reserve buffer days before installation begins.");
+      if (!messages.length) messages.push("Weather impact is low under the current simulated conditions.");
+      return { weatherFactor, weatherImpactPercent: totalImpact * 100, level, messages };
+    }
+
+    function calculateDuration(totals = calculateTotals()) {
+      const l = state.labour;
+      const weather = calculateWeatherRisk();
+      const workers = Math.max(1, Math.floor(clampZero(l.workers)));
+      const productivity = Math.max(0.01, clampZero(l.productivity));
+      const baseDuration = totals.netArea / (workers * productivity);
+      const riskFactor = clampZero(l.workerAbsenceRiskFactor) * clampZero(l.injuryRiskFactor) * clampZero(l.productivityVariationFactor);
+      const adjustedDuration = baseDuration * clampZero(l.complexityFactor || 1) * clampZero(l.weatherDelayFactor || 1) * weather.weatherFactor * riskFactor;
+      const recommendedWorkers = Math.max(1, Math.ceil(totals.netArea / (10 * productivity)));
+      const labourCost = adjustedDuration * workers * clampZero(l.dailyWorkerCost);
+      const riskScore = adjustedDuration / Math.max(1, baseDuration);
+      const riskLevel = riskScore > 1.75 || weather.level === "High" ? "High" : riskScore > 1.35 || weather.level === "Medium" ? "Medium" : "Low";
+      const summary = `With ${workers} workers at ${fmt(productivity, 1)} m2 per worker per day, the base duration is ${fmt(baseDuration, 1)} days. After complexity, weather, absence, injury, and productivity variation factors, the adjusted duration is ${fmt(adjustedDuration, 1)} days. Recommended staffing for an approximately 10-day target is ${recommendedWorkers} workers.`;
+      return { baseDuration, adjustedDuration, recommendedWorkers, labourCost, riskLevel, summary, weatherImpactPercent: weather.weatherImpactPercent };
+    }
+
+    function calculateAccuracy() {
+      const a = state.accuracy;
+      const warning = [];
+      const materialActual = clampZero(a.actualMaterialUsed);
+      const durationActual = clampZero(a.actualDuration);
+      const manualTime = clampZero(a.manualCalculationTime);
+      if (materialActual === 0) warning.push("Actual material cannot be 0.");
+      if (durationActual === 0) warning.push("Actual duration cannot be 0.");
+      if (manualTime === 0) warning.push("Manual calculation time cannot be 0.");
+      const aiMaterialError = materialActual ? Math.abs(a.aiEstimatedMaterial - materialActual) / materialActual * 100 : 0;
+      const manualMaterialError = materialActual ? Math.abs(a.manualEstimatedMaterial - materialActual) / materialActual * 100 : 0;
+      const aiDurationError = durationActual ? Math.abs(a.aiEstimatedDuration - durationActual) / durationActual * 100 : 0;
+      const manualDurationError = durationActual ? Math.abs(a.manualEstimatedDuration - durationActual) / durationActual * 100 : 0;
+      const timeSaving = manualTime ? (a.manualCalculationTime - a.aiCalculationTime) / manualTime * 100 : 0;
+      const aiAverage = (aiMaterialError + aiDurationError) / 2;
+      const manualAverage = (manualMaterialError + manualDurationError) / 2;
+      return {
+        aiMaterialError,
+        manualMaterialError,
+        aiDurationError,
+        manualDurationError,
+        timeSaving,
+        moreAccurate: aiAverage <= manualAverage ? "AI Estimation" : "Manual Estimation",
+        faster: a.aiCalculationTime <= a.manualCalculationTime ? "AI Method" : "Manual Method",
+        warning: warning.join(" ")
+      };
+    }
+
+    function validateTile(tile) {
+      const messages = [];
+      if (tile.length <= 0 || tile.width <= 0) messages.push("Tile length and width must be greater than 0.");
+      if (tile.piecesPerBox <= 0) messages.push("Pieces per box must be greater than 0.");
+      if (tile.costPerBox < 0) messages.push("Cost cannot be negative.");
+      return messages.join(" ");
+    }
+
+    function validateAll(totals = calculateTotals()) {
+      const messages = [];
+      state.tileSchemes.forEach(tile => {
+        const tileMessage = validateTile(tile);
+        if (tileMessage) messages.push(`${tile.name}: ${tileMessage}`);
+      });
+      state.rooms.forEach(room => {
+        const calc = calculateRoom(room);
+        if (calc.warning) messages.push(`${room.name}: ${calc.warning}`);
+        if (room.length < 0 || room.width < 0) messages.push(`${room.name}: room length / width cannot be less than 0.`);
+      });
+      if (state.labour.workers <= 0) messages.push("Worker number must be greater than 0.");
+      if (state.labour.productivity <= 0) messages.push("Productivity must be greater than 0.");
+      const accuracy = calculateAccuracy();
+      if (accuracy.warning) messages.push(`Accuracy Evaluation: ${accuracy.warning}`);
+      if (totals.materials.totalMaterialCost < 0) messages.push("Cost cannot be negative.");
+      return messages;
+    }
+
+    function renderValidationList(messages) {
+      if (!messages.length) return `<div class="success rounded-lg border p-3 text-sm font-bold">All current inputs pass validation.</div>`;
+      return messages.map(msg => `<div class="danger rounded-lg border p-3 text-sm font-bold">${escapeHtml(msg)}</div>`).join("");
+    }
+
+    function generateReportText() {
+      const totals = calculateTotals();
+      const duration = calculateDuration(totals);
+      const weather = calculateWeatherRisk();
+      const accuracy = calculateAccuracy();
+      const validation = validateAll(totals);
+      const suggestions = generateSuggestions(totals, duration, weather);
+      const roomLines = totals.roomCalcs.map(({ room, calc }) =>
+        `- ${room.name} (${room.roomType}, ${shapeLabel(room.shapeType)}): Gross ${fmt(calc.grossArea)} m2, Deducted ${fmt(calc.deductedArea)} m2, Net ${fmt(calc.netArea)} m2, Skirting ${fmt(calc.skirtingLength)} m`
+      ).join("\n");
+
+      return `AI-DRIVEN TILE INSTALLATION PLANNING SYSTEM
+Project Report
+
+1. Project Overview
+This prototype estimates tile installation requirements for a whole-house project using editable room geometry, material rates, mock AI detection, weather risk, labour productivity, and research evaluation metrics.
+
+2. Floor Plan / AI Detection Summary
+Uploaded plan: ${state.uploadedPlan ? state.uploadedPlan.name : "No file uploaded"}
+Mock AI imported to manual rooms: ${state.mockAiImported ? "Yes" : "No"}
+Mock detected rooms available: ${mockAiRooms.length}
+
+3. Room-by-Room Area Breakdown
+${roomLines || "- No rooms added."}
+
+4. Gross Area, Deducted Area, Net Tile Area
+Total Gross Area: ${fmt(totals.grossArea)} m2
+Total Deducted Area: ${fmt(totals.deductedArea)} m2
+Total Net Tile Area: ${fmt(totals.netArea)} m2
+
+5. Tile Quantity Estimation
+Waste Percentage: ${fmt(state.settings.wastePercentage, 1)}%
+Tile Pieces: ${totals.materials.tilePieces}
+Tile Boxes: ${totals.materials.tileBoxes}
+Tile Cost: ${money(totals.materials.tileCost)}
+
+6. Cement, Sand, Grout, Adhesive Estimation
+Cement: ${totals.materials.cementBags} bags
+Sand: ${fmt(totals.materials.sandVolume)} m3
+Grout: ${fmt(totals.materials.groutKg)} kg
+Adhesive / Mortar: ${fmt(totals.materials.adhesiveKg)} kg
+Skirting Material Length: ${fmt(totals.materials.skirtingLength)} m
+
+7. Cost Estimation
+Cement Cost: ${money(totals.materials.cementCost)}
+Sand Cost: ${money(totals.materials.sandCost)}
+Grout Cost: ${money(totals.materials.groutCost)}
+Adhesive Cost: ${money(totals.materials.adhesiveCost)}
+Skirting Cost: ${money(totals.materials.skirtingCost)}
+Total Estimated Material Cost: ${money(totals.materials.totalMaterialCost)}
+
+8. Labour Requirement
+Workers: ${state.labour.workers}
+Productivity: ${fmt(state.labour.productivity, 1)} m2 / worker / day
+Recommended Number of Workers: ${duration.recommendedWorkers}
+Estimated Labour Cost: ${money(duration.labourCost)}
+
+9. Duration Prediction
+Base Duration: ${fmt(duration.baseDuration, 1)} days
+Adjusted Duration: ${fmt(duration.adjustedDuration, 1)} days
+Delay Risk Level: ${duration.riskLevel}
+Productivity Summary: ${duration.summary}
+
+10. Weather Impact Analysis
+Rainfall: ${fmt(state.weather.rainfall, 0)} mm
+Humidity: ${fmt(state.weather.humidity, 0)}%
+Temperature: ${fmt(state.weather.temperature, 0)} C
+Project Type: ${state.weather.projectType}
+Weather Factor: ${fmt(weather.weatherFactor, 2)}x
+Weather Risk Level: ${weather.level}
+Recommendations:
+${weather.messages.map(msg => `- ${msg}`).join("\n")}
+
+11. Risk Factor Analysis
+Complexity Factor: ${fmt(state.labour.complexityFactor, 2)}x
+Worker Absence Factor: ${fmt(state.labour.workerAbsenceRiskFactor, 2)}x
+Injury / Accident Factor: ${fmt(state.labour.injuryRiskFactor, 2)}x
+Productivity Variation Factor: ${fmt(state.labour.productivityVariationFactor, 2)}x
+Material Delivery Risk: ${fmt(state.weather.materialDeliveryRisk, 0)}%
+
+12. Accuracy Evaluation Result
+AI Material Error Rate: ${fmt(accuracy.aiMaterialError)}%
+Manual Material Error Rate: ${fmt(accuracy.manualMaterialError)}%
+AI Duration Error Rate: ${fmt(accuracy.aiDurationError)}%
+Manual Duration Error Rate: ${fmt(accuracy.manualDurationError)}%
+Time Saving Percentage: ${fmt(accuracy.timeSaving)}%
+More Accurate Method: ${accuracy.moreAccurate}
+Faster Method: ${accuracy.faster}
+
+13. AI Optimization Suggestion
+${suggestions.map(msg => `- ${msg}`).join("\n")}
+
+Validation Messages
+${validation.length ? validation.map(msg => `- ${msg}`).join("\n") : "- No validation warnings."}
+`;
+    }
+
+    function generateSuggestions(totals, duration, weather) {
+      const suggestions = [];
+      if (state.settings.wastePercentage > 12) suggestions.push("Waste percentage is high; optimize tile layout or reduce complex diagonal cutting where possible.");
+      if (duration.adjustedDuration > 12) suggestions.push("Adjusted duration is long; increase worker count or split work zones to improve productivity.");
+      if (duration.riskLevel === "High") suggestions.push("Risk level is high; reserve buffer days and prepare alternate schedule options.");
+      if (weather.level !== "Low") suggestions.push("Weather risk is significant; adjust outdoor work and delivery timing around rainfall or humidity.");
+      totals.roomCalcs.forEach(({ room, calc }) => {
+        if (calc.grossArea > 0 && calc.deductedArea / calc.grossArea > 0.2) suggestions.push(`${room.name} has a large deducted-area ratio; manually review the floor plan and obstacle measurements.`);
+      });
+      if (!suggestions.length) suggestions.push("Current project inputs are stable; continue with manual review before final procurement.");
+      return suggestions;
+    }
+
+    document.addEventListener("click", event => {
+      const pageBtn = event.target.closest("[data-page]");
+      if (pageBtn) {
+        state.activePage = pageBtn.dataset.page;
+        renderApp();
+        return;
+      }
+
+      const btn = event.target.closest("[data-action]");
+      if (!btn) return;
+      const action = btn.dataset.action;
+      if (action === "add-room") addRoom();
+      if (action === "delete-room") deleteRoom(btn.dataset.roomId);
+      if (action === "add-obstacle") addObstacle(btn.dataset.roomId);
+      if (action === "delete-obstacle") deleteObstacle(btn.dataset.roomId, btn.dataset.obstacleId);
+      if (action === "add-tile") addTile();
+      if (action === "delete-tile") deleteTile(btn.dataset.tileId);
+      if (action === "set-waste") state.settings.wastePercentage = toNumber(btn.dataset.value, 10);
+      if (action === "import-ai") importAiResults();
+      if (action === "copy-summary") copySummary();
+      if (action === "export-report") exportReport();
+      if (action === "print-report") window.print();
+      renderApp();
+    });
+
+    document.addEventListener("input", event => {
+      const target = event.target;
+      if (target.matches("[data-room]")) updateRoomField(target);
+      if (target.matches("[data-obstacle]")) updateObstacleField(target);
+      if (target.matches("[data-tile]")) updateTileField(target);
+      if (target.matches("[data-settings]")) state.settings[target.dataset.settings] = toNumber(target.value, 0);
+      if (target.matches("[data-labour]")) state.labour[target.dataset.labour] = toNumber(target.value, 0);
+      if (target.matches("[data-weather]")) state.weather[target.dataset.weather] = target.type === "number" ? toNumber(target.value, 0) : target.value;
+      if (target.matches("[data-accuracy]")) state.accuracy[target.dataset.accuracy] = toNumber(target.value, 0);
+      renderHeaderMetrics();
+    });
+
+    document.addEventListener("change", event => {
+      const target = event.target;
+      if (target.id === "planUpload") handlePlanUpload(target.files[0]);
+      if (target.matches("[data-room]")) updateRoomField(target);
+      if (target.matches("[data-obstacle]")) updateObstacleField(target);
+      if (target.matches("[data-tile]")) updateTileField(target);
+      if (target.matches("[data-weather]")) state.weather[target.dataset.weather] = target.value;
+      renderApp();
+    });
+
+    function updateRoomField(target) {
+      const room = state.rooms.find(r => r.id === target.dataset.room);
+      if (!room) return;
+      const fieldName = target.dataset.field;
+      if (fieldName === "shapeTypeLabel") {
+        room.shapeType = shapeValue(target.value);
+      } else if (["name", "roomType", "shapeType", "tileSchemeId", "polygonPoints"].includes(fieldName)) {
+        room[fieldName] = target.value;
+      } else {
+        room[fieldName] = toNumber(target.value, 0);
+      }
+    }
+
+    function updateObstacleField(target) {
+      const room = state.rooms.find(r => r.id === target.dataset.room);
+      const obs = room?.obstacles.find(o => o.id === target.dataset.obstacle);
+      if (!obs) return;
+      obs[target.dataset.field] = target.dataset.field === "type" ? target.value : toNumber(target.value, 0);
+    }
+
+    function updateTileField(target) {
+      const tile = state.tileSchemes.find(t => t.id === target.dataset.tile);
+      if (!tile) return;
+      tile[target.dataset.field] = target.dataset.field === "name" ? target.value : toNumber(target.value, 0);
+    }
+
+    function addRoom() {
+      state.rooms.push({
+        id: uid(),
+        name: `Room ${state.rooms.length + 1}`,
+        roomType: "Others",
+        shapeType: "rectangle",
+        tileSchemeId: state.tileSchemes[0]?.id || "",
+        length: 3,
+        width: 3,
+        cutLength: 0,
+        cutWidth: 0,
+        innerLength: 0,
+        innerWidth: 0,
+        hollowLength: 0,
+        hollowWidth: 0,
+        polygonPoints: "0,0 3,0 3,3 0,3",
+        obstacles: []
+      });
+    }
+
+    function deleteRoom(roomId) {
+      state.rooms = state.rooms.filter(room => room.id !== roomId);
+    }
+
+    function addObstacle(roomId) {
+      const room = state.rooms.find(r => r.id === roomId);
+      if (!room) return;
+      room.obstacles.push({ id: uid(), type: "Column", length: 0.5, width: 0.5 });
+    }
+
+    function deleteObstacle(roomId, obstacleId) {
+      const room = state.rooms.find(r => r.id === roomId);
+      if (!room) return;
+      room.obstacles = room.obstacles.filter(obs => obs.id !== obstacleId);
+    }
+
+    function addTile() {
+      state.tileSchemes.push({ id: uid(), name: `Tile Scheme ${state.tileSchemes.length + 1}`, length: 0.6, width: 0.6, piecesPerBox: 4, costPerBox: 55 });
+    }
+
+    function deleteTile(tileId) {
+      if (state.tileSchemes.length <= 1) return;
+      state.tileSchemes = state.tileSchemes.filter(tile => tile.id !== tileId);
+      state.rooms.forEach(room => {
+        if (room.tileSchemeId === tileId) room.tileSchemeId = state.tileSchemes[0].id;
+      });
+    }
+
+    function importAiResults() {
+      state.rooms = mockAiRooms.map(row => {
+        const width = Math.sqrt(row.grossArea);
+        const length = row.grossArea / width;
+        return {
+          id: uid(),
+          name: row.name,
+          roomType: row.roomType,
+          shapeType: row.shapeType,
+          tileSchemeId: state.tileSchemes[0]?.id || "",
+          length: Number(length.toFixed(2)),
+          width: Number(width.toFixed(2)),
+          cutLength: row.shapeType === "l-shape" ? 1.2 : 0,
+          cutWidth: row.shapeType === "l-shape" ? 0.8 : 0,
+          innerLength: row.shapeType === "u-shape" ? 1 : 0,
+          innerWidth: row.shapeType === "u-shape" ? 1 : 0,
+          hollowLength: row.shapeType === "hollow" ? 0.8 : 0,
+          hollowWidth: row.shapeType === "hollow" ? 0.75 : 0,
+          polygonPoints: "0,0 4,0 4,3 2,4 0,3",
+          obstacles: Array.from({ length: row.obstacles }, (_, index) => ({ id: uid(), type: index === 0 ? "Column" : "Other Obstacle", length: 0.45, width: Math.max(0.3, row.deductedArea / Math.max(1, row.obstacles) / 0.45) }))
+        };
+      });
+      state.mockAiImported = true;
+      state.activePage = "rooms";
+    }
+
+    function handlePlanUpload(file) {
+      if (!file) return;
+      if (state.uploadedPlan?.previewUrl) URL.revokeObjectURL(state.uploadedPlan.previewUrl);
+      const isImage = file.type.startsWith("image/");
+      state.uploadedPlan = {
+        name: file.name,
+        type: file.type || "Unknown",
+        size: file.size,
+        previewUrl: isImage ? URL.createObjectURL(file) : ""
+      };
+      renderApp();
+    }
+
+    async function copySummary() {
+      const totals = calculateTotals();
+      const duration = calculateDuration(totals);
+      const text = `Tile Project Summary: ${fmt(totals.netArea)} m2 net tile area, ${totals.roomCount} rooms, ${totals.materials.tilePieces} tile pieces, ${totals.materials.tileBoxes} boxes, ${money(totals.materials.totalMaterialCost)} materials, ${fmt(duration.adjustedDuration, 1)} adjusted days, ${duration.riskLevel} risk.`;
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast("Summary copied.");
+      } catch {
+        showToast("Copy failed. Report text is available below.");
+      }
+    }
+
+    function exportReport() {
+      const blob = new Blob([generateReportText()], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "tile-installation-project-report.txt";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
 
     function showToast(message) {
-      clearTimeout(toastTimer);
-
-      els.toast.textContent = message;
-      els.toast.classList.remove('hidden');
-
-      toastTimer = setTimeout(() => {
-        els.toast.classList.add('hidden');
-      }, 1800);
+      const toast = document.createElement("div");
+      toast.className = "no-print fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-slate-950 px-4 py-3 text-sm font-black text-white shadow-xl";
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 1800);
     }
+
+    renderApp();
   </script>
 </body>
 </html>
