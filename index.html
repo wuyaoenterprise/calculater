@@ -53,22 +53,33 @@
             <h1 class="text-xl font-black tracking-tight text-slate-950 sm:text-2xl">AI-Driven Tile Installation Planning System</h1>
             <p class="mt-1 text-sm font-semibold text-slate-500">Whole-house tile estimating, mock AI room detection, material planning, duration prediction, and research evaluation.</p>
           </div>
-          <div class="grid grid-cols-2 gap-2 text-right sm:grid-cols-4 lg:w-[34rem]">
+          <div class="space-y-3 lg:w-[42rem]">
+            <div class="flex justify-end">
+              <label class="flex items-center gap-2 text-xs font-black uppercase tracking-wide text-slate-500">
+                <span id="languageLabel">Language</span>
+                <select id="languageSwitcher" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-extrabold normal-case tracking-normal text-slate-900">
+                  <option value="en">English</option>
+                  <option value="zh">中文</option>
+                </select>
+              </label>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-right sm:grid-cols-4">
             <div class="rounded-lg bg-slate-100 px-3 py-2">
-              <p class="text-[11px] font-bold text-slate-500">Net Area</p>
+              <p id="headerNetAreaLabel" class="text-[11px] font-bold text-slate-500">Net Area</p>
               <p id="headerTotalArea" class="text-sm font-black text-slate-950">0.00 m2</p>
             </div>
             <div class="rounded-lg bg-slate-100 px-3 py-2">
-              <p class="text-[11px] font-bold text-slate-500">Rooms</p>
+              <p id="headerRoomsLabel" class="text-[11px] font-bold text-slate-500">Rooms</p>
               <p id="headerRoomCount" class="text-sm font-black text-slate-950">0</p>
             </div>
             <div class="rounded-lg bg-slate-100 px-3 py-2">
-              <p class="text-[11px] font-bold text-slate-500">Boxes</p>
+              <p id="headerBoxesLabel" class="text-[11px] font-bold text-slate-500">Boxes</p>
               <p id="headerTotalBoxes" class="text-sm font-black text-slate-950">0</p>
             </div>
             <div class="rounded-lg bg-slate-100 px-3 py-2">
-              <p class="text-[11px] font-bold text-slate-500">Cost</p>
+              <p id="headerCostLabel" class="text-[11px] font-bold text-slate-500">Cost</p>
               <p id="headerTotalCost" class="text-sm font-black text-blue-700">RM 0.00</p>
+            </div>
             </div>
           </div>
         </div>
@@ -83,19 +94,22 @@
   <script>
     /*
       Future backend API plan:
-      POST /api/upload-plan
+      POST /api/upload-floor-plan
+      POST /api/analyze-floor-plan
       POST /api/detect-rooms
-      POST /api/calculate-materials
-      POST /api/predict-duration
-      GET  /api/project-report/:id
+      POST /api/extract-room-crops
+      POST /api/import-detection-result
+      POST /api/generate-project-report
 
       Future AI / Computer Vision methods:
       OCR for floor-plan text and dimension annotations.
       Image Segmentation for room boundary detection.
       Object Detection for columns, obstacles, doors, and walls.
+      Bounding Box Detection for cropped room-image extraction.
       Polygon Area Calculation for irregular room shapes.
       Scale Calibration for converting drawing scale into real dimensions.
       Manual Correction Layer for user review and adjustment of AI results.
+      API keys must stay on the backend; never expose a real AI key in this HTML file.
     */
 
     const pages = [
@@ -122,9 +136,199 @@
     ];
     const obstacleTypes = ["Column", "Void Area", "Staircase", "Fixed Cabinet", "Island Counter", "Other Obstacle"];
 
+    const translations = {
+      en: {},
+      zh: {
+        "Research Prototype": "研究原型",
+        "AI-Driven Tile Installation Planning System": "AI 驱动瓷砖铺设规划系统",
+        "Whole-house tile estimating, mock AI room detection, material planning, duration prediction, and research evaluation.": "全屋瓷砖估算、模拟 AI 房间识别、材料规划、工期预测与研究评估。",
+        "Language": "语言",
+        "Dashboard": "仪表盘",
+        "Floor Plan Upload": "图纸上传",
+        "AI Room Detection": "AI 房间识别",
+        "Rooms & Shapes": "房间与形状",
+        "Tile & Materials": "瓷砖与材料",
+        "Settings & Tiles": "设置与瓷砖",
+        "Labour & Duration": "人工与工期",
+        "Labour & Duration Prediction": "人工与工期预测",
+        "Weather & Risk": "天气与风险",
+        "Weather & Risk Factors": "天气与风险因素",
+        "Accuracy Evaluation": "准确性评估",
+        "Project Report": "项目报告",
+        "Final Report": "最终报告",
+        "Total Area": "总面积",
+        "Net Area": "净面积",
+        "Rooms": "房间",
+        "Boxes": "箱数",
+        "Cost": "成本",
+        "Total Project Area": "项目总面积",
+        "Number of Rooms": "房间数量",
+        "Total Tile Pieces": "瓷砖总片数",
+        "Total Tile Boxes": "瓷砖总箱数",
+        "Total Material Cost": "材料总成本",
+        "Estimated Duration": "预计工期",
+        "Risk Level": "风险等级",
+        "Material Waste Percentage": "材料损耗百分比",
+        "Project Workflow": "项目流程",
+        "AI Detection": "AI 识别",
+        "Manual Correction": "人工校正",
+        "Research Output": "研究输出",
+        "Validation Status": "验证状态",
+        "Start Upload": "开始上传",
+        "Choose floor plan file": "选择平面图文件",
+        "JPG, PNG, PDF, or exported CAD image": "JPG、PNG、PDF 或 CAD 导出图片",
+        "Uploaded File": "已上传文件",
+        "Preview": "预览",
+        "No floor plan uploaded yet.": "尚未上传平面图。",
+        "Mock PDF / CAD Preview": "PDF / CAD 模拟预览",
+        "Run AI Detection": "开始 AI 识别",
+        "Import AI Result to Rooms & Shapes": "导入到房间与形状",
+        "Mock Detection Results": "模拟识别结果",
+        "Room Name": "房间名称",
+        "Room Type": "房间类型",
+        "Room Shape": "房间形状",
+        "Shape Type": "形状类型",
+        "Detected Shape": "识别形状",
+        "Assigned Tile Scheme": "指定瓷砖方案",
+        "Gross Area": "毛面积",
+        "Deducted Area": "扣除面积",
+        "Net Tile Area": "净铺贴面积",
+        "Skirting": "踢脚线",
+        "Skirting Length": "踢脚线长度",
+        "Tile Scheme": "瓷砖方案",
+        "Tile Length": "瓷砖长度",
+        "Tile Width": "瓷砖宽度",
+        "Price Per Piece": "每片价格",
+        "Pieces Per Box": "每箱片数",
+        "Material Estimation": "材料估算",
+        "Cement": "水泥",
+        "Sand": "砂",
+        "Grout": "填缝剂",
+        "Tile Adhesive": "瓷砖胶",
+        "Labour Planning": "人工规划",
+        "Duration Prediction": "工期预测",
+        "Weather Impact": "天气影响",
+        "AI Optimization Suggestion": "AI 优化建议",
+        "Copy Summary": "复制摘要",
+        "Export Report": "导出报告",
+        "Export Report Text": "导出报告文本",
+        "Print Report": "打印报告",
+        "Add Room": "添加房间",
+        "Delete": "删除",
+        "Add Deduction": "添加扣除项",
+        "No additional deduction areas.": "没有额外扣除区域。",
+        "Non-Tile Deduction Areas": "非铺贴扣除区域",
+        "Obstacle / Column Count": "障碍物 / 柱子数量",
+        "Confidence Score": "置信度",
+        "AI Warning Message": "AI 警告信息",
+        "Cropped Room Image": "房间裁剪图",
+        "No cropped image available": "没有可用的房间裁剪图",
+        "Add Tile Scheme": "添加瓷砖方案",
+        "Global Calculation Settings": "全局计算设置",
+        "Material Consumption and Cost Rates": "材料用量与成本参数",
+        "Interview-Based Adhesive Assumption": "基于访谈的瓷砖胶假设",
+        "Tile adhesive coverage per 50kg bag": "每包 50kg 瓷砖胶覆盖面积",
+        "Uneven floor thickness factor": "地面不平整厚度系数",
+        "Adhesive consumption adjustment factor": "瓷砖胶用量调整系数",
+        "Material assumption is based on interview data: 1 bag of 50kg tile adhesive covers approximately 80-83 sq ft, or about 7.43-7.71 m2 under standard flat conditions.": "材料假设基于访谈数据：每包 50kg 瓷砖胶在标准平整施工条件下大约可铺贴 80-83 平方英尺，约 7.43-7.71 平方米。",
+        "Adhesive Cost / 50kg Bag": "瓷砖胶每 50kg 包成本",
+        "bags": "包",
+        "Base Duration": "基础工期",
+        "Adjusted Duration": "调整后工期",
+        "Recommended Buffer Days": "建议缓冲天数",
+        "Final Estimated Duration": "最终预计工期",
+        "Recommended Workers": "建议工人人数",
+        "Delay Risk Level": "延误风险等级",
+        "Productivity Summary": "施工效率摘要",
+        "Number of Workers": "工人人数",
+        "Team Productivity (m2/day)": "团队效率（平方米/天）",
+        "Productivity / Worker / Day (m2)": "每名工人每日效率（平方米）",
+        "Complexity Factor": "复杂度系数",
+        "Corner / Cutting Difficulty Factor": "角落 / 切割难度系数",
+        "Column / Obstacle Factor": "柱子 / 障碍物系数",
+        "Weather Delay Factor": "天气延误系数",
+        "Worker Absence Factor": "工人缺勤系数",
+        "Material Supply Factor": "材料供应系数",
+        "Equipment Factor": "设备系数",
+        "Public Holiday Factor": "公共假期系数",
+        "Project Type": "项目类型",
+        "Indoor": "室内",
+        "Outdoor": "室外",
+        "Mixed": "混合",
+        "Rainfall Level": "降雨等级",
+        "Humidity Level": "湿度",
+        "Temperature": "温度",
+        "Worker Absence Probability": "工人缺勤概率",
+        "Sick Leave Probability": "病假概率",
+        "Public Holiday Impact": "公共假期影响",
+        "Material Shortage Risk": "材料短缺风险",
+        "Site Stock Availability": "工地库存可用性",
+        "Equipment Failure Risk": "设备故障风险",
+        "Overall Delay Risk": "总体延误风险",
+        "Low": "低",
+        "Medium": "中",
+        "High": "高",
+        "AI Estimated Material": "AI 估算材料",
+        "Manual Estimated Material": "人工估算材料",
+        "Actual Material Used": "实际材料用量",
+        "AI Estimated Duration": "AI 估算工期",
+        "Manual Estimated Duration": "人工估算工期",
+        "Actual Duration": "实际工期",
+        "AI Calculation Time": "AI 计算时间",
+        "Manual Calculation Time": "人工计算时间",
+        "AI Material Error Rate": "AI 材料误差率",
+        "Manual Material Error Rate": "人工材料误差率",
+        "AI Duration Error Rate": "AI 工期误差率",
+        "Manual Duration Error Rate": "人工工期误差率",
+        "Time Saving Percentage": "节省时间百分比",
+        "More Accurate Method": "更准确方法",
+        "Faster Method": "更快方法",
+        "AI Estimation": "AI 估算",
+        "Manual Estimation": "人工估算",
+        "AI Method": "AI 方法",
+        "Manual Method": "人工方法",
+        "Room added": "房间已添加",
+        "Room deleted": "房间已删除",
+        "Tile scheme added": "瓷砖方案已添加",
+        "Tile scheme deleted": "瓷砖方案已删除",
+        "AI detection completed": "AI 识别完成",
+        "AI result imported to Rooms & Shapes": "AI 结果已导入房间与形状",
+        "Please upload a floor plan image first": "请先上传平面图图片",
+        "Summary copied.": "摘要已复制。",
+        "Copy failed. Report text is available below.": "复制失败。可在下方查看报告文本。",
+        "Living Room": "客厅",
+        "Bedroom": "卧室",
+        "Kitchen": "厨房",
+        "Bathroom": "浴室",
+        "Office": "办公室",
+        "Corridor": "走廊",
+        "Others": "其他",
+        "Standard Rectangle": "标准矩形",
+        "Rectangle with Column Cutout": "带柱位扣除的矩形",
+        "L-Shaped Room": "L 形房间",
+        "U-Shaped Room": "U 形房间",
+        "Polygon / Irregular Shape": "多边形 / 不规则形状",
+        "Room with Hollow Area / Void Area": "带中空 / 空洞区域的房间",
+        "Room with Multiple Obstacles": "带多个障碍物的房间",
+        "Column": "柱子",
+        "Void Area": "空洞区域",
+        "Staircase": "楼梯",
+        "Fixed Cabinet": "固定柜体",
+        "Island Counter": "中岛台",
+        "Other Obstacle": "其他障碍物"
+      }
+    };
+
+    function t(key) {
+      return translations[state.language]?.[key] || translations.en[key] || key;
+    }
+
     const state = {
+      language: "en",
       activePage: "dashboard",
       uploadedPlan: null,
+      aiDetectionResults: [],
+      aiDetectionStatus: "idle",
       mockAiImported: false,
       settings: {
         groutJointMm: 3,
@@ -133,9 +337,13 @@
         cementBagsPerM2: 0.35,
         sandM3PerM2: 0.05,
         adhesiveKgPerM2: 4,
+        adhesiveCoveragePerBag: 7.43,
+        thicknessFactor: 1,
+        adhesiveAdjustmentFactor: 1,
         groutKgPerM2: 0.25,
         cementCostPerBag: 22,
         sandCostPerM3: 95,
+        adhesiveCostPerBag: 38,
         adhesiveCostPerKg: 2.8,
         groutCostPerKg: 4.2,
         skirtingCostPerM: 8
@@ -181,21 +389,32 @@
         }
       ],
       labour: {
-        workers: 4,
-        productivity: 7.5,
+        workers: 2,
+        teamProductivity: 42.27,
+        productivity: 21.13,
         workingHours: 8,
         complexityFactor: 1.15,
+        cuttingFactor: 1.05,
+        obstacleFactor: 1.05,
         weatherDelayFactor: 1.05,
         workerAbsenceRiskFactor: 1.08,
-        injuryRiskFactor: 1.03,
-        productivityVariationFactor: 1.1,
+        materialSupplyFactor: 1.04,
+        equipmentFactor: 1.03,
+        publicHolidayFactor: 1.02,
         dailyWorkerCost: 140
       },
       weather: {
+        rainfallLevel: "Medium",
         rainfall: 45,
         humidity: 78,
         temperature: 32,
         projectType: "Indoor",
+        workerAbsenceProbability: 8,
+        sickLeaveProbability: 5,
+        publicHolidayImpact: 4,
+        materialShortageRisk: 12,
+        siteStockAvailability: 80,
+        equipmentFailureRisk: 6,
         materialDeliveryRisk: 12,
         weatherDelayPercentage: 8
       },
@@ -214,10 +433,10 @@
     state.rooms.forEach(room => { room.tileSchemeId = state.tileSchemes[0].id; });
 
     const mockAiRooms = [
-      { name: "Detected Living Area", roomType: "Living Room", shapeType: "rectangle", grossArea: 23.9, obstacles: 1, deductedArea: 0.25, confidence: 94, warning: "Column detected near north wall; manual verification recommended." },
-      { name: "Detected Kitchen", roomType: "Kitchen", shapeType: "l-shape", grossArea: 15.6, obstacles: 2, deductedArea: 2.2, confidence: 88, warning: "L-shaped boundary estimated from wall segmentation." },
-      { name: "Detected Bedroom 1", roomType: "Bedroom", shapeType: "rectangle", grossArea: 13.8, obstacles: 0, deductedArea: 0, confidence: 91, warning: "No major obstacles detected." },
-      { name: "Detected Bathroom", roomType: "Bathroom", shapeType: "hollow", grossArea: 5.7, obstacles: 1, deductedArea: 0.6, confidence: 82, warning: "Sanitary fixture void area simulated." }
+      { id: "ai-room-1", name: "Detected Living Area", roomName: "Detected Living Area", roomType: "Living Room", shapeType: "rectangle", grossArea: 23.9, deductedArea: 0.25, netArea: 23.65, confidence: 0.94, bbox: { x: 80, y: 70, width: 260, height: 190 }, obstacles: [{ type: "Column", area: 0.25 }], aiWarning: "Column detected near north wall; manual verification recommended." },
+      { id: "ai-room-2", name: "Detected Kitchen", roomName: "Detected Kitchen", roomType: "Kitchen", shapeType: "l-shape", grossArea: 15.6, deductedArea: 2.2, netArea: 13.4, confidence: 0.88, bbox: { x: 360, y: 90, width: 210, height: 170 }, obstacles: [{ type: "Island Counter", area: 1.4 }, { type: "Other Obstacle", area: 0.8 }], aiWarning: "L-shaped boundary estimated from wall segmentation." },
+      { id: "ai-room-3", name: "Detected Bedroom 1", roomName: "Detected Bedroom 1", roomType: "Bedroom", shapeType: "rectangle", grossArea: 13.8, deductedArea: 0, netArea: 13.8, confidence: 0.91, bbox: { x: 95, y: 295, width: 230, height: 155 }, obstacles: [], aiWarning: "No major obstacles detected." },
+      { id: "ai-room-4", name: "Detected Bathroom", roomName: "Detected Bathroom", roomType: "Bathroom", shapeType: "hollow", grossArea: 5.7, deductedArea: 0.6, netArea: 5.1, confidence: 0.82, bbox: { x: 385, y: 300, width: 145, height: 125 }, obstacles: [{ type: "Void Area", area: 0.6 }], aiWarning: "Sanitary fixture void area simulated." }
     ];
 
     function uid() {
@@ -251,6 +470,7 @@
 
     function renderApp() {
       renderNav();
+      renderStaticShellText();
       renderHeaderMetrics();
       const app = document.getElementById("app");
       const renderers = {
@@ -269,10 +489,27 @@
       if (window.lucide) window.lucide.createIcons();
     }
 
+    function renderStaticShellText() {
+      document.documentElement.lang = state.language === "zh" ? "zh-CN" : "en";
+      setText("languageLabel", t("Language"));
+      setText("headerNetAreaLabel", t("Net Area"));
+      setText("headerRoomsLabel", t("Rooms"));
+      setText("headerBoxesLabel", t("Boxes"));
+      setText("headerCostLabel", t("Cost"));
+      const languageSwitcher = document.getElementById("languageSwitcher");
+      if (languageSwitcher) languageSwitcher.value = state.language;
+      const eyebrow = document.querySelector("header p.uppercase");
+      const title = document.querySelector("header h1");
+      const subtitle = document.querySelector("header h1 + p");
+      if (eyebrow) eyebrow.textContent = t("Research Prototype");
+      if (title) title.textContent = t("AI-Driven Tile Installation Planning System");
+      if (subtitle) subtitle.textContent = t("Whole-house tile estimating, mock AI room detection, material planning, duration prediction, and research evaluation.");
+    }
+
     function renderNav() {
       document.getElementById("topNav").innerHTML = pages.map(([id, label, iconName]) => `
-        <button type="button" class="nav-btn ${state.activePage === id ? "active" : ""} flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-extrabold" data-page="${id}" title="${label}">
-          ${icon(iconName)} <span>${label}</span>
+        <button type="button" class="nav-btn ${state.activePage === id ? "active" : ""} flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-extrabold" data-page="${id}" title="${t(label)}">
+          ${icon(iconName)} <span>${t(label)}</span>
         </button>
       `).join("");
     }
@@ -298,11 +535,12 @@
         amber: "text-amber-700",
         red: "text-red-700"
       };
+      const displayValue = typeof value === "string" ? t(value) : value;
       return `
         <div class="metric">
-          <p class="text-xs font-black uppercase tracking-wide text-slate-500">${label}</p>
-          <p class="mt-2 text-2xl font-black ${colors[tone] || colors.slate}">${value}</p>
-          ${hint ? `<p class="mt-1 text-xs font-semibold text-slate-500">${hint}</p>` : ""}
+          <p class="text-xs font-black uppercase tracking-wide text-slate-500">${t(label)}</p>
+          <p class="mt-2 text-2xl font-black ${colors[tone] || colors.slate}">${displayValue}</p>
+          ${hint ? `<p class="mt-1 text-xs font-semibold text-slate-500">${t(hint)}</p>` : ""}
         </div>
       `;
     }
@@ -328,10 +566,10 @@
             <div class="panel p-4 sm:p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
-                  <h2 class="text-lg font-black text-slate-950">Project Workflow</h2>
-                  <p class="mt-1 text-sm font-semibold text-slate-500">The prototype follows the research flow from plan upload to AI detection, manual correction, material estimation, duration prediction, and report generation.</p>
+                  <h2 class="text-lg font-black text-slate-950">${t("Project Workflow")}</h2>
+                  <p class="mt-1 text-sm font-semibold text-slate-500">${t("The prototype follows the research flow from plan upload to AI detection, manual correction, material estimation, duration prediction, and report generation.")}</p>
                 </div>
-                <button class="rounded-lg bg-blue-700 px-3 py-2 text-sm font-black text-white hover:bg-blue-800" data-page="upload">${icon("arrow-right")} Start Upload</button>
+                <button class="rounded-lg bg-blue-700 px-3 py-2 text-sm font-black text-white hover:bg-blue-800" data-page="upload">${icon("arrow-right")} ${t("Start Upload")}</button>
               </div>
               <div class="mt-5 grid gap-3 sm:grid-cols-3">
                 ${workflowStep("1", "AI Detection", "Mock computer vision output creates room records with confidence and warnings.")}
@@ -340,7 +578,7 @@
               </div>
             </div>
             <div class="panel p-4 sm:p-5">
-              <h2 class="text-lg font-black text-slate-950">Validation Status</h2>
+              <h2 class="text-lg font-black text-slate-950">${t("Validation Status")}</h2>
               <div class="mt-4 space-y-2">${renderValidationList(validateAll(totals))}</div>
             </div>
           </div>
@@ -352,8 +590,8 @@
       return `
         <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
           <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-700 text-sm font-black text-white">${num}</div>
-          <h3 class="mt-3 font-black text-slate-950">${title}</h3>
-          <p class="mt-1 text-sm font-semibold leading-6 text-slate-600">${body}</p>
+          <h3 class="mt-3 font-black text-slate-950">${t(title)}</h3>
+          <p class="mt-1 text-sm font-semibold leading-6 text-slate-600">${t(body)}</p>
         </div>
       `;
     }
@@ -367,13 +605,13 @@
             <div class="panel p-4 sm:p-5">
               <label class="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-blue-200 bg-blue-50 px-6 py-10 text-center hover:bg-blue-100">
                 ${icon("upload-cloud", 38)}
-                <span class="mt-3 text-base font-black text-blue-900">Choose floor plan file</span>
-                <span class="mt-1 text-sm font-semibold text-blue-700">JPG, PNG, PDF, or exported CAD image</span>
+                <span class="mt-3 text-base font-black text-blue-900">${t("Choose floor plan file")}</span>
+                <span class="mt-1 text-sm font-semibold text-blue-700">${t("JPG, PNG, PDF, or exported CAD image")}</span>
                 <input id="planUpload" class="hidden" type="file" accept=".jpg,.jpeg,.png,.pdf,image/*,application/pdf" />
               </label>
               ${plan ? `
                 <div class="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
-                  <p class="text-xs font-black uppercase text-slate-500">Uploaded File</p>
+                  <p class="text-xs font-black uppercase text-slate-500">${t("Uploaded File")}</p>
                   <p class="mt-1 font-black text-slate-950">${escapeHtml(plan.name)}</p>
                   <p class="mt-1 text-sm font-semibold text-slate-600">${escapeHtml(plan.type || "Unknown type")} - ${fmt(plan.size / 1024, 1)} KB</p>
                 </div>
@@ -381,7 +619,7 @@
             </div>
             <div class="panel overflow-hidden">
               <div class="border-b border-slate-200 px-4 py-3">
-                <h3 class="font-black text-slate-950">Preview</h3>
+                <h3 class="font-black text-slate-950">${t("Preview")}</h3>
               </div>
               <div class="flex min-h-[22rem] items-center justify-center bg-slate-100 p-4">
                 ${renderPlanPreview()}
@@ -395,7 +633,7 @@
     function renderPlanPreview() {
       const plan = state.uploadedPlan;
       if (!plan) {
-        return `<div class="text-center text-sm font-bold text-slate-500">${icon("image", 42)}<p class="mt-2">No floor plan uploaded yet.</p></div>`;
+        return `<div class="text-center text-sm font-bold text-slate-500">${icon("image", 42)}<p class="mt-2">${t("No floor plan uploaded yet.")}</p></div>`;
       }
       if (plan.previewUrl) {
         return `<img src="${plan.previewUrl}" alt="Uploaded floor plan preview" class="max-h-[32rem] w-full rounded-lg object-contain" />`;
@@ -403,53 +641,72 @@
       return `
         <div class="max-w-md rounded-lg border border-slate-300 bg-white p-6 text-center">
           ${icon("file-type", 44)}
-          <h3 class="mt-3 font-black text-slate-950">Mock PDF / CAD Preview</h3>
-          <p class="mt-2 text-sm font-semibold leading-6 text-slate-600">This prototype stores the uploaded file name and simulates plan analysis. A future backend can parse PDF pages or CAD exports before AI detection.</p>
+          <h3 class="mt-3 font-black text-slate-950">${t("Mock PDF / CAD Preview")}</h3>
+          <p class="mt-2 text-sm font-semibold leading-6 text-slate-600">${t("This prototype stores the uploaded file name and simulates plan analysis. A future backend can parse PDF pages or CAD exports before AI detection.")}</p>
         </div>
       `;
     }
 
     function renderAiDetection() {
+      const results = state.aiDetectionResults;
       return `
         <section class="space-y-5">
           ${pageTitle("AI Room Detection", "Mock AI detection results simulate room segmentation, obstacle detection, confidence scoring, and warnings before manual correction.")}
           <div class="panel p-4 sm:p-5">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h3 class="text-lg font-black text-slate-950">Mock Detection Results</h3>
-                <p class="mt-1 text-sm font-semibold text-slate-500">Use this result as a front-end stand-in until a trained model and API are connected.</p>
+                <h3 class="text-lg font-black text-slate-950">${t("Mock Detection Results")}</h3>
+                <p class="mt-1 text-sm font-semibold text-slate-500">${state.uploadedPlan ? escapeHtml(state.uploadedPlan.name) : t("Please upload a floor plan image first")}</p>
               </div>
-              <button class="flex items-center gap-2 rounded-lg bg-blue-700 px-4 py-3 text-sm font-black text-white hover:bg-blue-800" data-action="import-ai">
-                ${icon("download")} Import AI Result to Rooms
-              </button>
+              <div class="flex flex-wrap gap-2">
+                <button class="flex items-center gap-2 rounded-lg bg-blue-700 px-4 py-3 text-sm font-black text-white hover:bg-blue-800" data-action="run-ai">
+                  ${icon("scan-search")} ${t("Run AI Detection")}
+                </button>
+                <button class="flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-3 text-sm font-black text-white hover:bg-slate-700 ${results.length ? "" : "opacity-50"}" data-action="import-ai" ${results.length ? "" : "disabled"}>
+                  ${icon("download")} ${t("Import AI Result to Rooms & Shapes")}
+                </button>
+              </div>
             </div>
-            <div class="mt-5 overflow-x-auto">
-              <table class="w-full min-w-[900px] text-left text-sm">
-                <thead class="bg-slate-100 text-xs uppercase text-slate-500">
-                  <tr>
-                    <th class="px-3 py-3">Room</th><th class="px-3 py-3">Type</th><th class="px-3 py-3">Detected Shape</th><th class="px-3 py-3">Gross Area</th><th class="px-3 py-3">Obstacle Count</th><th class="px-3 py-3">Deducted</th><th class="px-3 py-3">Net Area</th><th class="px-3 py-3">Confidence</th><th class="px-3 py-3">AI Warning</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-200">
-                  ${mockAiRooms.map(row => `
-                    <tr>
-                      <td class="px-3 py-3 font-black text-slate-950">${row.name}</td>
-                      <td class="px-3 py-3">${row.roomType}</td>
-                      <td class="px-3 py-3">${shapeLabel(row.shapeType)}</td>
-                      <td class="px-3 py-3">${fmt(row.grossArea)} m2</td>
-                      <td class="px-3 py-3">${row.obstacles}</td>
-                      <td class="px-3 py-3">${fmt(row.deductedArea)} m2</td>
-                      <td class="px-3 py-3 font-black text-blue-700">${fmt(Math.max(0, row.grossArea - row.deductedArea))} m2</td>
-                      <td class="px-3 py-3">${row.confidence}%</td>
-                      <td class="px-3 py-3 text-amber-700">${row.warning}</td>
-                    </tr>
-                  `).join("")}
-                </tbody>
-              </table>
+            <div class="mt-4 rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm font-bold leading-6 text-blue-900">
+              mockAIAnalyzeFloorPlan() is the current front-end demo. Future integration point: POST /api/analyze-floor-plan, POST /api/detect-rooms, and POST /api/extract-room-crops should call a backend AI vision service.
             </div>
-            ${state.mockAiImported ? `<div class="success mt-4 rounded-lg border p-3 text-sm font-bold">AI room data has been imported into Rooms & Shapes for manual correction.</div>` : ""}
+            ${results.length ? `
+              <div class="mt-5 grid gap-4 lg:grid-cols-2">
+                ${results.map(renderAiResultCard).join("")}
+              </div>
+            ` : `
+              <div class="mt-5 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm font-bold text-slate-500">
+                ${state.aiDetectionStatus === "running" ? t("AI detection completed") : t("Run AI Detection")}
+              </div>
+            `}
+            ${state.mockAiImported ? `<div class="success mt-4 rounded-lg border p-3 text-sm font-bold">${t("AI result imported to Rooms & Shapes")}</div>` : ""}
           </div>
         </section>
+      `;
+    }
+
+    function renderAiResultCard(row) {
+      return `
+        <article class="rounded-lg border border-slate-200 bg-white p-4">
+          <div class="grid gap-4 sm:grid-cols-[10rem_1fr]">
+            <div>
+              ${row.cropImage ? `<img src="${row.cropImage}" alt="${escapeHtml(row.roomName)} cropped room image" class="h-32 w-full rounded-lg border border-slate-200 object-cover" />` : `<div class="flex h-32 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 p-3 text-center text-xs font-bold text-slate-500">${t("No cropped image available")}</div>`}
+            </div>
+            <div>
+              <h4 class="text-base font-black text-slate-950">${escapeHtml(row.roomName || row.name)}</h4>
+              <div class="mt-3 grid gap-2 text-sm sm:grid-cols-2">
+                <p><b>${t("Room Type")}:</b> ${t(row.roomType)}</p>
+                <p><b>${t("Detected Shape")}:</b> ${shapeLabel(row.shapeType)}</p>
+                <p><b>${t("Gross Area")}:</b> ${fmt(row.grossArea)} m2</p>
+                <p><b>${t("Deducted Area")}:</b> ${fmt(row.deductedArea)} m2</p>
+                <p><b>${t("Net Tile Area")}:</b> ${fmt(row.netArea ?? Math.max(0, row.grossArea - row.deductedArea))} m2</p>
+                <p><b>${t("Obstacle / Column Count")}:</b> ${(row.obstacles || []).length}</p>
+                <p><b>${t("Confidence Score")}:</b> ${fmt(normalizeConfidence(row.confidence), 0)}%</p>
+              </div>
+              <p class="mt-3 rounded-lg bg-amber-50 p-3 text-sm font-bold text-amber-800">${escapeHtml(row.aiWarning || row.warning || "")}</p>
+            </div>
+          </div>
+        </article>
       `;
     }
 
@@ -459,7 +716,7 @@
         <section class="space-y-5">
           <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             ${pageTitle("Manual Room Editor / Rooms & Shapes", "Edit room structure, shape-specific dimensions, tile scheme assignment, and non-tile deduction areas.")}
-            <button class="flex items-center justify-center gap-2 rounded-lg bg-blue-700 px-4 py-3 text-sm font-black text-white hover:bg-blue-800" data-action="add-room">${icon("plus")} Add Room</button>
+            <button class="flex items-center justify-center gap-2 rounded-lg bg-blue-700 px-4 py-3 text-sm font-black text-white hover:bg-blue-800" data-action="add-room">${icon("plus")} ${t("Add Room")}</button>
           </div>
           <div class="grid gap-4 md:grid-cols-3">
             ${metric("Gross Area", `${fmt(totals.grossArea)} m2`)}
@@ -479,16 +736,26 @@
             <div class="grid flex-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
               ${field("Room Name", `<input class="field-input" data-room="${room.id}" data-field="name" value="${escapeHtml(room.name)}" />`)}
               ${field("Room Type", selectHtml(roomTypes, room.roomType, `data-room="${room.id}" data-field="roomType"`))}
-              ${field("Shape Type", selectHtml(shapeTypes.map(s => s[1]), shapeLabel(room.shapeType), `data-room="${room.id}" data-field="shapeTypeLabel"`))}
+              ${field("Shape Type", selectHtml(shapeTypes, room.shapeType, `data-room="${room.id}" data-field="shapeType"`))}
               ${field("Assigned Tile Scheme", tileSelect(room.tileSchemeId, `data-room="${room.id}" data-field="tileSchemeId"`))}
             </div>
-            <button class="rounded-lg border border-red-200 px-3 py-2 text-sm font-black text-red-700 hover:bg-red-50" data-action="delete-room" data-room-id="${room.id}" title="Delete room">${icon("trash-2")} Delete</button>
+            <button class="rounded-lg border border-red-200 px-3 py-2 text-sm font-black text-red-700 hover:bg-red-50" data-action="delete-room" data-room-id="${room.id}" title="${t("Delete")}">${icon("trash-2")} ${t("Delete")}</button>
           </div>
 
           <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             ${numberField("Length / Main Length (m)", room.id, "length", room.length)}
             ${numberField("Width / Main Width (m)", room.id, "width", room.width)}
             ${shapeDimensionFields(room)}
+          </div>
+
+          <div class="mt-4 grid gap-3 lg:grid-cols-[12rem_1fr]">
+            <div>
+              ${room.cropImage ? `<img src="${room.cropImage}" alt="${escapeHtml(room.name)} cropped room image" class="h-36 w-full rounded-lg border border-slate-200 object-cover" />` : `<div class="flex h-36 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 p-3 text-center text-xs font-bold text-slate-500">${t("No cropped image available")}</div>`}
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm font-semibold leading-6 text-slate-600">
+              <p><b>${t("Confidence Score")}:</b> ${room.aiConfidence ? `${fmt(normalizeConfidence(room.aiConfidence), 0)}%` : "-"}</p>
+              <p><b>${t("AI Warning Message")}:</b> ${escapeHtml(room.aiWarning || "-")}</p>
+            </div>
           </div>
 
           ${room.shapeType === "polygon" ? `
@@ -508,12 +775,12 @@
           <div class="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h4 class="font-black text-slate-950">Non-Tile Deduction Areas</h4>
-                <p class="text-sm font-semibold text-slate-500">Columns, voids, staircases, fixed cabinets, island counters, and other obstacles are deducted from the gross area.</p>
+                <h4 class="font-black text-slate-950">${t("Non-Tile Deduction Areas")}</h4>
+                <p class="text-sm font-semibold text-slate-500">${t("Columns, voids, staircases, fixed cabinets, island counters, and other obstacles are deducted from the gross area.")}</p>
               </div>
-              <button class="rounded-lg bg-slate-900 px-3 py-2 text-sm font-black text-white hover:bg-slate-700" data-action="add-obstacle" data-room-id="${room.id}">${icon("plus")} Add Deduction</button>
+              <button class="rounded-lg bg-slate-900 px-3 py-2 text-sm font-black text-white hover:bg-slate-700" data-action="add-obstacle" data-room-id="${room.id}">${icon("plus")} ${t("Add Deduction")}</button>
             </div>
-            <div class="mt-3 space-y-2">${room.obstacles.length ? room.obstacles.map(obs => renderObstacle(room, obs)).join("") : `<p class="text-sm font-bold text-slate-500">No additional deduction areas.</p>`}</div>
+            <div class="mt-3 space-y-2">${room.obstacles.length ? room.obstacles.map(obs => renderObstacle(room, obs)).join("") : `<p class="text-sm font-bold text-slate-500">${t("No additional deduction areas.")}</p>`}</div>
           </div>
 
           ${calc.warning ? `<div class="warning mt-4 rounded-lg border p-3 text-sm font-bold">${calc.warning}</div>` : ""}
@@ -539,10 +806,11 @@
 
     function renderObstacle(room, obs) {
       return `
-        <div class="grid gap-2 rounded-lg border border-slate-200 bg-white p-3 sm:grid-cols-[1.4fr_1fr_1fr_auto]">
+        <div class="grid gap-2 rounded-lg border border-slate-200 bg-white p-3 sm:grid-cols-[1.4fr_1fr_1fr_1fr_auto]">
           ${field("Type", selectHtml(obstacleTypes, obs.type, `data-room="${room.id}" data-obstacle="${obs.id}" data-field="type"`))}
           ${field("Length (m)", `<input class="field-input" type="number" min="0" step="0.01" data-room="${room.id}" data-obstacle="${obs.id}" data-field="length" value="${obs.length}" />`)}
           ${field("Width (m)", `<input class="field-input" type="number" min="0" step="0.01" data-room="${room.id}" data-obstacle="${obs.id}" data-field="width" value="${obs.width}" />`)}
+          ${field("Area (m2)", `<input class="field-input" type="number" min="0" step="0.01" data-room="${room.id}" data-obstacle="${obs.id}" data-field="area" value="${obs.area ?? ""}" placeholder="${fmt(clampZero(obs.length) * clampZero(obs.width))}" />`)}
           <button class="self-end rounded-lg border border-red-200 px-3 py-2 text-sm font-black text-red-700 hover:bg-red-50" data-action="delete-obstacle" data-room-id="${room.id}" data-obstacle-id="${obs.id}" title="Remove deduction">${icon("trash-2")}</button>
         </div>
       `;
@@ -554,34 +822,41 @@
         <section class="space-y-5">
           <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             ${pageTitle("Tile & Material Settings", "Configure tile schemes and material consumption rates. Rates are editable instead of hard-coded so assumptions can be adjusted for research scenarios.")}
-            <button class="flex items-center justify-center gap-2 rounded-lg bg-blue-700 px-4 py-3 text-sm font-black text-white hover:bg-blue-800" data-action="add-tile">${icon("plus")} Add Tile Scheme</button>
+            <button class="flex items-center justify-center gap-2 rounded-lg bg-blue-700 px-4 py-3 text-sm font-black text-white hover:bg-blue-800" data-action="add-tile">${icon("plus")} ${t("Add Tile Scheme")}</button>
           </div>
 
           <div class="panel p-4 sm:p-5">
-            <h3 class="text-lg font-black text-slate-950">Global Calculation Settings</h3>
+            <h3 class="text-lg font-black text-slate-950">${t("Global Calculation Settings")}</h3>
             <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               ${settingsNumber("Grout Joint (mm)", "groutJointMm", state.settings.groutJointMm, 0, 0.1)}
               ${settingsNumber("Waste Percentage (%)", "wastePercentage", state.settings.wastePercentage, 0, 0.1)}
               ${settingsNumber("Default Door Width (m)", "defaultDoorWidth", state.settings.defaultDoorWidth, 0, 0.01)}
               <div class="flex items-end gap-2">
-                <button class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-black hover:bg-slate-50" data-action="set-waste" data-value="10">Standard 10%</button>
-                <button class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-black hover:bg-slate-50" data-action="set-waste" data-value="15">Diagonal 15%</button>
+                <button class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-black hover:bg-slate-50" data-action="set-waste" data-value="10">${t("Standard 10%")}</button>
+                <button class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-black hover:bg-slate-50" data-action="set-waste" data-value="15">${t("Diagonal 15%")}</button>
               </div>
             </div>
           </div>
 
           <div class="panel p-4 sm:p-5">
-            <h3 class="text-lg font-black text-slate-950">Material Consumption and Cost Rates</h3>
+            <h3 class="text-lg font-black text-slate-950">${t("Material Consumption and Cost Rates")}</h3>
             <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               ${settingsNumber("Cement Bags per m2", "cementBagsPerM2", state.settings.cementBagsPerM2, 0, 0.01)}
               ${settingsNumber("Sand m3 per m2", "sandM3PerM2", state.settings.sandM3PerM2, 0, 0.01)}
               ${settingsNumber("Adhesive kg per m2", "adhesiveKgPerM2", state.settings.adhesiveKgPerM2, 0, 0.1)}
+              ${settingsNumber("Tile adhesive coverage per 50kg bag", "adhesiveCoveragePerBag", state.settings.adhesiveCoveragePerBag, 0.1, 0.01)}
+              ${settingsNumber("Uneven floor thickness factor", "thicknessFactor", state.settings.thicknessFactor, 1, 0.01)}
+              ${settingsNumber("Adhesive consumption adjustment factor", "adhesiveAdjustmentFactor", state.settings.adhesiveAdjustmentFactor, 1, 0.01)}
               ${settingsNumber("Grout kg per m2", "groutKgPerM2", state.settings.groutKgPerM2, 0, 0.01)}
               ${settingsNumber("Cement Cost / Bag", "cementCostPerBag", state.settings.cementCostPerBag, 0, 0.1)}
               ${settingsNumber("Sand Cost / m3", "sandCostPerM3", state.settings.sandCostPerM3, 0, 0.1)}
+              ${settingsNumber("Adhesive Cost / 50kg Bag", "adhesiveCostPerBag", state.settings.adhesiveCostPerBag, 0, 0.1)}
               ${settingsNumber("Adhesive Cost / kg", "adhesiveCostPerKg", state.settings.adhesiveCostPerKg, 0, 0.1)}
               ${settingsNumber("Grout Cost / kg", "groutCostPerKg", state.settings.groutCostPerKg, 0, 0.1)}
               ${settingsNumber("Skirting Cost / m", "skirtingCostPerM", state.settings.skirtingCostPerM, 0, 0.1)}
+            </div>
+            <div class="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm font-bold leading-6 text-emerald-900">
+              ${t("Material assumption is based on interview data: 1 bag of 50kg tile adhesive covers approximately 80-83 sq ft, or about 7.43-7.71 m2 under standard flat conditions.")}
             </div>
           </div>
 
@@ -590,6 +865,7 @@
           <div class="grid gap-4 md:grid-cols-4">
             ${metric("Tile Cost", money(totals.materials.tileCost), "From scheme box prices", "green")}
             ${metric("Cement Bags", totals.materials.cementBags, `${money(totals.materials.cementCost)}`)}
+            ${metric("Tile Adhesive", `${totals.materials.adhesiveBags} bags`, `${money(totals.materials.adhesiveBagCost)}`)}
             ${metric("Sand Volume", `${fmt(totals.materials.sandVolume)} m3`, `${money(totals.materials.sandCost)}`)}
             ${metric("Total Material Cost", money(totals.materials.totalMaterialCost), "Complete estimate", "blue")}
           </div>
@@ -627,25 +903,31 @@
           <div class="panel p-4 sm:p-5">
             <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               ${labourNumber("Number of Workers", "workers", state.labour.workers, 1, 1)}
+              ${labourNumber("Team Productivity (m2/day)", "teamProductivity", state.labour.teamProductivity, 0.1, 0.1)}
               ${labourNumber("Productivity / Worker / Day (m2)", "productivity", state.labour.productivity, 0.1, 0.1)}
               ${labourNumber("Working Hours / Day", "workingHours", state.labour.workingHours, 1, 0.5)}
               ${labourNumber("Complexity Factor", "complexityFactor", state.labour.complexityFactor, 1, 0.01)}
+              ${labourNumber("Corner / Cutting Difficulty Factor", "cuttingFactor", state.labour.cuttingFactor, 1, 0.01)}
+              ${labourNumber("Column / Obstacle Factor", "obstacleFactor", state.labour.obstacleFactor, 1, 0.01)}
               ${labourNumber("Weather Delay Factor", "weatherDelayFactor", state.labour.weatherDelayFactor, 1, 0.01)}
               ${labourNumber("Worker Absence Risk Factor", "workerAbsenceRiskFactor", state.labour.workerAbsenceRiskFactor, 1, 0.01)}
-              ${labourNumber("Injury / Accident Risk Factor", "injuryRiskFactor", state.labour.injuryRiskFactor, 1, 0.01)}
-              ${labourNumber("Productivity Variation Factor", "productivityVariationFactor", state.labour.productivityVariationFactor, 1, 0.01)}
+              ${labourNumber("Material Supply Factor", "materialSupplyFactor", state.labour.materialSupplyFactor, 1, 0.01)}
+              ${labourNumber("Equipment Factor", "equipmentFactor", state.labour.equipmentFactor, 1, 0.01)}
+              ${labourNumber("Public Holiday Factor", "publicHolidayFactor", state.labour.publicHolidayFactor, 1, 0.01)}
               ${labourNumber("Daily Worker Cost (RM)", "dailyWorkerCost", state.labour.dailyWorkerCost, 0, 1)}
             </div>
           </div>
           <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
             ${metric("Base Duration", `${fmt(duration.baseDuration, 1)} days`, "Area / workers x productivity", "blue")}
             ${metric("Adjusted Duration", `${fmt(duration.adjustedDuration, 1)} days`, `Weather adds ${fmt(duration.weatherImpactPercent, 1)}%`, "amber")}
+            ${metric("Recommended Buffer Days", `${fmt(duration.bufferDays, 1)} days`, "Risk-based schedule reserve", "amber")}
+            ${metric("Final Estimated Duration", `${fmt(duration.finalDuration, 1)} days`, "Adjusted duration plus buffer", "blue")}
             ${metric("Recommended Workers", duration.recommendedWorkers, "Targets about 10 adjusted days")}
             ${metric("Labour Cost Estimate", money(duration.labourCost), "Workers x days x daily cost", "green")}
             ${metric("Delay Risk Level", duration.riskLevel, "Low / Medium / High", duration.riskLevel === "High" ? "red" : duration.riskLevel === "Medium" ? "amber" : "green")}
           </div>
           <div class="panel p-4 sm:p-5">
-            <h3 class="text-lg font-black text-slate-950">Productivity Summary</h3>
+            <h3 class="text-lg font-black text-slate-950">${t("Productivity Summary")}</h3>
             <p class="mt-2 text-sm font-semibold leading-6 text-slate-600">${duration.summary}</p>
           </div>
         </section>
@@ -659,21 +941,29 @@
           ${pageTitle("Weather & Risk Factors", "Simulated weather data is used until a real weather API is connected. Weather impact feeds into duration prediction.")}
           <div class="panel p-4 sm:p-5">
             <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              ${field("Project Type", selectHtml(["Indoor", "Outdoor", "Mixed"], state.weather.projectType, `data-weather="projectType"`))}
+              ${field("Rainfall Level", selectHtml(["Low", "Medium", "High"], state.weather.rainfallLevel, `data-weather="rainfallLevel"`))}
               ${weatherNumber("Rainfall (mm)", "rainfall", state.weather.rainfall, 0, 1)}
-              ${weatherNumber("Humidity (%)", "humidity", state.weather.humidity, 0, 1)}
-              ${weatherNumber("Temperature (C)", "temperature", state.weather.temperature, -10, 1)}
-              ${field("Project Type", selectHtml(["Indoor", "Outdoor"], state.weather.projectType, `data-weather="projectType"`))}
-              ${weatherNumber("Material Delivery Risk (%)", "materialDeliveryRisk", state.weather.materialDeliveryRisk, 0, 1)}
-              ${weatherNumber("Weather Delay Percentage (%)", "weatherDelayPercentage", state.weather.weatherDelayPercentage, 0, 1)}
+              ${weatherNumber("Humidity Level", "humidity", state.weather.humidity, 0, 1)}
+              ${weatherNumber("Temperature", "temperature", state.weather.temperature, -10, 1)}
+              ${weatherNumber("Worker Absence Probability", "workerAbsenceProbability", state.weather.workerAbsenceProbability, 0, 1)}
+              ${weatherNumber("Sick Leave Probability", "sickLeaveProbability", state.weather.sickLeaveProbability, 0, 1)}
+              ${weatherNumber("Public Holiday Impact", "publicHolidayImpact", state.weather.publicHolidayImpact, 0, 1)}
+              ${weatherNumber("Material Shortage Risk", "materialShortageRisk", state.weather.materialShortageRisk, 0, 1)}
+              ${weatherNumber("Site Stock Availability", "siteStockAvailability", state.weather.siteStockAvailability, 0, 1)}
+              ${weatherNumber("Equipment Failure Risk", "equipmentFailureRisk", state.weather.equipmentFailureRisk, 0, 1)}
             </div>
           </div>
-          <div class="grid gap-4 md:grid-cols-3">
+          <div class="grid gap-4 md:grid-cols-3 xl:grid-cols-5">
             ${metric("Weather Factor", `${fmt(analysis.weatherFactor, 2)}x`, "Used by duration model", "blue")}
-            ${metric("Weather Risk", analysis.level, "Indoor projects reduce weather impact", analysis.level === "High" ? "red" : analysis.level === "Medium" ? "amber" : "green")}
-            ${metric("Delivery Risk", `${fmt(state.weather.materialDeliveryRisk, 0)}%`, "Material transportation risk", "amber")}
+            ${metric("Weather Delay Percentage", `${fmt(analysis.weatherDelayPercent, 0)}%`, "Indoor projects reduce weather impact", analysis.level === "High" ? "red" : analysis.level === "Medium" ? "amber" : "green")}
+            ${metric("Workforce Risk Percentage", `${fmt(analysis.workforceRiskPercent, 0)}%`, "", "amber")}
+            ${metric("Material Supply Risk Percentage", `${fmt(analysis.materialRiskPercent, 0)}%`, "", "amber")}
+            ${metric("Equipment Risk Percentage", `${fmt(analysis.equipmentRiskPercent, 0)}%`, "", "amber")}
+            ${metric("Overall Delay Risk", `${fmt(analysis.overallDelayRisk, 0)}%`, analysis.level, analysis.level === "High" ? "red" : analysis.level === "Medium" ? "amber" : "green")}
           </div>
           <div class="panel p-4 sm:p-5">
-            <h3 class="text-lg font-black text-slate-950">Automatic Recommendations</h3>
+            <h3 class="text-lg font-black text-slate-950">${t("Automatic Recommendations")}</h3>
             <div class="mt-3 space-y-2">${analysis.messages.map(msg => `<div class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm font-bold text-slate-700">${msg}</div>`).join("")}</div>
           </div>
         </section>
@@ -718,9 +1008,9 @@
           <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             ${pageTitle("Project Report", "Generated engineering report for presentation, review, printing, or text export.")}
             <div class="flex flex-wrap gap-2">
-              <button class="rounded-lg bg-slate-900 px-3 py-2 text-sm font-black text-white hover:bg-slate-700" data-action="copy-summary">${icon("copy")} Copy Summary</button>
-              <button class="rounded-lg bg-blue-700 px-3 py-2 text-sm font-black text-white hover:bg-blue-800" data-action="export-report">${icon("download")} Export Report Text</button>
-              <button class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-black hover:bg-slate-50" data-action="print-report">${icon("printer")} Print Report</button>
+              <button class="rounded-lg bg-slate-900 px-3 py-2 text-sm font-black text-white hover:bg-slate-700" data-action="copy-summary">${icon("copy")} ${t("Copy Summary")}</button>
+              <button class="rounded-lg bg-blue-700 px-3 py-2 text-sm font-black text-white hover:bg-blue-800" data-action="export-report">${icon("download")} ${t("Export Report Text")}</button>
+              <button class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-black hover:bg-slate-50" data-action="print-report">${icon("printer")} ${t("Print Report")}</button>
             </div>
           </div>
           <div class="panel p-4 sm:p-6">
@@ -733,14 +1023,14 @@
     function pageTitle(title, subtitle) {
       return `
         <div>
-          <h2 class="text-xl font-black text-slate-950">${title}</h2>
-          <p class="mt-1 max-w-4xl text-sm font-semibold leading-6 text-slate-600">${subtitle}</p>
+          <h2 class="text-xl font-black text-slate-950">${t(title)}</h2>
+          <p class="mt-1 max-w-4xl text-sm font-semibold leading-6 text-slate-600">${t(subtitle)}</p>
         </div>
       `;
     }
 
     function field(label, control) {
-      return `<label><span class="field-label">${label}</span>${control}</label>`;
+      return `<label><span class="field-label">${t(label)}</span>${control}</label>`;
     }
 
     function numberField(label, roomId, fieldName, value) {
@@ -767,7 +1057,7 @@
       return `<select class="field-select" ${attrs}>${options.map(option => {
         const label = Array.isArray(option) ? option[1] : option;
         const value = Array.isArray(option) ? option[0] : option;
-        return `<option value="${escapeHtml(value)}" ${String(selected) === String(value) || String(selected) === String(label) ? "selected" : ""}>${escapeHtml(label)}</option>`;
+        return `<option value="${escapeHtml(value)}" ${String(selected) === String(value) || String(selected) === String(label) ? "selected" : ""}>${escapeHtml(t(label))}</option>`;
       }).join("")}</select>`;
     }
 
@@ -776,7 +1066,7 @@
     }
 
     function shapeLabel(value) {
-      return shapeTypes.find(s => s[0] === value)?.[1] || "Standard Rectangle";
+      return t(shapeTypes.find(s => s[0] === value)?.[1] || "Standard Rectangle");
     }
 
     function shapeValue(label) {
@@ -811,7 +1101,7 @@
         shapeDeducted += clampZero(room.hollowLength) * clampZero(room.hollowWidth);
       }
 
-      const obstacleDeducted = room.obstacles.reduce((sum, obs) => sum + clampZero(obs.length) * clampZero(obs.width), 0);
+      const obstacleDeducted = room.obstacles.reduce((sum, obs) => sum + (clampZero(obs.area) || clampZero(obs.length) * clampZero(obs.width)), 0);
       const deductedArea = shapeDeducted + obstacleDeducted;
       if (deductedArea >= grossArea && grossArea > 0) {
         warningMessages.push("Deducted area is greater than or equal to gross area. Net tile area is capped at 0.");
@@ -872,38 +1162,46 @@
       const cementBags = Math.ceil(netArea * clampZero(state.settings.cementBagsPerM2));
       const sandVolume = netArea * clampZero(state.settings.sandM3PerM2);
       const adhesiveKg = netArea * clampZero(state.settings.adhesiveKgPerM2);
+      const adhesiveCoverage = Math.max(0.01, clampZero(state.settings.adhesiveCoveragePerBag || 7.43));
+      const adhesiveBags = Math.ceil((netArea / adhesiveCoverage) * Math.max(1, clampZero(state.settings.thicknessFactor || 1)) * Math.max(1, clampZero(state.settings.adhesiveAdjustmentFactor || 1)));
       const groutKg = netArea * clampZero(state.settings.groutKgPerM2);
       const skirtingCost = skirtingLength * clampZero(state.settings.skirtingCostPerM);
       const cementCost = cementBags * clampZero(state.settings.cementCostPerBag);
       const sandCost = sandVolume * clampZero(state.settings.sandCostPerM3);
       const adhesiveCost = adhesiveKg * clampZero(state.settings.adhesiveCostPerKg);
+      const adhesiveBagCost = adhesiveBags * clampZero(state.settings.adhesiveCostPerBag);
       const groutCost = groutKg * clampZero(state.settings.groutCostPerKg);
-      const totalMaterialCost = tileCost + cementCost + sandCost + adhesiveCost + groutCost + skirtingCost;
+      const totalMaterialCost = tileCost + cementCost + sandCost + adhesiveCost + adhesiveBagCost + groutCost + skirtingCost;
 
-      return { tilePieces, tileBoxes, tileCost, cementBags, sandVolume, adhesiveKg, groutKg, skirtingLength, skirtingCost, cementCost, sandCost, adhesiveCost, groutCost, totalMaterialCost };
+      return { tilePieces, tileBoxes, tileCost, cementBags, sandVolume, adhesiveKg, adhesiveBags, groutKg, skirtingLength, skirtingCost, cementCost, sandCost, adhesiveCost, adhesiveBagCost, groutCost, totalMaterialCost };
     }
 
     function calculateWeatherRisk() {
       const w = state.weather;
       const isOutdoor = w.projectType === "Outdoor";
-      const rainfallImpact = clampZero(w.rainfall) > 60 ? 0.15 : clampZero(w.rainfall) > 25 ? 0.08 : 0.03;
-      const humidityImpact = clampZero(w.humidity) > 80 ? 0.08 : clampZero(w.humidity) > 65 ? 0.04 : 0.01;
-      const temperatureImpact = clampZero(w.temperature) > 34 ? 0.07 : clampZero(w.temperature) > 30 ? 0.03 : 0;
-      const indoorReduction = isOutdoor ? 1 : 0.45;
-      const configuredDelay = clampZero(w.weatherDelayPercentage) / 100;
-      const deliveryDelay = clampZero(w.materialDeliveryRisk) / 200;
-      const totalImpact = (rainfallImpact + humidityImpact + temperatureImpact) * indoorReduction + configuredDelay + deliveryDelay;
-      const weatherFactor = 1 + totalImpact;
-      const level = totalImpact > 0.25 ? "High" : totalImpact > 0.13 ? "Medium" : "Low";
+      const isMixed = w.projectType === "Mixed";
+      const rainfallByLevel = { Low: 5, Medium: 12, High: 25 };
+      const rainfallImpact = rainfallByLevel[w.rainfallLevel] ?? (clampZero(w.rainfall) > 60 ? 25 : clampZero(w.rainfall) > 25 ? 12 : 5);
+      const humidityImpact = clampZero(w.humidity) > 80 ? 8 : clampZero(w.humidity) > 65 ? 4 : 1;
+      const temperatureImpact = clampZero(w.temperature) > 34 ? 7 : clampZero(w.temperature) > 30 ? 3 : 0;
+      const exposure = isOutdoor ? 1 : isMixed ? 0.65 : 0.35;
+      const weatherDelayPercent = (rainfallImpact + humidityImpact + temperatureImpact) * exposure;
+      const workforceRiskPercent = clampZero(w.workerAbsenceProbability) + clampZero(w.sickLeaveProbability) + clampZero(w.publicHolidayImpact) * 0.5;
+      const materialRiskPercent = clampZero(w.materialShortageRisk) + Math.max(0, 100 - clampZero(w.siteStockAvailability)) * 0.4;
+      const equipmentRiskPercent = clampZero(w.equipmentFailureRisk);
+      const overallDelayRisk = weatherDelayPercent + workforceRiskPercent * 0.45 + materialRiskPercent * 0.45 + equipmentRiskPercent * 0.35;
+      const weatherFactor = 1 + overallDelayRisk / 100;
+      const level = overallDelayRisk > 28 ? "High" : overallDelayRisk > 14 ? "Medium" : "Low";
       const messages = [];
-      if (w.rainfall > 40) messages.push("Rainfall is high; outdoor work may be delayed and material delivery should include buffer time.");
-      if (w.humidity > 75) messages.push("Humidity is high; curing or drying time may increase, especially for grout and adhesive.");
-      if (w.temperature > 32) messages.push("Temperature is high; worker productivity may decrease during long shifts.");
-      if (!isOutdoor) messages.push("Indoor project type reduces direct weather impact, but transport and delivery can still affect the schedule.");
-      if (isOutdoor) messages.push("Outdoor project type increases exposure to rainfall and temperature risks.");
-      if (w.materialDeliveryRisk > 15) messages.push("Material delivery risk is elevated; reserve buffer days before installation begins.");
-      if (!messages.length) messages.push("Weather impact is low under the current simulated conditions.");
-      return { weatherFactor, weatherImpactPercent: totalImpact * 100, level, messages };
+      if (w.rainfallLevel === "High" || w.rainfall > 40) messages.push(state.language === "zh" ? "降雨风险较高；室外铺贴可能停工，材料配送也需要预留缓冲。" : "Rainfall risk is high; outdoor tiling may pause and material delivery should include buffer time.");
+      if (w.humidity > 75) messages.push(state.language === "zh" ? "湿度较高；填缝剂和瓷砖胶的干燥或固化时间可能增加。" : "Humidity is high; drying or curing time may increase, especially for grout and adhesive.");
+      if (w.temperature > 32) messages.push(state.language === "zh" ? "温度较高；长时间施工时工人效率可能下降。" : "Temperature is high; worker productivity may decrease during long shifts.");
+      if (!isOutdoor) messages.push(state.language === "zh" ? "室内项目可降低直接天气影响，但运输和配送仍可能影响进度。" : "Indoor project type reduces direct weather impact, but transport and delivery can still affect the schedule.");
+      if (isOutdoor) messages.push(state.language === "zh" ? "室外项目更容易受到降雨和温度影响。" : "Outdoor project type increases exposure to rainfall and temperature risks.");
+      if (materialRiskPercent > 18) messages.push(state.language === "zh" ? "材料供应风险偏高；建议提前采购并确认工地库存。" : "Material supply risk is elevated; procure earlier and confirm site stock before installation begins.");
+      if (equipmentRiskPercent > 10) messages.push(state.language === "zh" ? "设备故障风险偏高；建议准备备用工具。" : "Equipment failure risk is elevated; prepare backup tools.");
+      if (!messages.length) messages.push(state.language === "zh" ? "当前模拟条件下风险较低。" : "Weather and delay risk are low under the current simulated conditions.");
+      return { weatherFactor, weatherImpactPercent: weatherDelayPercent, weatherDelayPercent, workforceRiskPercent, materialRiskPercent, equipmentRiskPercent, overallDelayRisk, level, messages };
     }
 
     function calculateDuration(totals = calculateTotals()) {
@@ -911,15 +1209,33 @@
       const weather = calculateWeatherRisk();
       const workers = Math.max(1, Math.floor(clampZero(l.workers)));
       const productivity = Math.max(0.01, clampZero(l.productivity));
-      const baseDuration = totals.netArea / (workers * productivity);
-      const riskFactor = clampZero(l.workerAbsenceRiskFactor) * clampZero(l.injuryRiskFactor) * clampZero(l.productivityVariationFactor);
-      const adjustedDuration = baseDuration * clampZero(l.complexityFactor || 1) * clampZero(l.weatherDelayFactor || 1) * weather.weatherFactor * riskFactor;
+      const teamProductivity = Math.max(0.01, clampZero(l.teamProductivity) || workers * productivity);
+      const autoComplexity = calculateAutoComplexityFactor(totals);
+      const baseDuration = totals.netArea / Math.max(0.01, workers * productivity);
+      const manualFactors = Math.max(1, clampZero(l.complexityFactor || 1)) * Math.max(1, clampZero(l.cuttingFactor || 1)) * Math.max(1, clampZero(l.obstacleFactor || 1));
+      const riskFactor = Math.max(1, clampZero(l.workerAbsenceRiskFactor || 1)) * Math.max(1, clampZero(l.materialSupplyFactor || 1)) * Math.max(1, clampZero(l.equipmentFactor || 1)) * Math.max(1, clampZero(l.publicHolidayFactor || 1));
+      const adjustedDuration = baseDuration * manualFactors * autoComplexity * Math.max(1, clampZero(l.weatherDelayFactor || 1)) * weather.weatherFactor * riskFactor;
+      const bufferDays = Math.ceil(adjustedDuration * (durationRiskBufferPercent(weather.level, riskFactor) / 100) * 10) / 10;
+      const finalDuration = adjustedDuration + bufferDays;
       const recommendedWorkers = Math.max(1, Math.ceil(totals.netArea / (10 * productivity)));
-      const labourCost = adjustedDuration * workers * clampZero(l.dailyWorkerCost);
+      const labourCost = finalDuration * workers * clampZero(l.dailyWorkerCost);
       const riskScore = adjustedDuration / Math.max(1, baseDuration);
       const riskLevel = riskScore > 1.75 || weather.level === "High" ? "High" : riskScore > 1.35 || weather.level === "Medium" ? "Medium" : "Low";
-      const summary = `With ${workers} workers at ${fmt(productivity, 1)} m2 per worker per day, the base duration is ${fmt(baseDuration, 1)} days. After complexity, weather, absence, injury, and productivity variation factors, the adjusted duration is ${fmt(adjustedDuration, 1)} days. Recommended staffing for an approximately 10-day target is ${recommendedWorkers} workers.`;
-      return { baseDuration, adjustedDuration, recommendedWorkers, labourCost, riskLevel, summary, weatherImpactPercent: weather.weatherImpactPercent };
+      const summary = state.language === "zh"
+        ? `访谈基准为 2 人团队每日约 39.95-44.59 平方米，默认平均 ${fmt(teamProductivity, 2)} 平方米/天。当前 ${workers} 名工人、每人每日 ${fmt(productivity, 2)} 平方米，基础工期 ${fmt(baseDuration, 1)} 天；考虑复杂度、切割、柱位/障碍物、天气、人力、材料、设备和假期因素后，最终预计工期为 ${fmt(finalDuration, 1)} 天。`
+        : `Interview baseline: a 2-person team completes about 39.95-44.59 m2/day, with ${fmt(teamProductivity, 2)} m2/day used as the default average. With ${workers} workers at ${fmt(productivity, 2)} m2 per worker per day, the base duration is ${fmt(baseDuration, 1)} days. After complexity, cutting, column/obstacle, weather, workforce, material, equipment, and holiday factors, final estimated duration is ${fmt(finalDuration, 1)} days.`;
+      return { baseDuration, adjustedDuration, bufferDays, finalDuration, recommendedWorkers, labourCost, riskLevel, summary, weatherImpactPercent: weather.weatherImpactPercent, autoComplexity };
+    }
+
+    function calculateAutoComplexityFactor(totals = calculateTotals()) {
+      const irregularRooms = totals.roomCalcs.filter(({ room }) => ["polygon", "hollow", "multiple-obstacles", "u-shape"].includes(room.shapeType)).length;
+      const obstacleCount = state.rooms.reduce((sum, room) => sum + room.obstacles.length, 0);
+      const deductionRatio = totals.grossArea ? totals.deductedArea / totals.grossArea : 0;
+      return 1 + irregularRooms * 0.03 + obstacleCount * 0.015 + Math.min(0.2, deductionRatio);
+    }
+
+    function durationRiskBufferPercent(weatherLevel, riskFactor) {
+      return (weatherLevel === "High" ? 18 : weatherLevel === "Medium" ? 10 : 5) + Math.max(0, (riskFactor - 1) * 20);
     }
 
     function calculateAccuracy() {
@@ -978,20 +1294,23 @@
     }
 
     function renderValidationList(messages) {
-      if (!messages.length) return `<div class="success rounded-lg border p-3 text-sm font-bold">All current inputs pass validation.</div>`;
+      if (!messages.length) return `<div class="success rounded-lg border p-3 text-sm font-bold">${t("All current inputs pass validation.")}</div>`;
       return messages.map(msg => `<div class="danger rounded-lg border p-3 text-sm font-bold">${escapeHtml(msg)}</div>`).join("");
     }
 
     function generateReportText() {
+      if (state.language === "zh") return generateChineseReportText();
       const totals = calculateTotals();
       const duration = calculateDuration(totals);
       const weather = calculateWeatherRisk();
       const accuracy = calculateAccuracy();
       const validation = validateAll(totals);
       const suggestions = generateSuggestions(totals, duration, weather);
+      const aiRows = state.aiDetectionResults.length ? state.aiDetectionResults : mockAiRooms;
       const roomLines = totals.roomCalcs.map(({ room, calc }) =>
         `- ${room.name} (${room.roomType}, ${shapeLabel(room.shapeType)}): Gross ${fmt(calc.grossArea)} m2, Deducted ${fmt(calc.deductedArea)} m2, Net ${fmt(calc.netArea)} m2, Skirting ${fmt(calc.skirtingLength)} m`
       ).join("\n");
+      const aiLines = aiRows.map(row => `- ${row.roomName || row.name}: ${row.roomType}, ${shapeLabel(row.shapeType)}, Net ${fmt(row.netArea ?? row.grossArea - row.deductedArea)} m2, Confidence ${fmt(normalizeConfidence(row.confidence), 0)}%, ${row.aiWarning || row.warning || ""}`).join("\n");
 
       return `AI-DRIVEN TILE INSTALLATION PLANNING SYSTEM
 Project Report
@@ -999,54 +1318,77 @@ Project Report
 1. Project Overview
 This prototype estimates tile installation requirements for a whole-house project using editable room geometry, material rates, mock AI detection, weather risk, labour productivity, and research evaluation metrics.
 
-2. Floor Plan / AI Detection Summary
+2. Uploaded Floor Plan Summary
 Uploaded plan: ${state.uploadedPlan ? state.uploadedPlan.name : "No file uploaded"}
 Mock AI imported to manual rooms: ${state.mockAiImported ? "Yes" : "No"}
-Mock detected rooms available: ${mockAiRooms.length}
+Mock detected rooms available: ${aiRows.length}
 
-3. Room-by-Room Area Breakdown
+3. AI Room Detection Result
+${aiLines || "- No AI results available."}
+
+4. Cropped Room Image Summary
+${aiRows.map(row => `- ${row.roomName || row.name}: ${row.cropImage ? "Cropped image available" : "No cropped image available"}`).join("\n") || "- No cropped image available."}
+
+5. Room-by-Room Area Breakdown
 ${roomLines || "- No rooms added."}
 
-4. Gross Area, Deducted Area, Net Tile Area
+6. Gross Area / Deducted Area / Net Tile Area
 Total Gross Area: ${fmt(totals.grossArea)} m2
 Total Deducted Area: ${fmt(totals.deductedArea)} m2
 Total Net Tile Area: ${fmt(totals.netArea)} m2
 
-5. Tile Quantity Estimation
+7. Column / Obstacle Deduction Summary
+${state.rooms.map(room => `- ${room.name}: ${room.obstacles.length} deduction item(s)`).join("\n") || "- No obstacles added."}
+
+8. Tile Quantity Estimation
 Waste Percentage: ${fmt(state.settings.wastePercentage, 1)}%
 Tile Pieces: ${totals.materials.tilePieces}
 Tile Boxes: ${totals.materials.tileBoxes}
 Tile Cost: ${money(totals.materials.tileCost)}
 
-6. Cement, Sand, Grout, Adhesive Estimation
+9. Tile Adhesive Estimation Based on Interview Data
+Adhesive Bags: ${totals.materials.adhesiveBags} x 50kg bags
+Adhesive Coverage Per Bag: ${fmt(state.settings.adhesiveCoveragePerBag)} m2 / bag
+Thickness Factor: ${fmt(state.settings.thicknessFactor, 2)}x
+Adhesive Adjustment Factor: ${fmt(state.settings.adhesiveAdjustmentFactor, 2)}x
+Material assumption is based on interview data: 1 bag of 50kg tile adhesive covers approximately 80-83 sq ft, or about 7.43-7.71 m2 under standard flat conditions.
+
+10. Cement / Sand / Grout / Adhesive Estimation
 Cement: ${totals.materials.cementBags} bags
 Sand: ${fmt(totals.materials.sandVolume)} m3
 Grout: ${fmt(totals.materials.groutKg)} kg
 Adhesive / Mortar: ${fmt(totals.materials.adhesiveKg)} kg
 Skirting Material Length: ${fmt(totals.materials.skirtingLength)} m
 
-7. Cost Estimation
+11. Labour Productivity Based on Interview Data
+Interview baseline: 2 workers install about 430-480 sq ft/day, equal to 39.95-44.59 m2/day. The default average is 42.27 m2/day per 2-person team, or 21.13 m2/day per worker.
+
+12. Cost Estimation
 Cement Cost: ${money(totals.materials.cementCost)}
 Sand Cost: ${money(totals.materials.sandCost)}
 Grout Cost: ${money(totals.materials.groutCost)}
 Adhesive Cost: ${money(totals.materials.adhesiveCost)}
+Adhesive Bag Cost: ${money(totals.materials.adhesiveBagCost)}
 Skirting Cost: ${money(totals.materials.skirtingCost)}
 Total Estimated Material Cost: ${money(totals.materials.totalMaterialCost)}
 
-8. Labour Requirement
+13. Labour Requirement
 Workers: ${state.labour.workers}
 Productivity: ${fmt(state.labour.productivity, 1)} m2 / worker / day
 Recommended Number of Workers: ${duration.recommendedWorkers}
 Estimated Labour Cost: ${money(duration.labourCost)}
 
-9. Duration Prediction
+14. Duration Prediction
 Base Duration: ${fmt(duration.baseDuration, 1)} days
 Adjusted Duration: ${fmt(duration.adjustedDuration, 1)} days
+Recommended Buffer Days: ${fmt(duration.bufferDays, 1)} days
+Final Estimated Duration: ${fmt(duration.finalDuration, 1)} days
 Delay Risk Level: ${duration.riskLevel}
 Productivity Summary: ${duration.summary}
 
-10. Weather Impact Analysis
+15. Weather Impact Analysis
 Rainfall: ${fmt(state.weather.rainfall, 0)} mm
+Rainfall Level: ${state.weather.rainfallLevel}
 Humidity: ${fmt(state.weather.humidity, 0)}%
 Temperature: ${fmt(state.weather.temperature, 0)} C
 Project Type: ${state.weather.projectType}
@@ -1055,14 +1397,18 @@ Weather Risk Level: ${weather.level}
 Recommendations:
 ${weather.messages.map(msg => `- ${msg}`).join("\n")}
 
-11. Risk Factor Analysis
+16. Workforce / Material Supply / Equipment Risk Analysis
 Complexity Factor: ${fmt(state.labour.complexityFactor, 2)}x
 Worker Absence Factor: ${fmt(state.labour.workerAbsenceRiskFactor, 2)}x
-Injury / Accident Factor: ${fmt(state.labour.injuryRiskFactor, 2)}x
-Productivity Variation Factor: ${fmt(state.labour.productivityVariationFactor, 2)}x
-Material Delivery Risk: ${fmt(state.weather.materialDeliveryRisk, 0)}%
+Material Supply Factor: ${fmt(state.labour.materialSupplyFactor, 2)}x
+Equipment Factor: ${fmt(state.labour.equipmentFactor, 2)}x
+Public Holiday Factor: ${fmt(state.labour.publicHolidayFactor, 2)}x
+Workforce Risk Percentage: ${fmt(weather.workforceRiskPercent, 0)}%
+Material Supply Risk Percentage: ${fmt(weather.materialRiskPercent, 0)}%
+Equipment Risk Percentage: ${fmt(weather.equipmentRiskPercent, 0)}%
+Overall Delay Risk: ${fmt(weather.overallDelayRisk, 0)}%
 
-12. Accuracy Evaluation Result
+17. Accuracy Evaluation Result
 AI Material Error Rate: ${fmt(accuracy.aiMaterialError)}%
 Manual Material Error Rate: ${fmt(accuracy.manualMaterialError)}%
 AI Duration Error Rate: ${fmt(accuracy.aiDurationError)}%
@@ -1071,7 +1417,7 @@ Time Saving Percentage: ${fmt(accuracy.timeSaving)}%
 More Accurate Method: ${accuracy.moreAccurate}
 Faster Method: ${accuracy.faster}
 
-13. AI Optimization Suggestion
+18. AI Optimization Suggestion
 ${suggestions.map(msg => `- ${msg}`).join("\n")}
 
 Validation Messages
@@ -1079,16 +1425,140 @@ ${validation.length ? validation.map(msg => `- ${msg}`).join("\n") : "- No valid
 `;
     }
 
+    function generateChineseReportText() {
+      const totals = calculateTotals();
+      const duration = calculateDuration(totals);
+      const weather = calculateWeatherRisk();
+      const accuracy = calculateAccuracy();
+      const validation = validateAll(totals);
+      const suggestions = generateSuggestions(totals, duration, weather);
+      const aiRows = state.aiDetectionResults.length ? state.aiDetectionResults : mockAiRooms;
+      const roomLines = totals.roomCalcs.map(({ room, calc }) =>
+        `- ${room.name}（${t(room.roomType)}，${shapeLabel(room.shapeType)}）：毛面积 ${fmt(calc.grossArea)} m2，扣除 ${fmt(calc.deductedArea)} m2，净铺贴 ${fmt(calc.netArea)} m2，踢脚线 ${fmt(calc.skirtingLength)} m`
+      ).join("\n");
+      const aiLines = aiRows.map(row => `- ${row.roomName || row.name}：${t(row.roomType)}，${shapeLabel(row.shapeType)}，净面积 ${fmt(row.netArea ?? row.grossArea - row.deductedArea)} m2，置信度 ${fmt(normalizeConfidence(row.confidence), 0)}%，${row.aiWarning || row.warning || ""}`).join("\n");
+
+      return `AI 驱动瓷砖铺设规划系统
+项目报告
+
+1. 项目概览
+本原型用于全屋瓷砖铺设估算，结合房间几何、AI 模拟识别、材料用量、访谈参数、工期预测、天气/供应/设备风险，以及论文研究中的准确性评估。
+
+2. 上传图纸摘要
+已上传图纸：${state.uploadedPlan ? state.uploadedPlan.name : "未上传"}
+AI 结果是否已导入房间与形状：${state.mockAiImported ? "是" : "否"}
+AI 识别房间数量：${aiRows.length}
+
+3. AI 房间识别结果
+${aiLines || "- 暂无 AI 识别结果。"}
+
+4. 房间裁剪图摘要
+${aiRows.map(row => `- ${row.roomName || row.name}：${row.cropImage ? "已有裁剪图" : "没有可用的房间裁剪图"}`).join("\n") || "- 暂无裁剪图。"}
+
+5. 房间面积明细
+${roomLines || "- 暂无房间。"}
+
+6. 毛面积 / 扣除面积 / 净铺贴面积
+总毛面积：${fmt(totals.grossArea)} m2
+总扣除面积：${fmt(totals.deductedArea)} m2
+总净铺贴面积：${fmt(totals.netArea)} m2
+
+7. 柱位 / 障碍物扣除摘要
+${state.rooms.map(room => `- ${room.name}：${room.obstacles.length} 个扣除项`).join("\n") || "- 暂无扣除项。"}
+
+8. 瓷砖数量估算
+损耗百分比：${fmt(state.settings.wastePercentage, 1)}%
+瓷砖片数：${totals.materials.tilePieces}
+瓷砖箱数：${totals.materials.tileBoxes}
+瓷砖成本：${money(totals.materials.tileCost)}
+
+9. 基于访谈数据的瓷砖胶估算
+瓷砖胶：${totals.materials.adhesiveBags} 包 50kg
+覆盖率参数：${fmt(state.settings.adhesiveCoveragePerBag)} m2 / 包
+厚度系数：${fmt(state.settings.thicknessFactor, 2)}x
+材料假设基于访谈数据：每包 50kg 瓷砖胶在标准平整施工条件下大约可铺贴 80-83 平方英尺，约 7.43-7.71 平方米。
+
+10. 水泥 / 砂 / 填缝剂 / 瓷砖胶估算
+水泥：${totals.materials.cementBags} 包
+砂：${fmt(totals.materials.sandVolume)} m3
+填缝剂：${fmt(totals.materials.groutKg)} kg
+瓷砖胶（kg 模型）：${fmt(totals.materials.adhesiveKg)} kg
+踢脚线材料长度：${fmt(totals.materials.skirtingLength)} m
+材料总成本：${money(totals.materials.totalMaterialCost)}
+
+11. 基于访谈数据的施工效率
+默认基准：2 人团队每日约 39.95-44.59 m2，默认平均 42.27 m2 / 天。
+当前工人人数：${state.labour.workers}
+每人每日效率：${fmt(state.labour.productivity, 2)} m2
+${duration.summary}
+
+12. 工期预测
+基础工期：${fmt(duration.baseDuration, 1)} 天
+调整后工期：${fmt(duration.adjustedDuration, 1)} 天
+建议缓冲天数：${fmt(duration.bufferDays, 1)} 天
+最终预计工期：${fmt(duration.finalDuration, 1)} 天
+建议工人人数：${duration.recommendedWorkers}
+延误风险等级：${t(duration.riskLevel)}
+
+13. 天气影响分析
+项目类型：${t(state.weather.projectType)}
+降雨等级：${t(state.weather.rainfallLevel)}
+湿度：${fmt(state.weather.humidity, 0)}%
+温度：${fmt(state.weather.temperature, 0)} C
+天气延误百分比：${fmt(weather.weatherDelayPercent, 0)}%
+
+14. 人力风险分析
+工人缺勤概率：${fmt(state.weather.workerAbsenceProbability, 0)}%
+病假概率：${fmt(state.weather.sickLeaveProbability, 0)}%
+公共假期影响：${fmt(state.weather.publicHolidayImpact, 0)}%
+人力风险百分比：${fmt(weather.workforceRiskPercent, 0)}%
+
+15. 材料供应风险分析
+材料短缺风险：${fmt(state.weather.materialShortageRisk, 0)}%
+工地库存可用性：${fmt(state.weather.siteStockAvailability, 0)}%
+材料供应风险百分比：${fmt(weather.materialRiskPercent, 0)}%
+
+16. 设备风险分析
+设备故障风险：${fmt(state.weather.equipmentFailureRisk, 0)}%
+设备风险百分比：${fmt(weather.equipmentRiskPercent, 0)}%
+总体延误风险：${fmt(weather.overallDelayRisk, 0)}%
+
+17. 准确性评估
+AI 材料误差率：${fmt(accuracy.aiMaterialError)}%
+人工材料误差率：${fmt(accuracy.manualMaterialError)}%
+AI 工期误差率：${fmt(accuracy.aiDurationError)}%
+人工工期误差率：${fmt(accuracy.manualDurationError)}%
+节省时间百分比：${fmt(accuracy.timeSaving)}%
+更准确方法：${t(accuracy.moreAccurate)}
+更快方法：${t(accuracy.faster)}
+
+18. AI 优化建议
+${suggestions.map(msg => `- ${msg}`).join("\n")}
+
+验证信息
+${validation.length ? validation.map(msg => `- ${msg}`).join("\n") : "- 当前没有验证警告。"}
+`;
+    }
+
     function generateSuggestions(totals, duration, weather) {
       const suggestions = [];
-      if (state.settings.wastePercentage > 12) suggestions.push("Waste percentage is high; optimize tile layout or reduce complex diagonal cutting where possible.");
-      if (duration.adjustedDuration > 12) suggestions.push("Adjusted duration is long; increase worker count or split work zones to improve productivity.");
-      if (duration.riskLevel === "High") suggestions.push("Risk level is high; reserve buffer days and prepare alternate schedule options.");
-      if (weather.level !== "Low") suggestions.push("Weather risk is significant; adjust outdoor work and delivery timing around rainfall or humidity.");
-      totals.roomCalcs.forEach(({ room, calc }) => {
-        if (calc.grossArea > 0 && calc.deductedArea / calc.grossArea > 0.2) suggestions.push(`${room.name} has a large deducted-area ratio; manually review the floor plan and obstacle measurements.`);
+      const zh = state.language === "zh";
+      const aiRows = state.aiDetectionResults.length ? state.aiDetectionResults : mockAiRooms;
+      aiRows.forEach(row => {
+        if (normalizeConfidence(row.confidence) < 80) suggestions.push(zh ? `${row.roomName || row.name} 的 AI 置信度低于 80%，建议人工复查图纸。` : `${row.roomName || row.name} has AI confidence below 80%; manually review the drawing.`);
       });
-      if (!suggestions.length) suggestions.push("Current project inputs are stable; continue with manual review before final procurement.");
+      if (state.settings.wastePercentage > 12) suggestions.push(zh ? "损耗百分比较高；建议优化排砖或减少复杂斜切。" : "Waste percentage is high; optimize tile layout or reduce complex diagonal cutting where possible.");
+      if (totals.materials.adhesiveBags > Math.ceil(totals.netArea / Math.max(0.01, state.settings.adhesiveCoveragePerBag || 7.43)) * 1.2) suggestions.push(zh ? "瓷砖胶包数偏高；可能是地面不平整或厚度系数设置较高。" : "Adhesive bags are elevated; this may indicate uneven floor conditions or a high thickness factor.");
+      if (duration.finalDuration > 12) suggestions.push(zh ? "最终工期较长；建议增加工人人数或调整施工分区顺序。" : "Final duration is long; increase worker count or split work zones to improve productivity.");
+      if (duration.riskLevel === "High") suggestions.push(zh ? "风险等级较高；建议预留缓冲天数并准备替代施工计划。" : "Risk level is high; reserve buffer days and prepare alternate schedule options.");
+      if (weather.level !== "Low") suggestions.push(zh ? "天气或延误风险明显；室外工作和材料配送应避开高降雨或高湿时段。" : "Weather or delay risk is significant; adjust outdoor work and delivery timing around rainfall or humidity.");
+      if (weather.materialRiskPercent > 18) suggestions.push(zh ? "材料短缺风险较高；建议提前安排采购。" : "Material shortage risk is high; arrange procurement earlier.");
+      if (weather.equipmentRiskPercent > 10) suggestions.push(zh ? "设备故障风险较高；建议准备备用工具。" : "Equipment failure risk is high; prepare backup tools.");
+      totals.roomCalcs.forEach(({ room, calc }) => {
+        if (calc.grossArea > 0 && calc.deductedArea / calc.grossArea > 0.2) suggestions.push(zh ? `${room.name} 的扣除面积比例较高；建议确认柱位或障碍物识别是否正确。` : `${room.name} has a large deducted-area ratio; manually review the floor plan and obstacle measurements.`);
+        if (room.shapeType === "polygon") suggestions.push(zh ? `${room.name} 是不规则 / 多边形房间；建议预留更高损耗百分比。` : `${room.name} is an irregular / polygon room; reserve a higher waste percentage.`);
+      });
+      if (!suggestions.length) suggestions.push(zh ? "当前项目输入较稳定；最终采购前仍建议人工复核。" : "Current project inputs are stable; continue with manual review before final procurement.");
       return suggestions;
     }
 
@@ -1110,6 +1580,10 @@ ${validation.length ? validation.map(msg => `- ${msg}`).join("\n") : "- No valid
       if (action === "add-tile") addTile();
       if (action === "delete-tile") deleteTile(btn.dataset.tileId);
       if (action === "set-waste") state.settings.wastePercentage = toNumber(btn.dataset.value, 10);
+      if (action === "run-ai") {
+        runAiDetection();
+        return;
+      }
       if (action === "import-ai") importAiResults();
       if (action === "copy-summary") copySummary();
       if (action === "export-report") exportReport();
@@ -1131,6 +1605,11 @@ ${validation.length ? validation.map(msg => `- ${msg}`).join("\n") : "- No valid
 
     document.addEventListener("change", event => {
       const target = event.target;
+      if (target.id === "languageSwitcher") {
+        state.language = target.value;
+        renderApp();
+        return;
+      }
       if (target.id === "planUpload") handlePlanUpload(target.files[0]);
       if (target.matches("[data-room]")) updateRoomField(target);
       if (target.matches("[data-obstacle]")) updateObstacleField(target);
@@ -1183,10 +1662,12 @@ ${validation.length ? validation.map(msg => `- ${msg}`).join("\n") : "- No valid
         polygonPoints: "0,0 3,0 3,3 0,3",
         obstacles: []
       });
+      showToast(t("Room added"));
     }
 
     function deleteRoom(roomId) {
       state.rooms = state.rooms.filter(room => room.id !== roomId);
+      showToast(t("Room deleted"));
     }
 
     function addObstacle(roomId) {
@@ -1203,6 +1684,7 @@ ${validation.length ? validation.map(msg => `- ${msg}`).join("\n") : "- No valid
 
     function addTile() {
       state.tileSchemes.push({ id: uid(), name: `Tile Scheme ${state.tileSchemes.length + 1}`, length: 0.6, width: 0.6, piecesPerBox: 4, costPerBox: 55 });
+      showToast(t("Tile scheme added"));
     }
 
     function deleteTile(tileId) {
@@ -1211,15 +1693,18 @@ ${validation.length ? validation.map(msg => `- ${msg}`).join("\n") : "- No valid
       state.rooms.forEach(room => {
         if (room.tileSchemeId === tileId) room.tileSchemeId = state.tileSchemes[0].id;
       });
+      showToast(t("Tile scheme deleted"));
     }
 
     function importAiResults() {
-      state.rooms = mockAiRooms.map(row => {
+      const sourceRows = state.aiDetectionResults.length ? state.aiDetectionResults : mockAiRooms;
+      const importedRooms = sourceRows.map(row => {
         const width = Math.sqrt(row.grossArea);
         const length = row.grossArea / width;
+        const obstacleRows = Array.isArray(row.obstacles) ? row.obstacles : Array.from({ length: row.obstacles || 0 }, (_, index) => ({ type: index === 0 ? "Column" : "Other Obstacle", area: (row.deductedArea || 0) / Math.max(1, row.obstacles || 1) }));
         return {
           id: uid(),
-          name: row.name,
+          name: row.roomName || row.name,
           roomType: row.roomType,
           shapeType: row.shapeType,
           tileSchemeId: state.tileSchemes[0]?.id || "",
@@ -1232,11 +1717,20 @@ ${validation.length ? validation.map(msg => `- ${msg}`).join("\n") : "- No valid
           hollowLength: row.shapeType === "hollow" ? 0.8 : 0,
           hollowWidth: row.shapeType === "hollow" ? 0.75 : 0,
           polygonPoints: "0,0 4,0 4,3 2,4 0,3",
-          obstacles: Array.from({ length: row.obstacles }, (_, index) => ({ id: uid(), type: index === 0 ? "Column" : "Other Obstacle", length: 0.45, width: Math.max(0.3, row.deductedArea / Math.max(1, row.obstacles) / 0.45) }))
+          aiGrossArea: row.grossArea,
+          aiDeductedArea: row.deductedArea,
+          aiNetArea: row.netArea ?? Math.max(0, row.grossArea - row.deductedArea),
+          aiConfidence: row.confidence,
+          aiWarning: row.aiWarning || row.warning || "",
+          bbox: row.bbox,
+          cropImage: row.cropImage || "",
+          obstacles: obstacleRows.map((obs, index) => ({ id: uid(), type: obs.type || (index === 0 ? "Column" : "Other Obstacle"), length: 0.45, width: Math.max(0.3, clampZero(obs.area ?? row.deductedArea / Math.max(1, obstacleRows.length)) / 0.45) }))
         };
       });
+      state.rooms = [...state.rooms, ...importedRooms];
       state.mockAiImported = true;
       state.activePage = "rooms";
+      showToast(t("AI result imported to Rooms & Shapes"));
     }
 
     function handlePlanUpload(file) {
@@ -1247,20 +1741,98 @@ ${validation.length ? validation.map(msg => `- ${msg}`).join("\n") : "- No valid
         name: file.name,
         type: file.type || "Unknown",
         size: file.size,
-        previewUrl: isImage ? URL.createObjectURL(file) : ""
+        previewUrl: isImage ? URL.createObjectURL(file) : "",
+        isImage
       };
+      state.aiDetectionResults = [];
+      state.mockAiImported = false;
       renderApp();
+    }
+
+    async function runAiDetection() {
+      if (!state.uploadedPlan) {
+        showToast(t("Please upload a floor plan image first"));
+        state.activePage = "upload";
+        renderApp();
+        return;
+      }
+      state.aiDetectionStatus = "running";
+      renderApp();
+      const detected = mockAIAnalyzeFloorPlan(state.uploadedPlan);
+      if (state.uploadedPlan.previewUrl) {
+        try {
+          const imageElement = await loadImageElement(state.uploadedPlan.previewUrl);
+          state.aiDetectionResults = detected.map(room => ({
+            ...room,
+            cropImage: cropRoomImageFromPlan(imageElement, room.bbox)
+          }));
+        } catch {
+          state.aiDetectionResults = detected.map(room => ({ ...room, cropImage: "" }));
+        }
+      } else {
+        state.aiDetectionResults = detected.map(room => ({ ...room, cropImage: "" }));
+      }
+      state.aiDetectionStatus = "completed";
+      showToast(t("AI detection completed"));
+      renderApp();
+    }
+
+    function mockAIAnalyzeFloorPlan(uploadedPlan) {
+      // Future API integration point: replace this mock with POST /api/analyze-floor-plan
+      // and POST /api/detect-rooms from a backend that owns the real AI vision model key.
+      return mockAiRooms.map(room => ({
+        ...room,
+        sourceFileName: uploadedPlan?.name || "",
+        netArea: Math.max(0, room.grossArea - room.deductedArea)
+      }));
+    }
+
+    function loadImageElement(src) {
+      return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = reject;
+        image.src = src;
+      });
+    }
+
+    function cropRoomImageFromPlan(imageElement, bbox) {
+      if (!imageElement || !bbox) return "";
+      const naturalWidth = imageElement.naturalWidth || imageElement.width;
+      const naturalHeight = imageElement.naturalHeight || imageElement.height;
+      if (!naturalWidth || !naturalHeight) return "";
+      const designWidth = 640;
+      const designHeight = 520;
+      const scaleX = naturalWidth / designWidth;
+      const scaleY = naturalHeight / designHeight;
+      const sx = Math.max(0, Math.min(naturalWidth - 1, bbox.x * scaleX));
+      const sy = Math.max(0, Math.min(naturalHeight - 1, bbox.y * scaleY));
+      const sw = Math.max(1, Math.min(naturalWidth - sx, bbox.width * scaleX));
+      const sh = Math.max(1, Math.min(naturalHeight - sy, bbox.height * scaleY));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(sw));
+      canvas.height = Math.max(1, Math.round(sh));
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(imageElement, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+      return canvas.toDataURL("image/png");
+    }
+
+    function normalizeConfidence(value) {
+      const confidence = clampZero(value);
+      return confidence <= 1 ? confidence * 100 : confidence;
     }
 
     async function copySummary() {
       const totals = calculateTotals();
       const duration = calculateDuration(totals);
-      const text = `Tile Project Summary: ${fmt(totals.netArea)} m2 net tile area, ${totals.roomCount} rooms, ${totals.materials.tilePieces} tile pieces, ${totals.materials.tileBoxes} boxes, ${money(totals.materials.totalMaterialCost)} materials, ${fmt(duration.adjustedDuration, 1)} adjusted days, ${duration.riskLevel} risk.`;
+      const text = state.language === "zh"
+        ? `瓷砖项目摘要：净铺贴面积 ${fmt(totals.netArea)} m2，${totals.roomCount} 个房间，${totals.materials.tilePieces} 片瓷砖，${totals.materials.tileBoxes} 箱，材料成本 ${money(totals.materials.totalMaterialCost)}，最终预计工期 ${fmt(duration.finalDuration, 1)} 天，风险等级 ${t(duration.riskLevel)}。`
+        : `Tile Project Summary: ${fmt(totals.netArea)} m2 net tile area, ${totals.roomCount} rooms, ${totals.materials.tilePieces} tile pieces, ${totals.materials.tileBoxes} boxes, ${money(totals.materials.totalMaterialCost)} materials, ${fmt(duration.finalDuration, 1)} final estimated days, ${duration.riskLevel} risk.`;
       try {
         await navigator.clipboard.writeText(text);
-        showToast("Summary copied.");
+        showToast(t("Summary copied."));
       } catch {
-        showToast("Copy failed. Report text is available below.");
+        showToast(t("Copy failed. Report text is available below."));
       }
     }
 
